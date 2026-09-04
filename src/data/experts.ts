@@ -1,0 +1,40 @@
+import { Expert } from "@/types/expert";
+
+export const sampleExperts: Expert[] = [
+  {
+    id: "exp-1",
+    name: "Dr. Anil Sharma",
+    role: "Agronomist",
+    category: "Vegetable Crops",
+    rating: 4.8,
+    reviewsCount: 124,
+    experienceYears: 8,
+    avatarUrl: "/images/experts/expert-anil.jpg",
+    verified: true,
+    bio: "Specializing in high-value vegetable farming, pest management, and protected cultivation in mid-hills.",
+  },
+  {
+    id: "exp-2",
+    name: "Dr. Sita Karki",
+    role: "Plant Pathologist",
+    category: "Crop Protection",
+    rating: 4.7,
+    reviewsCount: 98,
+    experienceYears: 6,
+    avatarUrl: "/images/experts/expert-sita.jpg",
+    verified: true,
+    bio: "Expert in fungal disease diagnostics, biological control agents, and IPM protocols.",
+  },
+  {
+    id: "exp-3",
+    name: "Er. Dinesh Rai",
+    role: "Soil Specialist",
+    category: "Soil & Fertility",
+    rating: 4.6,
+    reviewsCount: 76,
+    experienceYears: 10,
+    avatarUrl: "/images/experts/expert-dinesh.jpg",
+    verified: true,
+    bio: "Focused on organic matter restoration, soil pH balancing, and balanced nutrient management.",
+  },
+];
