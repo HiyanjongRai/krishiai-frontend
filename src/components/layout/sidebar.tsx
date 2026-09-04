@@ -5,14 +5,12 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/utils/cn";
 import {
   LayoutDashboard,
-  MapPin,
   Sprout,
-  Scan,
-  Bot,
   Users,
   User,
   LogOut,
 } from "lucide-react";
+import { useAuth } from "@/providers/auth-provider";
 
 interface SidebarProps {
   role?: "farmer" | "expert" | "admin";
@@ -20,6 +18,7 @@ interface SidebarProps {
 
 export function Sidebar({ role = "farmer" }: SidebarProps) {
   const pathname = usePathname();
+  const { logout } = useAuth();
 
   const links = [
     { label: "Dashboard", href: `/${role}/dashboard`, icon: LayoutDashboard },
@@ -64,13 +63,14 @@ export function Sidebar({ role = "farmer" }: SidebarProps) {
       </div>
 
       <div className="pt-4 border-t border-slate-100">
-        <Link
-          href="/login"
-          className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors"
+        <button
+          type="button"
+          onClick={logout}
+          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
         >
           <LogOut className="w-4 h-4" />
           <span>Sign Out</span>
-        </Link>
+        </button>
       </div>
     </aside>
   );

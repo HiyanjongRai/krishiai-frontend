@@ -33,30 +33,30 @@ export function ExpertiseStep() {
   };
 
   return (
-    <div className="bg-white rounded-3xl p-6 sm:p-10 border border-[#E2E8E3] shadow-xs space-y-8 animate-in fade-in duration-200">
+    <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#E2E8E3] shadow-xs space-y-5 animate-in fade-in duration-200">
       {/* Step Header */}
-      <div className="space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F0FDF4] border border-emerald-200/80 text-[#166534] text-xs font-semibold">
-          <Sprout className="w-3.5 h-3.5 text-[#166534]" />
+      <div className="space-y-1.5">
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#F0FDF4] border border-emerald-200/80 text-[#166534] text-[10px] font-bold">
+          <Sprout className="w-3 h-3 text-[#166534]" />
           <span>Step 3 • Agricultural Domain</span>
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#17201A] tracking-tight">
+          <h2 className="text-lg sm:text-xl font-bold text-[#17201A] tracking-tight">
             What are you an expert in?
           </h2>
-          <div className="inline-flex items-center gap-2 bg-[#F0FDF4] text-[#166534] font-bold text-xs px-3.5 py-1.5 rounded-full border border-emerald-200 self-start sm:self-auto">
-            <Sparkles className="w-3.5 h-3.5 text-[#65A30D]" />
+          <div className="inline-flex items-center gap-1.5 bg-[#F0FDF4] text-[#166534] font-bold text-[11px] px-3 py-1 rounded-full border border-emerald-200 self-start sm:self-auto">
+            <Sparkles className="w-3 h-3 text-[#65A30D]" />
             <span>
               {crops.length} crops & {specializations.length} specializations selected
             </span>
           </div>
         </div>
-        <p className="text-sm sm:text-base text-[#647067] leading-relaxed">
+        <p className="text-xs text-[#647067] leading-relaxed">
           Select the crops and agricultural areas where you have professional knowledge.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form onSubmit={handleSubmit} className="space-y-5">
         {/* Section 1: Crops Expertise */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
@@ -197,22 +197,22 @@ export function ExpertiseStep() {
         </div>
 
         {/* Actions */}
-        <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-4">
+        <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={prevStep}
-            className="px-6 py-3 border border-[#E2E8E3] hover:bg-slate-50 text-[#17201A] font-bold text-sm rounded-xl transition-all flex items-center gap-2 cursor-pointer"
+            className="px-4 py-2.5 border border-[#E2E8E3] hover:bg-slate-50 text-[#17201A] font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back</span>
           </button>
 
           <button
             type="submit"
-            className="px-8 py-3.5 bg-[#166534] hover:bg-[#14532d] text-white font-bold text-sm rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer group"
+            className="px-6 py-2.5 bg-[#166534] hover:bg-[#14532d] text-white font-bold text-xs rounded-xl transition-all shadow-2xs hover:shadow-xs flex items-center justify-center gap-2 cursor-pointer group"
           >
             <span>Continue to Document Verification</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
       </form>

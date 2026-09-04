@@ -2,273 +2,385 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
 import {
-  Sprout,
-  ArrowRight,
+  Search,
+  Bell,
+  ChevronDown,
   Menu,
   X,
   LayoutDashboard,
   LogOut,
-  ChevronDown,
   User,
+  ArrowRight,
+  Settings,
+  Sprout,
 } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLeaf } from "@fortawesome/free-solid-svg-icons";
 import { useAuthModal } from "@/providers/auth-modal-provider";
 import { useAuth, getDashboardRoute } from "@/providers/auth-provider";
 
 export function Navbar() {
+  const pathname = usePathname();
   const router = useRouter();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { openLogin, openRegister } = useAuthModal();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
-  const dashboardRoute = user ? getDashboardRoute(user.role) : "/";
+  // Check if current route is any dashboard (farmer, expert, admin)
+  // NOTE: use "/expert/" (with trailing slash) so /experts (public page) is NOT matched
+  const isDashboard =
+    pathname.startsWith("/farmer") ||
+    pathname.startsWith("/expert/") ||
+    pathname === "/expert" ||
+    pathname.startsWith("/admin");
+
+  const dashboardRoute = user ? getDashboardRoute(user.role) : "/farmer/dashboard";
+  const farmerName = user?.fullName || "Ram Bahadur";
+
+  // Public Landing Page links
+  const publicLinks = [
+    { label: "Home", href: "/" },
+    { label: "How It Works", href: "/#how-it-works" },
+    { label: "Features", href: "/#features" },
+    { label: "AI Analysis", href: "/#ai-analysis" },
+    { label: "Experts", href: "/experts" },
+    { label: "About", href: "/about" },
+  ];
+
+  // Dashboard links
+  const dashboardLinks = [
+    { label: "Overview", href: "/farmer/dashboard" },
+    { label: "Crops", href: "/farmer/crops" },
+    { label: "AI Diagnostics", href: "/farmer/analysis" },
+    { label: "Weather", href: "/farmer/dashboard#weather" },
+    { label: "Advisories", href: "/farmer/dashboard#history" },
+  ];
 
   const handleLogout = () => {
-    setUserMenuOpen(false);
+    setUserDropdownOpen(false);
     setMobileMenuOpen(false);
     logout();
-  };
-
-  const handleDashboard = () => {
-    setUserMenuOpen(false);
-    setMobileMenuOpen(false);
-    router.push(dashboardRoute);
+    router.push("/");
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-100 transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
-
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200/80 flex items-center justify-center text-emerald-600 group-hover:scale-105 transition-transform shadow-xs">
-            <Sprout className="w-5 h-5 text-emerald-600" />
+    <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-[#E5E9E2] transition-all">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
+        
+        {/* ── Brand Logo ──────────────────────────────────────────────────────── */}
+        <Link href="/" className="flex items-center gap-3 group shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-[#166534] flex items-center justify-center text-white shadow-xs group-hover:scale-105 transition-transform">
+            <FontAwesomeIcon icon={faLeaf} className="w-5 h-5" />
           </div>
-          <span className="text-xl font-extrabold tracking-tight text-slate-900">
-            Krishi<span className="text-emerald-600">AI</span>
-          </span>
+          <div>
+            <span className="text-xl font-black tracking-tight text-[#17201A]">
+              Krishi<span className="text-[#166534]">AI</span>
+            </span>
+            <span className="hidden sm:inline-block text-[10px] text-slate-400 font-medium ml-2">
+              Smart Farming, Better Future
+            </span>
+          </div>
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8 text-[15px] font-medium text-slate-600">
-          <Link
-            href="/"
-            className="text-emerald-700 font-semibold relative after:content-[''] after:absolute after:-bottom-1.5 after:left-0 after:w-full after:h-0.5 after:bg-emerald-600 after:rounded-full"
-          >
-            Home
-          </Link>
-          <Link href="/#how-it-works" className="hover:text-emerald-700 transition-colors">
-            How It Works
-          </Link>
-          <Link href="/#features" className="hover:text-emerald-700 transition-colors">
-            Features
-          </Link>
-          <Link href="/#ai-analysis" className="hover:text-emerald-700 transition-colors">
-            AI Analysis
-          </Link>
-          <Link href="/experts" className="hover:text-emerald-700 transition-colors">
-            Experts
-          </Link>
-          <Link href="/about" className="hover:text-emerald-700 transition-colors">
-            About
-          </Link>
+        {/* ── Center Segmented Pill Navigation Bar (Switches by Route) ─────────── */}
+        <nav className="hidden md:flex items-center bg-[#F0F3EE] p-1.5 rounded-full text-xs font-semibold text-slate-600 gap-1 shadow-inner">
+          {!isDashboard ? (
+            /* Public / Homepage Links */
+            publicLinks.map((item) => {
+              const isActive =
+                item.href === "/"
+                  ? pathname === "/"
+                  : pathname.startsWith(item.href) ||
+                    (typeof window !== "undefined" && window.location.hash === item.href.replace("/", ""));
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={`px-4 py-2 rounded-full transition-all duration-200 ${
+                    isActive
+                      ? "bg-white text-[#17201A] font-bold shadow-xs"
+                      : "hover:text-[#17201A] hover:bg-white/50"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })
+          ) : (
+            /* Dashboard Links */
+            dashboardLinks.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={`px-4 py-2 rounded-full transition-all duration-200 ${
+                    isActive
+                      ? "bg-white text-[#17201A] font-bold shadow-xs"
+                      : "hover:text-[#17201A] hover:bg-white/50"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })
+          )}
         </nav>
 
-        {/* Desktop Action Buttons */}
+        {/* ── Right Action Controls ───────────────────────────────────────────── */}
         <div className="hidden md:flex items-center gap-3">
-          {isLoading ? (
-            /* Skeleton while restoring session */
+          {isDashboard ? (
+            /* Dashboard Action Controls */
             <div className="flex items-center gap-3">
-              <div className="w-16 h-8 bg-slate-100 rounded-lg animate-pulse" />
-              <div className="w-28 h-8 bg-slate-100 rounded-lg animate-pulse" />
-            </div>
-          ) : isAuthenticated && user ? (
-            /* ── Logged-in state ── */
-            <div className="relative">
               <button
                 type="button"
-                onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all text-sm font-semibold text-slate-700 cursor-pointer"
+                className="w-10 h-10 rounded-full bg-[#F0F3EE] hover:bg-slate-200/80 flex items-center justify-center text-slate-600 transition-colors cursor-pointer"
+                title="Search"
               >
-                {/* Avatar / initials */}
-                <span className="w-7 h-7 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center text-xs font-bold text-emerald-800 shrink-0">
-                  {user.firstName.charAt(0).toUpperCase()}
-                  {user.lastName.charAt(0).toUpperCase()}
-                </span>
-                <span className="max-w-[100px] truncate">{user.firstName}</span>
-                <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${userMenuOpen ? "rotate-180" : ""}`} />
+                <Search className="w-4 h-4" />
               </button>
 
-              {/* Dropdown */}
-              {userMenuOpen && (
-                <>
-                  {/* Click-away overlay */}
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setUserMenuOpen(false)}
-                  />
-                  <div className="absolute right-0 top-full mt-2 w-52 bg-white rounded-2xl border border-slate-200 shadow-xl z-20 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-                    {/* User info header */}
-                    <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/70">
-                      <p className="text-xs font-bold text-slate-900 truncate">
-                        {user.firstName} {user.lastName}
-                      </p>
-                      <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
-                      <span className="mt-1 inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        {user.role === "ROLE_FARMER"
-                          ? "Farmer"
-                          : user.role === "ROLE_EXPERT"
-                          ? "Expert"
-                          : "Admin"}
-                      </span>
+              <button
+                type="button"
+                className="w-10 h-10 rounded-full bg-[#F0F3EE] hover:bg-slate-200/80 flex items-center justify-center text-slate-600 transition-colors relative cursor-pointer"
+                title="Notifications"
+              >
+                <Bell className="w-4 h-4" />
+                <span className="w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center absolute -top-1 -right-1 shadow-xs">
+                  3
+                </span>
+              </button>
+
+              {/* User Profile Dropdown Pill */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  className="flex items-center gap-2 pl-1 cursor-pointer group"
+                >
+                  <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-slate-200 group-hover:border-[#166534] transition-colors relative bg-emerald-50">
+                    <Image
+                      src="/images/farmers/ram-bahadur.jpg"
+                      alt={farmerName}
+                      width={40}
+                      height={40}
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-xs font-bold text-[#17201A] leading-tight">{farmerName}</p>
+                    <p className="text-[10px] text-slate-400">Kathmandu, Nepal</p>
+                  </div>
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                </button>
+
+                {/* Dropdown Menu */}
+                {userDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                    <div className="px-4 py-2 border-b border-slate-100">
+                      <p className="text-xs font-bold text-[#17201A]">{farmerName}</p>
+                      <p className="text-[10px] text-slate-400 truncate">{user?.email || "farmer@krishiai.org"}</p>
                     </div>
 
-                    {/* Menu items */}
-                    <div className="py-1.5">
-                      <button
-                        type="button"
-                        onClick={handleDashboard}
-                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors cursor-pointer"
-                      >
-                        <LayoutDashboard className="w-4 h-4 text-emerald-600" />
-                        <span>My Dashboard</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setUserMenuOpen(false);
-                          router.push(`${dashboardRoute}/profile`);
-                        }}
-                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
-                      >
-                        <User className="w-4 h-4 text-slate-400" />
-                        <span>My Profile</span>
-                      </button>
-                    </div>
+                    <Link
+                      href="/"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-[#166534] transition-colors"
+                    >
+                      <Sprout className="w-4 h-4 text-emerald-600" />
+                      <span>Back to Homepage</span>
+                    </Link>
 
-                    <div className="py-1.5 border-t border-slate-100">
+                    <Link
+                      href="/farmer/profile"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-[#166534] transition-colors"
+                    >
+                      <User className="w-4 h-4 text-slate-400" />
+                      <span>My Profile</span>
+                    </Link>
+
+                    <Link
+                      href="/farmer/profile"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-[#166534] transition-colors"
+                    >
+                      <Settings className="w-4 h-4 text-slate-400" />
+                      <span>Farm Settings</span>
+                    </Link>
+
+                    <div className="pt-1 border-t border-slate-100">
                       <button
-                        type="button"
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                       >
                         <LogOut className="w-4 h-4" />
-                        <span>Logout</span>
+                        <span>Sign Out</span>
                       </button>
                     </div>
                   </div>
-                </>
-              )}
+                )}
+              </div>
             </div>
           ) : (
-            /* ── Guest state ── */
-            <>
-              <button
-                type="button"
-                onClick={openLogin}
-                className="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-slate-900 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
-              >
-                Login
-              </button>
-              <button
-                type="button"
-                onClick={openRegister}
-                className="px-4 py-2 text-sm font-semibold text-white bg-[#0f3d26] hover:bg-[#14532d] rounded-lg transition-all flex items-center gap-1.5 shadow-sm hover:shadow cursor-pointer"
-              >
-                <span>Get Started</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </>
+            /* Public Page Action Controls */
+            <div className="flex items-center gap-3">
+              {isLoading ? (
+                <div className="w-24 h-8 bg-slate-100 rounded-full animate-pulse" />
+              ) : isAuthenticated && user ? (
+                /* Authenticated User on Public Page */
+                <div className="flex items-center gap-3">
+                  <Link
+                    href={dashboardRoute}
+                    className="flex items-center gap-1.5 bg-[#166534] hover:bg-[#15803d] text-white px-4 py-2 rounded-full text-xs font-bold shadow-xs transition-all active:scale-95"
+                  >
+                    <LayoutDashboard className="w-3.5 h-3.5" />
+                    <span>Dashboard</span>
+                  </Link>
+
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <div className="w-9 h-9 rounded-full overflow-hidden border border-slate-300 relative bg-slate-100">
+                        <Image
+                          src="/images/farmers/ram-bahadur.jpg"
+                          alt={farmerName}
+                          width={36}
+                          height={36}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <ChevronDown className="w-3 h-3 text-slate-400" />
+                    </button>
+
+                    {userDropdownOpen && (
+                      <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                        <div className="px-4 py-2 border-b border-slate-100">
+                          <p className="text-xs font-bold text-[#17201A]">{farmerName}</p>
+                          <p className="text-[10px] text-slate-400">{user.role}</p>
+                        </div>
+
+                        <Link
+                          href={dashboardRoute}
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-emerald-700"
+                        >
+                          <LayoutDashboard className="w-4 h-4 text-emerald-600" />
+                          <span>My Dashboard</span>
+                        </Link>
+
+                        <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-2 px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          <span>Sign Out</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                /* Guest User on Public Page */
+                <div className="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={openLogin}
+                    className="px-4 py-2 text-xs font-bold text-slate-700 hover:text-[#166534] hover:bg-[#F0F3EE] rounded-full transition-colors cursor-pointer"
+                  >
+                    Sign In
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={openRegister}
+                    className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-[#166534] hover:bg-[#15803d] text-white rounded-full shadow-xs transition-all active:scale-95 cursor-pointer"
+                  >
+                    <span>Get Started</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+            </div>
           )}
         </div>
 
-        {/* Mobile Menu Button */}
+        {/* ── Mobile Hamburger Button ────────────────────────────────────────── */}
         <button
+          type="button"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
-          aria-label="Toggle Menu"
+          className="md:hidden w-10 h-10 rounded-full bg-[#F0F3EE] flex items-center justify-center text-slate-700 cursor-pointer"
         >
-          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
+
       </div>
 
-      {/* Mobile Drawer */}
+      {/* ── Mobile Navigation Drawer ─────────────────────────────────────────── */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-slate-200 bg-white px-5 py-4 space-y-3">
-          <Link href="/" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-emerald-700 font-semibold">
-            Home
-          </Link>
-          <Link href="/#how-it-works" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-slate-600 hover:text-emerald-700">
-            How It Works
-          </Link>
-          <Link href="/#features" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-slate-600 hover:text-emerald-700">
-            Features
-          </Link>
-          <Link href="/#ai-analysis" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-slate-600 hover:text-emerald-700">
-            AI Analysis
-          </Link>
-          <Link href="/experts" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-slate-600 hover:text-emerald-700">
-            Experts
-          </Link>
-          <Link href="/about" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-slate-600 hover:text-emerald-700">
-            About
-          </Link>
-
-          <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
-            {isLoading ? (
-              <div className="h-10 bg-slate-100 rounded-lg animate-pulse" />
-            ) : isAuthenticated && user ? (
-              /* ── Mobile: Logged-in ── */
-              <>
-                {/* User info */}
-                <div className="flex items-center gap-3 px-1 py-2">
-                  <span className="w-9 h-9 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center text-sm font-bold text-emerald-800 shrink-0">
-                    {user.firstName.charAt(0).toUpperCase()}
-                    {user.lastName.charAt(0).toUpperCase()}
-                  </span>
-                  <div>
-                    <p className="text-sm font-bold text-slate-900">{user.firstName} {user.lastName}</p>
-                    <p className="text-xs text-slate-500">{user.email}</p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleDashboard}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-semibold text-white bg-[#0f3d26] rounded-lg cursor-pointer"
+        <div className="md:hidden bg-white border-b border-[#E5E9E2] px-5 py-4 space-y-3 animate-in slide-in-from-top-2 duration-150">
+          <div className="space-y-1">
+            {!isDashboard ? (
+              publicLinks.map((link) => (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-[#F0F3EE] hover:text-[#166534]"
                 >
-                  <LayoutDashboard className="w-4 h-4" />
-                  <span>Go to Dashboard</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-semibold text-red-600 border border-red-200 rounded-lg hover:bg-red-50 cursor-pointer"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>Logout</span>
-                </button>
-              </>
+                  {link.label}
+                </Link>
+              ))
             ) : (
-              /* ── Mobile: Guest ── */
-              <>
-                <button
-                  type="button"
-                  onClick={() => { setMobileMenuOpen(false); openLogin(); }}
-                  className="w-full text-center py-2.5 text-sm font-semibold text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer"
+              dashboardLinks.map((link) => (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-[#F0F3EE] hover:text-[#166534]"
                 >
-                  Login
+                  {link.label}
+                </Link>
+              ))
+            )}
+          </div>
+
+          <div className="pt-3 border-t border-slate-100 space-y-2">
+            {isAuthenticated ? (
+              <button
+                onClick={handleLogout}
+                className="w-full py-2.5 rounded-full bg-rose-50 text-rose-600 text-xs font-bold text-center"
+              >
+                Sign Out
+              </button>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    openLogin();
+                  }}
+                  className="py-2.5 rounded-full border border-slate-200 text-xs font-bold text-slate-700"
+                >
+                  Sign In
                 </button>
                 <button
-                  type="button"
-                  onClick={() => { setMobileMenuOpen(false); openRegister(); }}
-                  className="w-full text-center py-2.5 text-sm font-semibold text-white bg-[#0f3d26] rounded-lg flex items-center justify-center gap-1.5 cursor-pointer"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    openRegister();
+                  }}
+                  className="py-2.5 rounded-full bg-[#166534] text-white text-xs font-bold"
                 >
-                  <span>Get Started</span>
-                  <ArrowRight className="w-4 h-4" />
+                  Get Started
                 </button>
-              </>
+              </div>
             )}
           </div>
         </div>

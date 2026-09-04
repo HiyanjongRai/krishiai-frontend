@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import "@fortawesome/fontawesome-svg-core/styles.css";
+import { config } from "@fortawesome/fontawesome-svg-core";
+config.autoAddCss = false;
 import { AuthProvider } from "@/providers/auth-provider";
 import { AuthModalProvider } from "@/providers/auth-modal-provider";
 import { AuthModal } from "@/components/auth/auth-modal";

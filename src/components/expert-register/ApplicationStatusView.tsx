@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import { useExpertApplication } from "@/providers/expert-application-provider";
 import { StatusBadge } from "./StatusBadge";
 import { VerificationTimeline } from "./VerificationTimeline";
-import { DemoStatusSwitcher } from "./DemoStatusSwitcher";
+import { Navbar } from "@/components/layout/navbar";
+
 import {
   Sprout,
   ArrowLeft,
@@ -21,6 +22,7 @@ import {
   ExternalLink,
   ShieldCheck,
   Mail,
+  ChevronRight,
 } from "lucide-react";
 
 export function ApplicationStatusView() {
@@ -43,46 +45,36 @@ export function ApplicationStatusView() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F9F4] text-[#17201A]">
-      {/* Header */}
-      <header className="bg-white border-b border-[#E2E8E3] sticky top-0 z-30">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#F0FDF4] border border-emerald-200 flex items-center justify-center text-[#166534]">
-              <Sprout className="w-4 h-4" />
-            </div>
-            <span className="text-xl font-black tracking-tight text-[#17201A]">
-              Krishi<span className="text-[#166534]">AI</span>
-            </span>
-          </Link>
-
-          <div className="flex items-center gap-3">
-            <Link
-              href="/"
-              className="text-xs sm:text-sm font-semibold text-[#647067] hover:text-[#17201A] transition-colors"
-            >
-              Home
-            </Link>
-            <Link
-              href="/expert-register"
-              className="text-xs sm:text-sm font-bold text-[#166534] bg-[#F0FDF4] px-3 py-1.5 rounded-lg border border-emerald-200 hover:bg-emerald-100 transition-colors"
-            >
-              Application Form
-            </Link>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[#F8FAF6] text-[#17201A] font-sans antialiased">
+      {/* Unified Full-Width Navbar */}
+      <Navbar />
 
       {/* Main Status Container */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
-        {/* Navigation back */}
-        <Link
-          href="/expert-register"
-          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-500 hover:text-slate-900 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Registration Wizard</span>
-        </Link>
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
+        {/* Breadcrumb Navigation */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#E2E8E3]">
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-500">
+            <Link href="/" className="hover:text-[#166534] transition-colors font-medium">
+              Home
+            </Link>
+            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+            <Link href="/expert-register" className="hover:text-[#166534] transition-colors font-medium">
+              Expert Application
+            </Link>
+            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+            <span className="font-bold text-[#166534] bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-200/80">
+              Application Tracker
+            </span>
+          </div>
+
+          <Link
+            href="/expert-register"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#166534] bg-white hover:bg-emerald-50 px-3.5 py-2 rounded-xl border border-emerald-200/80 shadow-2xs transition-all"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Return to Application Form</span>
+          </Link>
+        </div>
 
         {/* Application Header Card */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E2E8E3] shadow-xs space-y-6">
@@ -339,8 +331,6 @@ export function ApplicationStatusView() {
         </div>
       </main>
 
-      {/* Floating interactive switcher */}
-      <DemoStatusSwitcher />
     </div>
   );
 }

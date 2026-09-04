@@ -42,7 +42,7 @@ export function ExpertSection() {
 
   return (
     <section id="experts" className="py-20 sm:py-24 bg-white border-t border-slate-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
           
           <div className="lg:col-span-4 space-y-6 text-left">

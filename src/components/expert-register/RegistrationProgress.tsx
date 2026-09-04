@@ -32,61 +32,57 @@ export function RegistrationProgress() {
   const percentage = application.percentage;
 
   return (
-    <div className="w-full bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs mb-6 sm:mb-8 transition-all">
+    <div className="w-full bg-white rounded-xl p-3.5 sm:p-4 border border-[#E2E8E3] shadow-2xs mb-4 transition-all">
       {/* Top Header: Step Counter & Auto-save Status */}
-      <div className="flex items-center justify-between gap-3 mb-3 sm:mb-4">
+      <div className="flex items-center justify-between gap-2 mb-2.5">
         <div className="flex items-center gap-2">
-          <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/80">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[#166534] bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/80">
             Step {current} of 5
           </span>
-          <span className="text-xs font-semibold text-slate-500 hidden xs:inline">
-            • {STEPS[current - 1]?.description}
+          <span className="text-xs font-semibold text-slate-600 hidden sm:inline">
+            {STEPS[current - 1]?.description}
           </span>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3 text-xs font-medium">
+        <div className="flex items-center gap-2 text-xs">
           {saveStatus === "saving" && (
-            <span className="inline-flex items-center gap-1.5 text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200 animate-pulse">
-              <Loader2 className="w-3 h-3 animate-spin" />
-              <span>Saving...</span>
+            <span className="inline-flex items-center gap-1 text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 text-[10px] animate-pulse">
+              <Loader2 className="w-2.5 h-2.5 animate-spin" />
+              <span>Saving</span>
             </span>
           )}
           {saveStatus === "saved" && (
-            <span className="inline-flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/80">
-              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-              <span>Progress saved</span>
+            <span className="inline-flex items-center gap-1 text-[#166534] bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/80 font-bold text-[10px]">
+              <CheckCircle2 className="w-3 h-3 text-[#166534]" />
+              <span>Saved</span>
             </span>
           )}
           {saveStatus === "idle" && (
-            <span className="inline-flex items-center gap-1.5 text-slate-400">
+            <span className="inline-flex items-center gap-1 text-slate-400 text-[10px]">
               <Cloud className="w-3 h-3" />
-              <span className="hidden sm:inline">Auto-saves on change</span>
+              <span className="hidden sm:inline">Auto-saved</span>
             </span>
           )}
 
-          <div className="text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-full">
-            {percentage}% Complete
+          <div className="text-[11px] font-bold text-[#17201A] bg-[#F8FAF6] px-2 py-0.5 rounded-md border border-slate-200">
+            {percentage}%
           </div>
         </div>
       </div>
 
-      {/* Modern Progress Bar */}
-      <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden mb-5">
+      {/* Progress Bar */}
+      <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mb-3">
         <div
-          className="bg-gradient-to-r from-emerald-700 to-lime-600 h-full rounded-full transition-all duration-500 ease-out"
+          className="bg-gradient-to-r from-emerald-700 via-emerald-600 to-lime-500 h-full rounded-full transition-all duration-500 ease-out"
           style={{ width: `${Math.max(percentage, (current / 5) * 100)}%` }}
         />
       </div>
 
-      {/* Desktop Stepper */}
-      <div className="hidden md:flex items-center justify-between relative">
-        {/* Connecting Background Line */}
-        <div className="absolute top-4 left-6 right-6 h-0.5 bg-slate-200 -z-0" />
-
+      {/* Stepper Steps Row */}
+      <div className="grid grid-cols-5 gap-1 pt-0.5">
         {STEPS.map((s) => {
           const isDone = completed.has(s.step);
           const isCurrent = current === s.step;
-          const isPending = !isDone && !isCurrent;
           const isClickable = isDone || s.step <= current;
 
           return (
@@ -95,80 +91,32 @@ export function RegistrationProgress() {
               type="button"
               disabled={!isClickable}
               onClick={() => isClickable && goToStep(s.step)}
-              className={`relative z-10 flex flex-col items-center group transition-all text-center focus:outline-none ${
-                isClickable ? "cursor-pointer" : "cursor-not-allowed opacity-75"
-              }`}
+              className={`flex items-center justify-center sm:justify-start gap-1.5 p-1 rounded-lg transition-all text-left focus:outline-none ${
+                isCurrent
+                  ? "bg-emerald-50/80 text-[#166534]"
+                  : isDone
+                  ? "text-[#17201A] hover:bg-slate-50"
+                  : "text-slate-400 hover:text-slate-600"
+              } ${isClickable ? "cursor-pointer" : "cursor-default"}`}
             >
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs transition-all ${
-                  isDone
-                    ? "bg-[#166534] text-white ring-4 ring-emerald-100 shadow-sm group-hover:scale-105"
-                    : isCurrent
-                    ? "bg-[#166534] text-white ring-4 ring-emerald-200 shadow-md font-extrabold scale-110"
-                    : "bg-white text-slate-400 border-2 border-slate-300 group-hover:border-slate-400"
-                }`}
-              >
-                {isDone ? <Check className="w-4 h-4 stroke-[3]" /> : s.step}
-              </div>
-
-              <span
-                className={`mt-2 text-xs font-semibold tracking-tight transition-colors ${
-                  isCurrent
-                    ? "text-[#166534] font-bold"
-                    : isDone
-                    ? "text-slate-800"
-                    : "text-slate-400"
-                }`}
-              >
-                {s.label}
-              </span>
-
-              <span className="text-[10px] text-slate-400 hidden lg:block">
-                {isDone ? "Completed" : isCurrent ? "Current step" : "Pending"}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Mobile Stepper */}
-      <div className="md:hidden flex items-center justify-between pt-1">
-        {STEPS.map((s) => {
-          const isDone = completed.has(s.step);
-          const isCurrent = current === s.step;
-          const isClickable = isDone || s.step <= current;
-
-          return (
-            <button
-              key={s.step}
-              type="button"
-              disabled={!isClickable}
-              onClick={() => isClickable && goToStep(s.step)}
-              className={`flex items-center gap-1.5 focus:outline-none ${
-                isClickable ? "cursor-pointer" : "cursor-default"
-              }`}
-            >
-              <span
-                className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold transition-all ${
+                className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0 transition-all ${
                   isDone
                     ? "bg-[#166534] text-white"
                     : isCurrent
-                    ? "bg-[#166534] text-white ring-2 ring-emerald-200 scale-105"
+                    ? "bg-[#166534] text-white ring-2 ring-emerald-200"
                     : "bg-slate-100 text-slate-400 border border-slate-200"
                 }`}
               >
-                {isDone ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : s.step}
-              </span>
+                {isDone ? <Check className="w-3 h-3 stroke-[3]" /> : s.step}
+              </div>
+
               <span
-                className={`text-xs ${
-                  isCurrent
-                    ? "font-bold text-[#166534]"
-                    : isDone
-                    ? "font-medium text-slate-700 hidden xs:inline"
-                    : "text-slate-400 hidden xs:inline"
+                className={`text-[11px] truncate hidden sm:inline ${
+                  isCurrent ? "font-bold text-[#166534]" : isDone ? "font-medium" : "text-slate-400"
                 }`}
               >
-                {s.shortLabel}
+                {s.label}
               </span>
             </button>
           );

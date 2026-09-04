@@ -17,6 +17,7 @@ import {
   AlertCircle,
   Loader2,
 } from "lucide-react";
+import AgricultureLoader from "@/components/ui/loading-box";
 
 export function ReviewStep() {
   const {
@@ -58,22 +59,31 @@ export function ReviewStep() {
   );
 
   return (
-    <div className="bg-white rounded-3xl p-6 sm:p-10 border border-[#E2E8E3] shadow-xs space-y-8 animate-in fade-in duration-200">
+    <div className="relative bg-white rounded-2xl p-5 sm:p-6 border border-[#E2E8E3] shadow-xs space-y-5 animate-in fade-in duration-200">
+      {/* Submitting Loading Overlay */}
+      {isSubmitting && (
+        <AgricultureLoader
+          fullScreen={true}
+          title="Cultivating Your Verification"
+          subtitle="Encrypting credentials and submitting application to KrishiAI registry..."
+        />
+      )}
+
       {/* Step Header */}
-      <div className="space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F0FDF4] border border-emerald-200/80 text-[#166534] text-xs font-semibold">
-          <FileCheck2 className="w-3.5 h-3.5 text-[#166534]" />
+      <div className="space-y-1.5">
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#F0FDF4] border border-emerald-200/80 text-[#166534] text-[10px] font-bold">
+          <FileCheck2 className="w-3 h-3 text-[#166534]" />
           <span>Step 5 • Final Review</span>
         </div>
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-[#17201A] tracking-tight">
+        <h2 className="text-lg sm:text-xl font-bold text-[#17201A] tracking-tight">
           Review your application
         </h2>
-        <p className="text-sm sm:text-base text-[#647067] leading-relaxed">
+        <p className="text-xs text-[#647067] leading-relaxed">
           Please check your information before submitting your application. You can edit any section if needed.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4">
         {/* Card 1: Account Information */}
         <div className="p-5 rounded-2xl border border-[#E2E8E3] bg-[#F7F9F4] space-y-3">
           <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
@@ -366,31 +376,31 @@ export function ReviewStep() {
         )}
 
         {/* Actions */}
-        <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-4">
+        <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={prevStep}
             disabled={isSubmitting}
-            className="px-6 py-3 border border-[#E2E8E3] hover:bg-slate-50 text-[#17201A] font-bold text-sm rounded-xl transition-all flex items-center gap-2 cursor-pointer"
+            className="px-4 py-2.5 border border-[#E2E8E3] hover:bg-slate-50 text-[#17201A] font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back</span>
           </button>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-10 py-3.5 bg-[#166534] hover:bg-[#14532d] text-white font-bold text-sm rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer group disabled:opacity-75"
+            className="px-6 py-2.5 bg-[#166534] hover:bg-[#14532d] text-white font-bold text-xs rounded-xl transition-all shadow-2xs hover:shadow-xs flex items-center justify-center gap-2 cursor-pointer group disabled:opacity-75"
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 <span>Submitting Application...</span>
               </>
             ) : (
               <>
                 <span>Submit Application</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </>
             )}
           </button>

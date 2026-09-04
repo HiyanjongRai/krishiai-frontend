@@ -67,27 +67,27 @@ export function ProfessionalStep() {
   const currentBioLength = prof.bio?.length || 0;
 
   return (
-    <div className="bg-white rounded-3xl p-6 sm:p-10 border border-[#E2E8E3] shadow-xs space-y-8 animate-in fade-in duration-200">
+    <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#E2E8E3] shadow-xs space-y-5 animate-in fade-in duration-200">
       {/* Step Header */}
-      <div className="space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F0FDF4] border border-emerald-200/80 text-[#166534] text-xs font-semibold">
-          <Briefcase className="w-3.5 h-3.5 text-[#166534]" />
+      <div className="space-y-1.5">
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#F0FDF4] border border-emerald-200/80 text-[#166534] text-[10px] font-bold">
+          <Briefcase className="w-3 h-3 text-[#166534]" />
           <span>Step 2 • Professional Background</span>
         </div>
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-[#17201A] tracking-tight">
-          Tell us about your professional background
+        <h2 className="text-lg sm:text-xl font-bold text-[#17201A] tracking-tight">
+          Professional Background & Credentials
         </h2>
-        <p className="text-sm sm:text-base text-[#647067] leading-relaxed">
+        <p className="text-xs text-[#647067] leading-relaxed">
           This information helps farmers understand your experience and helps KrishiAI verify your expertise.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4">
         {/* Title & Organization */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           {/* Professional Title */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-[#17201A] uppercase tracking-wide">
+          <div className="space-y-1">
+            <label className="block text-[11px] font-bold text-[#17201A] uppercase tracking-wider">
               Professional Title <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
@@ -95,7 +95,7 @@ export function ProfessionalStep() {
                 value={prof.title}
                 onChange={(e) => updateProfessional({ title: e.target.value })}
                 onBlur={() => handleBlur("title")}
-                className="w-full px-4 py-3 rounded-xl border border-[#E2E8E3] text-sm text-[#17201A] bg-[#F7F9F4] focus:bg-white focus:outline-none focus:border-[#166534] focus:ring-2 focus:ring-emerald-100 transition-all cursor-pointer"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8E3] text-xs sm:text-sm text-[#17201A] bg-[#F7F9F4] focus:bg-white focus:outline-none focus:border-[#166534] focus:ring-2 focus:ring-emerald-100 transition-all cursor-pointer"
               >
                 {PROFESSIONAL_TITLES.map((t) => (
                   <option key={t} value={t}>
@@ -105,29 +105,29 @@ export function ProfessionalStep() {
               </select>
             </div>
             {touched.title && errors.title && (
-              <p className="text-xs font-medium text-rose-600 flex items-center gap-1">
-                <X className="w-3.5 h-3.5" />
+              <p className="text-[11px] font-medium text-rose-600 flex items-center gap-1">
+                <X className="w-3 h-3" />
                 <span>{errors.title}</span>
               </p>
             )}
           </div>
 
           {/* Organization */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-[#17201A] uppercase tracking-wide">
+          <div className="space-y-1">
+            <label className="block text-[11px] font-bold text-[#17201A] uppercase tracking-wider">
               Organization / Institution <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <Building2 className="w-4 h-4" />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <Building2 className="w-3.5 h-3.5" />
               </div>
               <input
                 type="text"
                 value={prof.organization}
                 onChange={(e) => updateProfessional({ organization: e.target.value })}
                 onBlur={() => handleBlur("organization")}
-                placeholder="e.g. Nepal Agricultural Research Council / Agrovet"
-                className={`w-full pl-10 pr-4 py-3 rounded-xl border text-sm text-[#17201A] placeholder-slate-400 bg-[#F7F9F4] focus:bg-white focus:outline-none transition-all ${
+                placeholder="e.g. Nepal Agricultural Research Council"
+                className={`w-full pl-9 pr-3.5 py-2.5 rounded-xl border text-xs sm:text-sm text-[#17201A] placeholder-slate-400 bg-[#F7F9F4] focus:bg-white focus:outline-none transition-all ${
                   touched.organization && errors.organization
                     ? "border-rose-400 ring-1 ring-rose-200"
                     : "border-[#E2E8E3] focus:border-[#166534] focus:ring-2 focus:ring-emerald-100"
@@ -135,8 +135,8 @@ export function ProfessionalStep() {
               />
             </div>
             {touched.organization && errors.organization && (
-              <p className="text-xs font-medium text-rose-600 flex items-center gap-1">
-                <X className="w-3.5 h-3.5" />
+              <p className="text-[11px] font-medium text-rose-600 flex items-center gap-1">
+                <X className="w-3 h-3" />
                 <span>{errors.organization}</span>
               </p>
             )}
@@ -144,17 +144,17 @@ export function ProfessionalStep() {
         </div>
 
         {/* Years of Exp & Highest Qualification */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           {/* Years of Experience */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-[#17201A] uppercase tracking-wide">
+          <div className="space-y-1">
+            <label className="block text-[11px] font-bold text-[#17201A] uppercase tracking-wider">
               Years of Experience <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
               <select
                 value={prof.yearsOfExperience}
                 onChange={(e) => updateProfessional({ yearsOfExperience: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl border border-[#E2E8E3] text-sm text-[#17201A] bg-[#F7F9F4] focus:bg-white focus:outline-none focus:border-[#166534] focus:ring-2 focus:ring-emerald-100 transition-all cursor-pointer"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8E3] text-xs sm:text-sm text-[#17201A] bg-[#F7F9F4] focus:bg-white focus:outline-none focus:border-[#166534] focus:ring-2 focus:ring-emerald-100 transition-all cursor-pointer"
               >
                 <option value="1-2">1 to 2 Years</option>
                 <option value="3-5">3 to 5 Years</option>
@@ -166,8 +166,8 @@ export function ProfessionalStep() {
           </div>
 
           {/* Highest Qualification */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-[#17201A] uppercase tracking-wide">
+          <div className="space-y-1">
+            <label className="block text-[11px] font-bold text-[#17201A] uppercase tracking-wider">
               Highest Qualification <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
@@ -175,7 +175,7 @@ export function ProfessionalStep() {
                 value={prof.highestQualification}
                 onChange={(e) => updateProfessional({ highestQualification: e.target.value })}
                 onBlur={() => handleBlur("highestQualification")}
-                className="w-full px-4 py-3 rounded-xl border border-[#E2E8E3] text-sm text-[#17201A] bg-[#F7F9F4] focus:bg-white focus:outline-none focus:border-[#166534] focus:ring-2 focus:ring-emerald-100 transition-all cursor-pointer"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2E8E3] text-xs sm:text-sm text-[#17201A] bg-[#F7F9F4] focus:bg-white focus:outline-none focus:border-[#166534] focus:ring-2 focus:ring-emerald-100 transition-all cursor-pointer"
               >
                 {HIGHEST_QUALIFICATIONS.map((q) => (
                   <option key={q} value={q}>
@@ -185,8 +185,8 @@ export function ProfessionalStep() {
               </select>
             </div>
             {touched.highestQualification && errors.highestQualification && (
-              <p className="text-xs font-medium text-rose-600 flex items-center gap-1">
-                <X className="w-3.5 h-3.5" />
+              <p className="text-[11px] font-medium text-rose-600 flex items-center gap-1">
+                <X className="w-3 h-3" />
                 <span>{errors.highestQualification}</span>
               </p>
             )}
@@ -194,15 +194,15 @@ export function ProfessionalStep() {
         </div>
 
         {/* Institution & Graduation Year */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
           {/* Institution */}
-          <div className="sm:col-span-2 space-y-1.5">
-            <label className="block text-xs font-bold text-[#17201A] uppercase tracking-wide">
+          <div className="sm:col-span-2 space-y-1">
+            <label className="block text-[11px] font-bold text-[#17201A] uppercase tracking-wider">
               Graduating Institution / University <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <GraduationCap className="w-4 h-4" />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <GraduationCap className="w-3.5 h-3.5" />
               </div>
               <input
                 type="text"
@@ -210,7 +210,7 @@ export function ProfessionalStep() {
                 onChange={(e) => updateProfessional({ institution: e.target.value })}
                 onBlur={() => handleBlur("institution")}
                 placeholder="e.g. Agriculture & Forestry University (AFU)"
-                className={`w-full pl-10 pr-4 py-3 rounded-xl border text-sm text-[#17201A] placeholder-slate-400 bg-[#F7F9F4] focus:bg-white focus:outline-none transition-all ${
+                className={`w-full pl-9 pr-3.5 py-2.5 rounded-xl border text-xs sm:text-sm text-[#17201A] placeholder-slate-400 bg-[#F7F9F4] focus:bg-white focus:outline-none transition-all ${
                   touched.institution && errors.institution
                     ? "border-rose-400 ring-1 ring-rose-200"
                     : "border-[#E2E8E3] focus:border-[#166534] focus:ring-2 focus:ring-emerald-100"
@@ -218,76 +218,76 @@ export function ProfessionalStep() {
               />
             </div>
             {touched.institution && errors.institution && (
-              <p className="text-xs font-medium text-rose-600 flex items-center gap-1">
-                <X className="w-3.5 h-3.5" />
+              <p className="text-[11px] font-medium text-rose-600 flex items-center gap-1">
+                <X className="w-3 h-3" />
                 <span>{errors.institution}</span>
               </p>
             )}
           </div>
 
           {/* Graduation Year */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-[#17201A] uppercase tracking-wide">
+          <div className="space-y-1">
+            <label className="block text-[11px] font-bold text-[#17201A] uppercase tracking-wider">
               Graduation Year
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <Calendar className="w-4 h-4" />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <Calendar className="w-3.5 h-3.5" />
               </div>
               <input
                 type="text"
                 value={prof.graduationYear}
                 onChange={(e) => updateProfessional({ graduationYear: e.target.value })}
                 placeholder="2020"
-                className="w-full pl-10 pr-4 py-3 rounded-xl border border-[#E2E8E3] text-sm text-[#17201A] bg-[#F7F9F4] focus:bg-white focus:outline-none focus:border-[#166534] focus:ring-2 focus:ring-emerald-100 transition-all"
+                className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-[#E2E8E3] text-xs sm:text-sm text-[#17201A] bg-[#F7F9F4] focus:bg-white focus:outline-none focus:border-[#166534] focus:ring-2 focus:ring-emerald-100 transition-all"
               />
             </div>
           </div>
         </div>
 
         {/* Professional Registration Number (Optional) */}
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           <div className="flex items-center justify-between">
-            <label className="block text-xs font-bold text-[#17201A] uppercase tracking-wide">
-              Professional Registration / License Number
+            <label className="block text-[11px] font-bold text-[#17201A] uppercase tracking-wider">
+              License / Reg Number
             </label>
-            <span className="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+            <span className="text-[10px] font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
               Optional
             </span>
           </div>
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-              <Award className="w-4 h-4" />
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+              <Award className="w-3.5 h-3.5" />
             </div>
             <input
               type="text"
               value={prof.registrationNumber || ""}
               onChange={(e) => updateProfessional({ registrationNumber: e.target.value })}
               placeholder="e.g. NEC-AGR-4421 / DOA-EXP-90"
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-[#E2E8E3] text-sm text-[#17201A] placeholder-slate-400 bg-[#F7F9F4] focus:bg-white focus:outline-none focus:border-[#166534] focus:ring-2 focus:ring-emerald-100 transition-all"
+              className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-[#E2E8E3] text-xs sm:text-sm text-[#17201A] placeholder-slate-400 bg-[#F7F9F4] focus:bg-white focus:outline-none focus:border-[#166534] focus:ring-2 focus:ring-emerald-100 transition-all"
             />
           </div>
-          <p className="text-[11px] text-slate-500">
+          <p className="text-[10px] text-slate-500">
             Provide if registered with Nepal Engineering Council, NARC, or relevant agro authority.
           </p>
         </div>
 
         {/* Professional Bio with Character Counter */}
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           <div className="flex items-center justify-between">
-            <label className="block text-xs font-bold text-[#17201A] uppercase tracking-wide">
+            <label className="block text-[11px] font-bold text-[#17201A] uppercase tracking-wider">
               Professional Bio <span className="text-rose-500">*</span>
             </label>
             <span
-              className={`text-xs font-bold ${
+              className={`text-[10px] font-bold ${
                 currentBioLength > MAX_BIO ? "text-rose-600" : "text-slate-400"
               }`}
             >
-              {currentBioLength} / {MAX_BIO} characters
+              {currentBioLength} / {MAX_BIO}
             </span>
           </div>
           <textarea
-            rows={4}
+            rows={3}
             value={prof.bio}
             onChange={(e) => {
               if (e.target.value.length <= MAX_BIO) {
@@ -296,37 +296,37 @@ export function ProfessionalStep() {
             }}
             onBlur={() => handleBlur("bio")}
             placeholder="Briefly describe your field experience, major advisory achievements, crop specialities, and how you assist farmers..."
-            className={`w-full p-4 rounded-xl border text-sm text-[#17201A] placeholder-slate-400 bg-[#F7F9F4] focus:bg-white focus:outline-none transition-all resize-none leading-relaxed ${
+            className={`w-full p-3 rounded-xl border text-xs sm:text-sm text-[#17201A] placeholder-slate-400 bg-[#F7F9F4] focus:bg-white focus:outline-none transition-all resize-none leading-relaxed ${
               touched.bio && errors.bio
                 ? "border-rose-400 ring-1 ring-rose-200"
                 : "border-[#E2E8E3] focus:border-[#166534] focus:ring-2 focus:ring-emerald-100"
             }`}
           />
           {touched.bio && errors.bio && (
-            <p className="text-xs font-medium text-rose-600 flex items-center gap-1">
-              <X className="w-3.5 h-3.5" />
+            <p className="text-[11px] font-medium text-rose-600 flex items-center gap-1">
+              <X className="w-3 h-3" />
               <span>{errors.bio}</span>
             </p>
           )}
         </div>
 
         {/* Actions */}
-        <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-4">
+        <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={prevStep}
-            className="px-6 py-3 border border-[#E2E8E3] hover:bg-slate-50 text-[#17201A] font-bold text-sm rounded-xl transition-all flex items-center gap-2 cursor-pointer"
+            className="px-4 py-2.5 border border-[#E2E8E3] hover:bg-slate-50 text-[#17201A] font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back</span>
           </button>
 
           <button
             type="submit"
-            className="px-8 py-3.5 bg-[#166534] hover:bg-[#14532d] text-white font-bold text-sm rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer group"
+            className="px-6 py-2.5 bg-[#166534] hover:bg-[#14532d] text-white font-bold text-xs rounded-xl transition-all shadow-2xs hover:shadow-xs flex items-center justify-center gap-2 cursor-pointer group"
           >
             <span>Continue to Expertise Selection</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
       </form>

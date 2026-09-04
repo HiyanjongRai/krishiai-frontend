@@ -18,7 +18,7 @@ export function Statistics() {
 
   return (
     <section className="py-16 sm:py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           
           <div className="lg:col-span-7 bg-[#0b281b] rounded-3xl p-6 sm:p-8 text-white shadow-xl border border-emerald-900/50 space-y-6">

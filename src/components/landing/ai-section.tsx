@@ -51,7 +51,7 @@ export function AISection() {
     <div id="ai-analysis" className="space-y-16">
       {/* 1. Crop Health & Disease Analysis Section */}
       <section className="py-20 sm:py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
             
             {/* Left Column: Interactive AI Analysis Card */}
@@ -188,7 +188,7 @@ export function AISection() {
 
       {/* 2. Dual AI Advisor & Weather Cards */}
       <section className="py-16 sm:py-20 bg-[#fafcf9]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
             
             {/* Left Card: AI Advisor */}
