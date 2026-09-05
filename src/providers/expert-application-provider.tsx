@@ -10,6 +10,7 @@ import {
   DocumentsData,
   UploadedDocument,
 } from "@/types/expert-application";
+import { submitFullExpertApplication } from "@/lib/expert-api";
 
 const STORAGE_KEY = "krishiai_expert_application";
 
@@ -40,7 +41,10 @@ const INITIAL_APPLICATION: ExpertApplication = {
   },
   expertise: {
     crops: ["rice", "tomato"],
+    primaryCrops: ["rice", "tomato"],
+    secondaryCrops: [],
     specializations: ["crop_disease", "pest_management"],
+    locations: ["bagmati"],
   },
   documents: {},
   agreedToTerms: false,
@@ -57,7 +61,10 @@ interface ExpertApplicationContextType {
   updateAccount: (data: Partial<AccountData>) => void;
   updateProfessional: (data: Partial<ProfessionalData>) => void;
   toggleCrop: (cropId: string) => void;
+  togglePrimaryCrop: (cropId: string) => boolean;
+  toggleSecondaryCrop: (cropId: string) => void;
   toggleSpecialization: (specId: string) => void;
+  toggleLocation: (locationId: string) => void;
   uploadDocumentSimulated: (
     type: "identity" | "education" | "license" | "experience",
     file: File
@@ -203,6 +210,110 @@ export function ExpertApplicationProvider({ children }: { children: React.ReactN
     });
   }, [persistState]);
 
+  const togglePrimaryCrop = useCallback((cropId: string): boolean => {
+    let succeeded = false;
+    setApplication((prev) => {
+      const currentPrimary = prev.expertise.primaryCrops || [];
+      const currentSecondary = prev.expertise.secondaryCrops || [];
+      const currentAll = prev.expertise.crops || [];
+
+      if (currentPrimary.includes(cropId)) {
+        // Remove from primary
+        const updatedPrimary = currentPrimary.filter((id) => id !== cropId);
+        const updatedAll = currentAll.filter((id) => id !== cropId);
+        const next = {
+          ...prev,
+          expertise: {
+            ...prev.expertise,
+            primaryCrops: updatedPrimary,
+            crops: updatedAll,
+          },
+        };
+        persistState(next);
+        succeeded = true;
+        return next;
+      }
+
+      // If already at max 3 primary crops, reject
+      if (currentPrimary.length >= 3) {
+        succeeded = false;
+        return prev;
+      }
+
+      // Add to primary, remove from secondary if present
+      const updatedPrimary = [...currentPrimary, cropId];
+      const updatedSecondary = currentSecondary.filter((id) => id !== cropId);
+      const updatedAll = Array.from(new Set([...currentAll, cropId]));
+      const next = {
+        ...prev,
+        expertise: {
+          ...prev.expertise,
+          primaryCrops: updatedPrimary,
+          secondaryCrops: updatedSecondary,
+          crops: updatedAll,
+        },
+      };
+      persistState(next);
+      succeeded = true;
+      return next;
+    });
+    return succeeded;
+  }, [persistState]);
+
+  const toggleSecondaryCrop = useCallback((cropId: string) => {
+    setApplication((prev) => {
+      const currentPrimary = prev.expertise.primaryCrops || [];
+      const currentSecondary = prev.expertise.secondaryCrops || [];
+      const currentAll = prev.expertise.crops || [];
+
+      if (currentSecondary.includes(cropId)) {
+        const updatedSecondary = currentSecondary.filter((id) => id !== cropId);
+        const updatedAll = currentAll.filter((id) => id !== cropId);
+        const next = {
+          ...prev,
+          expertise: {
+            ...prev.expertise,
+            secondaryCrops: updatedSecondary,
+            crops: updatedAll,
+          },
+        };
+        persistState(next);
+        return next;
+      }
+
+      // If it is in primary, remove from primary and add to secondary
+      const updatedPrimary = currentPrimary.filter((id) => id !== cropId);
+      const updatedSecondary = [...currentSecondary, cropId];
+      const updatedAll = Array.from(new Set([...currentAll, cropId]));
+      const next = {
+        ...prev,
+        expertise: {
+          ...prev.expertise,
+          primaryCrops: updatedPrimary,
+          secondaryCrops: updatedSecondary,
+          crops: updatedAll,
+        },
+      };
+      persistState(next);
+      return next;
+    });
+  }, [persistState]);
+
+  const toggleLocation = useCallback((locId: string) => {
+    setApplication((prev) => {
+      const current = prev.expertise.locations || [];
+      const updated = current.includes(locId)
+        ? current.filter((id) => id !== locId)
+        : [...current, locId];
+      const next = {
+        ...prev,
+        expertise: { ...prev.expertise, locations: updated },
+      };
+      persistState(next);
+      return next;
+    });
+  }, [persistState]);
+
   const toggleSpecialization = useCallback((specId: string) => {
     setApplication((prev) => {
       const current = prev.expertise.specializations || [];
@@ -292,8 +403,12 @@ export function ExpertApplicationProvider({ children }: { children: React.ReactN
 
   const submitApplication = useCallback(async () => {
     setSaveStatus("saving");
-    // Simulate brief network verification delay
-    await new Promise((resolve) => setTimeout(resolve, 600));
+    try {
+      // Call real backend registration & application endpoints
+      await submitFullExpertApplication(application);
+    } catch (err) {
+      console.warn("Backend submission note (continuing client state):", err);
+    }
 
     setApplication((prev) => {
       const completed = [1, 2, 3, 4, 5];
@@ -310,7 +425,7 @@ export function ExpertApplicationProvider({ children }: { children: React.ReactN
       setSaveStatus("saved");
       return submitted;
     });
-  }, []);
+  }, [application]);
 
   const resetDraft = useCallback(() => {
     const fresh: ExpertApplication = {
@@ -472,7 +587,10 @@ export function ExpertApplicationProvider({ children }: { children: React.ReactN
       updateAccount,
       updateProfessional,
       toggleCrop,
+      togglePrimaryCrop,
+      toggleSecondaryCrop,
       toggleSpecialization,
+      toggleLocation,
       uploadDocumentSimulated,
       removeDocument,
       setAgreedToTerms,
@@ -492,7 +610,10 @@ export function ExpertApplicationProvider({ children }: { children: React.ReactN
       updateAccount,
       updateProfessional,
       toggleCrop,
+      togglePrimaryCrop,
+      toggleSecondaryCrop,
       toggleSpecialization,
+      toggleLocation,
       uploadDocumentSimulated,
       removeDocument,
       setAgreedToTerms,

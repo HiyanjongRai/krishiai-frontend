@@ -1,12 +1,5 @@
-import { DashboardLayout } from "@/components/layout/dashboard-layout";
+import { ExpertDashboardView } from "@/components/expert/ExpertDashboardView";
 
-export default function ExpertDashboard() {
-  return (
-    <DashboardLayout role="expert">
-      <div className="space-y-6">
-        <h1 className="text-2xl font-black text-slate-900">Expert Dashboard</h1>
-        <p className="text-xs text-slate-500">Review pending diagnosis requests and farmer inquiries.</p>
-      </div>
-    </DashboardLayout>
-  );
+export default function ExpertDashboardPage() {
+  return <ExpertDashboardView />;
 }

@@ -25,14 +25,19 @@ import {
   ChevronRight,
 } from "lucide-react";
 
+import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/providers/toast-provider";
+
 export function ApplicationStatusView() {
   const router = useRouter();
-  const { application, goToStep, setMockStatus } = useExpertApplication();
+  const { application, goToStep, setMockStatus, isLoading } = useExpertApplication();
+  const { toast } = useToast();
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(application.id);
     setCopied(true);
+    toast.info("Application ID copied to clipboard.");
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -43,6 +48,50 @@ export function ApplicationStatusView() {
     goToStep(4);
     router.push("/expert-register");
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#F8FAF6] text-[#17201A] font-sans antialiased">
+        <Navbar />
+        <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6" aria-busy="true" aria-label="Loading application status">
+          {/* Breadcrumb Skeleton */}
+          <div className="flex items-center justify-between pb-4 border-b border-[#E2E8E3]">
+            <Skeleton className="h-4 w-64 rounded-md" />
+            <Skeleton className="h-4 w-28 rounded-md" />
+          </div>
+
+          {/* Hero Status Card Skeleton */}
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 space-y-6 shadow-xs">
+            <div className="flex items-center justify-between">
+              <Skeleton className="h-7 w-44 rounded-full" />
+              <Skeleton className="h-7 w-32 rounded-xl" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-80 rounded-xl" />
+              <Skeleton className="h-4 w-full max-w-lg rounded-md" />
+            </div>
+            <Skeleton className="h-20 w-full rounded-2xl" />
+          </div>
+
+          {/* Timeline & Actions Skeleton */}
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 space-y-4 shadow-xs">
+            <Skeleton className="h-6 w-48 rounded-lg" />
+            <div className="space-y-4 pt-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-4">
+                  <Skeleton className="w-8 h-8 rounded-full shrink-0" />
+                  <div className="space-y-1.5 flex-1">
+                    <Skeleton className="h-4 w-44 rounded-md" />
+                    <Skeleton className="h-3 w-64 rounded-md" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F8FAF6] text-[#17201A] font-sans antialiased">

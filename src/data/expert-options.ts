@@ -91,3 +91,13 @@ export const SPECIALIZATIONS_CATALOG: SpecializationItem[] = [
     description: "Cold storage techniques, moisture testing, sorting, and packaging standards.",
   },
 ];
+
+export const LOCATIONS_CATALOG = [
+  { id: "koshi", name: "Koshi Province", nepaliName: "कोशी प्रदेश", type: "PROVINCE" as const },
+  { id: "madhesh", name: "Madhesh Province", nepaliName: "मधेश प्रदेश", type: "PROVINCE" as const },
+  { id: "bagmati", name: "Bagmati Province", nepaliName: "बागमती प्रदेश", type: "PROVINCE" as const },
+  { id: "gandaki", name: "Gandaki Province", nepaliName: "गण्डकी प्रदेश", type: "PROVINCE" as const },
+  { id: "lumbini", name: "Lumbini Province", nepaliName: "लुम्बिनी प्रदेश", type: "PROVINCE" as const },
+  { id: "karnali", name: "Karnali Province", nepaliName: "कर्णाली प्रदेश", type: "PROVINCE" as const },
+  { id: "sudurpashchim", name: "Sudurpashchim Province", nepaliName: "सुदूरपश्चिम प्रदेश", type: "PROVINCE" as const },
+];

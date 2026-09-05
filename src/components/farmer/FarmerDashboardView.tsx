@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/providers/auth-provider";
+import { useToast } from "@/providers/toast-provider";
 
 import {
   LayoutDashboard,
@@ -39,6 +40,7 @@ import {
 
 export function FarmerDashboardView() {
   const { user, logout } = useAuth();
+  const { toast } = useToast();
   const [activeMenu, setActiveMenu] = useState("Dashboard");
   const [chatInput, setChatInput] = useState("");
   const [activeTab, setActiveTab] = useState<
@@ -51,7 +53,10 @@ export function FarmerDashboardView() {
   const handleChatSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
-    alert(`🤖 KrishiAI Advisor: Processing "${chatInput}"...`);
+    toast.info({
+      title: "KrishiAI Advisor",
+      description: `Processing your inquiry: "${chatInput}"...`,
+    });
     setChatInput("");
   };
 

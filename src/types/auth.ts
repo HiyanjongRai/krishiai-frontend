@@ -59,6 +59,10 @@ export interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  isLoggingOut: boolean;
+  isVerifiedExpert: boolean | null;
+  verificationStatusLoading: boolean;
+  checkExpertVerification: () => Promise<boolean>;
   login: (email: string, password: string) => Promise<LoginResponse>;
   register: (data: RegisterRequest) => Promise<UserResponse>;
   logout: () => void;

@@ -1,11 +1,11 @@
-import { DashboardLayout } from "@/components/layout/dashboard-layout";
+import React from "react";
+import { ExpertProfileView } from "@/components/expert/ExpertProfileView";
+
+export const metadata = {
+  title: "Professional Credentials & Profile | KrishiAI Expert",
+  description: "View and update your expert credentials, verification documents, and crop specializations.",
+};
 
 export default function ExpertProfilePage() {
-  return (
-    <DashboardLayout role="expert">
-      <div className="space-y-6">
-        <h1 className="text-2xl font-black text-slate-900">Professional Credentials & Profile</h1>
-      </div>
-    </DashboardLayout>
-  );
+  return <ExpertProfileView />;
 }

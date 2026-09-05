@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuthModal } from "@/providers/auth-modal-provider";
 import { useAuth, getDashboardRoute } from "@/providers/auth-provider";
+import { useToast } from "@/providers/toast-provider";
+import { getApiErrorMessage } from "@/lib/toast-utils";
 import { ApiError } from "@/lib/api";
 import type { RegisterRequest } from "@/types/auth";
 import {
@@ -27,6 +29,7 @@ export function AuthModal() {
   const router = useRouter();
   const { isOpen, mode, closeModal, setMode } = useAuthModal();
   const { login, register } = useAuth();
+  const { toast } = useToast();
 
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
@@ -77,58 +80,6 @@ export function AuthModal() {
 
   if (!isOpen) return null;
 
-  // Full-screen Blur & Circle Loading Screen (No white modal box during loading)
-  if (loading || redirecting) {
-    return (
-      <div className="fixed inset-0 z-50 backdrop-blur-xl bg-slate-900/30 flex items-center justify-center p-4 animate-in fade-in duration-200">
-        {/* Ambient soft green aura */}
-        <div className="absolute w-72 h-72 rounded-full bg-emerald-400/20 blur-3xl pointer-events-none" />
-
-        {/* Circular Glass Capsule */}
-        <div className="relative w-52 h-52 rounded-full bg-white/90 backdrop-blur-2xl border border-white/80 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] flex flex-col items-center justify-center p-5 text-center animate-in zoom-in-95 duration-200">
-          
-          {/* Outer circular spinning gradient arc */}
-          <div
-            className="absolute -inset-1.5 rounded-full border-[3px] border-transparent border-t-emerald-500 border-r-lime-400 animate-spin pointer-events-none"
-            style={{ animationDuration: "1.2s" }}
-          />
-
-          {/* Center circular icon */}
-          <div className="relative z-10 w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-lg shadow-emerald-600/30 text-white mb-2">
-            <Leaf className="w-6 h-6 text-white" strokeWidth={2.2} />
-          </div>
-
-          {/* Title inside circle */}
-          <h4 className="relative z-10 text-sm font-bold text-[#17201A] tracking-tight leading-tight px-1">
-            {redirecting
-              ? mode === "login"
-                ? "Welcome Back! 🌿"
-                : "Account Created! 🌱"
-              : mode === "login"
-              ? "Signing You In..."
-              : "Creating Account..."}
-          </h4>
-
-          {/* Subtitle inside circle */}
-          <p className="relative z-10 text-[11px] text-[#647067] mt-1 max-w-[140px] truncate leading-tight">
-            {redirecting ? "Loading dashboard..." : "Please wait a moment..."}
-          </p>
-
-          {/* Bouncing progress dots */}
-          <div className="relative z-10 flex gap-1.5 mt-2.5">
-            {[0, 1, 2].map((i) => (
-              <span
-                key={i}
-                className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce"
-                style={{ animationDelay: `${i * 0.15}s` }}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // Submit handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -139,13 +90,12 @@ export function AuthModal() {
     try {
       if (mode === "login") {
         const res = await login(email, password);
-        setRedirecting(true);
-        setTimeout(() => {
-          setLoading(false);
-          setRedirecting(false);
-          closeModal();
-          router.push(getDashboardRoute(res.user.role));
-        }, 1100);
+        toast.success({
+          title: "Signed in successfully.",
+          description: `Welcome back, ${res.user.firstName || "User"}!`,
+        });
+        closeModal();
+        router.push(getDashboardRoute(res.user.role));
       } else {
         const payload: RegisterRequest = {
           email,
@@ -156,23 +106,27 @@ export function AuthModal() {
           role: "ROLE_FARMER",
         };
         const res = await register(payload);
-        setRedirecting(true);
-        setTimeout(() => {
-          setLoading(false);
-          setRedirecting(false);
-          closeModal();
-          router.push(getDashboardRoute(res.role));
-        }, 1100);
+        toast.success({
+          title: "Account created successfully.",
+          description: "Welcome to KrishiAI!",
+        });
+        closeModal();
+        router.push(getDashboardRoute(res.role));
       }
     } catch (err) {
+      const safeMsg = getApiErrorMessage(err);
       if (err instanceof ApiError) {
         setErrorMessage(err.message);
         if (err.errors && err.errors.length > 0) {
           setFieldErrors(err.errors);
         }
       } else {
-        setErrorMessage("An unexpected error occurred. Please try again.");
+        setErrorMessage(safeMsg);
       }
+      toast.error({
+        title: mode === "login" ? "Unable to sign in." : "Registration failed.",
+        description: safeMsg,
+      });
       setLoading(false);
     }
   };

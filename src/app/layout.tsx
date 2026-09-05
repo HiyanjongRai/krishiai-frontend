@@ -7,6 +7,7 @@ config.autoAddCss = false;
 import { AuthProvider } from "@/providers/auth-provider";
 import { AuthModalProvider } from "@/providers/auth-modal-provider";
 import { AuthModal } from "@/components/auth/auth-modal";
+import { KrishiToastProvider } from "@/providers/toast-provider";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -27,14 +28,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${jakarta.variable} scroll-smooth`}>
-      <body className="min-h-screen bg-white text-slate-900 flex flex-col font-sans antialiased">
-        <AuthProvider>
-          <AuthModalProvider>
-            {children}
-            <AuthModal />
-          </AuthModalProvider>
-        </AuthProvider>
+    <html lang="en" className={`${jakarta.variable} scroll-smooth`} suppressHydrationWarning>
+      <body
+        className="min-h-screen bg-white text-slate-900 flex flex-col font-sans antialiased"
+        suppressHydrationWarning
+      >
+        <KrishiToastProvider>
+          <AuthProvider>
+            <AuthModalProvider>
+              {children}
+              <AuthModal />
+            </AuthModalProvider>
+          </AuthProvider>
+        </KrishiToastProvider>
       </body>
     </html>
   );

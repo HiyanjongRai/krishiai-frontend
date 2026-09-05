@@ -82,13 +82,13 @@ export const api = {
   get: <T>(path: string) =>
     apiFetch<T>(path, { method: "GET" }),
 
-  post: <T>(path: string, body: unknown) =>
+  post: <T>(path: string, body: unknown = {}) =>
     apiFetch<T>(path, {
       method: "POST",
       body: JSON.stringify(body),
     }),
 
-  patch: <T>(path: string, body: unknown) =>
+  patch: <T>(path: string, body: unknown = {}) =>
     apiFetch<T>(path, {
       method: "PATCH",
       body: JSON.stringify(body),

@@ -28,6 +28,7 @@ import {
   PhoneCall,
   ChevronRight,
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function ExpertRegistrationWizard() {
   const { application, hasExistingDraft, isLoading } = useExpertApplication();
@@ -35,10 +36,39 @@ export function ExpertRegistrationWizard() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F8FAF6]">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-emerald-200 border-t-[#166534] rounded-full animate-spin" />
-          <p className="text-xs font-semibold text-slate-500">Restoring your expert application...</p>
+      <div className="min-h-screen bg-[#F8FAF6] text-[#17201A] font-sans antialiased">
+        <Navbar />
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 space-y-6" aria-busy="true" aria-label="Loading application wizard">
+          {/* Header Skeleton */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-48 rounded-md" />
+              <Skeleton className="h-8 w-80 rounded-xl" />
+            </div>
+            <Skeleton className="h-8 w-36 rounded-full" />
+          </div>
+
+          {/* Progress Indicator Skeleton */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs">
+            <Skeleton className="h-3 w-full rounded-full" />
+          </div>
+
+          {/* Wizard Step Card Skeleton */}
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 space-y-6 shadow-xs">
+            <div className="space-y-2">
+              <Skeleton className="h-6 w-56 rounded-lg" />
+              <Skeleton className="h-4 w-96 rounded-md" />
+            </div>
+            <div className="space-y-4 pt-2">
+              <Skeleton className="h-12 w-full rounded-xl" />
+              <Skeleton className="h-12 w-full rounded-xl" />
+              <Skeleton className="h-12 w-full rounded-xl" />
+            </div>
+            <div className="flex justify-between pt-4 border-t border-slate-100">
+              <Skeleton className="h-10 w-28 rounded-xl" />
+              <Skeleton className="h-10 w-36 rounded-xl" />
+            </div>
+          </div>
         </div>
       </div>
     );

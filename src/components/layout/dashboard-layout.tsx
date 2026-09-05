@@ -9,8 +9,8 @@ export function DashboardLayout({
   children: React.ReactNode;
   role?: "farmer" | "expert" | "admin";
 }) {
-  // Farmer routes are already wrapped by src/app/farmer/layout.tsx
-  if (role === "farmer") {
+  // Farmer, Admin, and Expert routes are wrapped by their respective layout.tsx
+  if (role === "farmer" || role === "admin" || role === "expert") {
     return <>{children}</>;
   }
 

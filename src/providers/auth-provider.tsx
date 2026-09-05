@@ -8,7 +8,7 @@ import React, {
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
-import { tokenStore } from "@/lib/api";
+import { tokenStore, api } from "@/lib/api";
 import { getMyProfile, loginUser, registerUser } from "@/lib/auth";
 import type {
   AuthContextType,
@@ -39,6 +39,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserResponse | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isVerifiedExpert, setIsVerifiedExpert] = useState<boolean | null>(null);
+  const [verificationStatusLoading, setVerificationStatusLoading] = useState(false);
 
   // On mount: restore session from localStorage
   useEffect(() => {
@@ -60,6 +63,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .finally(() => setIsLoading(false));
   }, []);
 
+  // ─── Check / Cache Expert Verification ───────────────────────────────────────
+  const checkExpertVerification = useCallback(async (): Promise<boolean> => {
+    // Return cached value if already verified or rejected
+    if (isVerifiedExpert !== null) {
+      return isVerifiedExpert;
+    }
+
+    setVerificationStatusLoading(true);
+    try {
+      const res = await api.get<any>("/v1/expert/profile");
+      const verified =
+        res?.verificationStatus === "VERIFIED" ||
+        res?.verifiedExpert === true ||
+        res?.applicationStatus === "APPROVED";
+      setIsVerifiedExpert(verified);
+      return verified;
+    } catch {
+      setIsVerifiedExpert(false);
+      return false;
+    } finally {
+      setVerificationStatusLoading(false);
+    }
+  }, [isVerifiedExpert]);
+
   // ─── Login ─────────────────────────────────────────────────────────────────
   const login = useCallback(
     async (email: string, password: string): Promise<LoginResponse> => {
@@ -67,6 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       tokenStore.set(response.accessToken);
       setToken(response.accessToken);
       setUser(response.user);
+      setIsVerifiedExpert(null);
       return response;
     },
     []
@@ -81,18 +109,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       tokenStore.set(loginResponse.accessToken);
       setToken(loginResponse.accessToken);
       setUser(loginResponse.user);
+      setIsVerifiedExpert(null);
       return newUser;
     },
     []
   );
 
   // ─── Logout ────────────────────────────────────────────────────────────────
+  // Navigation is handled by the caller (navbar) to avoid double push.
   const logout = useCallback(() => {
+    setIsLoggingOut(true);
     tokenStore.clear();
     setToken(null);
     setUser(null);
-    router.push("/");
-  }, [router]);
+    setIsVerifiedExpert(null);
+    // Briefly keep isLoggingOut=true so the navbar button stays disabled
+    // during the navigation animation, then reset.
+    setTimeout(() => setIsLoggingOut(false), 600);
+  }, []);
 
   return (
     <AuthContext.Provider
@@ -101,6 +135,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         token,
         isLoading,
         isAuthenticated: !!user && !!token,
+        isLoggingOut,
+        isVerifiedExpert,
+        verificationStatusLoading,
+        checkExpertVerification,
         login,
         register,
         logout,

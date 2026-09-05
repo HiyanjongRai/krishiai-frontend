@@ -52,9 +52,19 @@ export interface SpecializationItem {
   iconName?: string;
 }
 
+export interface LocationItem {
+  id: string;
+  name: string;
+  nepaliName?: string;
+  type: "PROVINCE" | "DISTRICT";
+}
+
 export interface ExpertiseData {
   crops: string[];
+  primaryCrops?: string[];
+  secondaryCrops?: string[];
   specializations: string[];
+  locations?: string[];
 }
 
 export interface UploadedDocument {

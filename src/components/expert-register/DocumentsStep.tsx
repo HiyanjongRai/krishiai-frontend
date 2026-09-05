@@ -18,6 +18,8 @@ import {
   Sparkles,
 } from "lucide-react";
 
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+
 interface UploadZoneProps {
   type: "identity" | "education" | "license" | "experience";
   title: string;
@@ -25,7 +27,7 @@ interface UploadZoneProps {
   required?: boolean;
   uploadedDoc?: UploadedDocument;
   isHighlighted?: boolean;
-  onUpload: (type: "identity" | "education" | "license" | "experience", file: File) => void;
+  onUpload: (type: "identity" | "education" | "license" | "experience", file: File) => void | Promise<void>;
   onRemove: (type: "identity" | "education" | "license" | "experience") => void;
 }
 
@@ -40,10 +42,12 @@ function UploadZone({
   onRemove,
 }: UploadZoneProps) {
   const [isDragging, setIsDragging] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingName, setProcessingName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFiles = (files: FileList | null) => {
+  const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     const file = files[0];
 
@@ -60,7 +64,16 @@ function UploadZone({
     }
 
     setError(null);
-    onUpload(type, file);
+    setIsProcessing(true);
+    setProcessingName(file.name);
+    try {
+      await onUpload(type, file);
+    } catch {
+      setError("Failed to process document. Please try again.");
+    } finally {
+      setIsProcessing(false);
+      setProcessingName(null);
+    }
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -74,6 +87,8 @@ function UploadZone({
       className={`p-3.5 rounded-xl border transition-all ${
         isHighlighted
           ? "border-orange-400 bg-orange-50/50 ring-2 ring-orange-200"
+          : isProcessing
+          ? "border-emerald-300 bg-emerald-50/40"
           : uploadedDoc
           ? "border-emerald-200 bg-[#F0FDF4]/50"
           : "border-[#E2E8E3] bg-[#F7F9F4] hover:bg-white"
@@ -104,7 +119,16 @@ function UploadZone({
         </div>
       </div>
 
-      {uploadedDoc ? (
+      {isProcessing ? (
+        /* Document Processing Local Feedback */
+        <div className="bg-white rounded-xl p-4 border border-emerald-200 shadow-2xs flex items-center gap-3">
+          <LoadingSpinner size="sm" color="primary" />
+          <div className="min-w-0 space-y-0.5">
+            <p className="text-xs sm:text-sm font-bold text-[#17201A] truncate">{processingName}</p>
+            <p className="text-[11px] text-emerald-700 font-medium">Encrypting &amp; attaching document...</p>
+          </div>
+        </div>
+      ) : uploadedDoc ? (
         /* Uploaded File Card */
         <div className="bg-white rounded-xl p-4 border border-emerald-200 shadow-2xs flex items-center justify-between gap-3 transition-all">
           <div className="flex items-center gap-3 overflow-hidden">
