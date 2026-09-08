@@ -1,28 +1,29 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuthModal } from "@/providers/auth-modal-provider";
-import { useAuth, getDashboardRoute } from "@/providers/auth-provider";
+import { getDashboardRoute, useAuth } from "@/providers/auth-provider";
 import { useToast } from "@/providers/toast-provider";
-import { getApiErrorMessage } from "@/lib/toast-utils";
 import { ApiError } from "@/lib/api";
+import { getApiErrorMessage } from "@/lib/toast-utils";
 import type { RegisterRequest } from "@/types/auth";
 import {
-  Sprout,
-  Leaf,
-  Wheat,
+  AlertCircle,
+  ArrowRight,
+  Check,
   CloudSun,
-  X,
-  Mail,
-  Lock,
-  User,
-  Phone,
   Eye,
   EyeOff,
-  ArrowRight,
-  AlertCircle,
+  Leaf,
+  Lock,
+  Mail,
+  Phone,
+  Sprout,
+  User,
+  Wheat,
+  X,
 } from "lucide-react";
 
 export function AuthModal() {
@@ -33,109 +34,98 @@ export function AuthModal() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
-
-  // Form state
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
-
-  // UI state
   const [loading, setLoading] = useState(false);
-  const [redirecting, setRedirecting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [fieldErrors, setFieldErrors] = useState<string[]>([]);
 
-  // Reset all states when modal opens or closes or mode changes
-  useEffect(() => {
+  const resetTransientState = useCallback(() => {
     setLoading(false);
-    setRedirecting(false);
     setErrorMessage("");
     setFieldErrors([]);
-  }, [isOpen, mode]);
+    setShowPassword(false);
+  }, []);
 
-  const handleClose = () => {
-    setLoading(false);
-    setRedirecting(false);
-    setErrorMessage("");
-    setFieldErrors([]);
+  const handleClose = useCallback(() => {
+    resetTransientState();
     closeModal();
+  }, [closeModal, resetTransientState]);
+
+  const handleModeChange = (nextMode: "login" | "register") => {
+    resetTransientState();
+    setMode(nextMode);
   };
 
-  // ESC to close + lock body scroll
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") handleClose();
+    if (!isOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") handleClose();
     };
-    if (isOpen) {
-      window.addEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "hidden";
-    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    document.body.style.overflow = "hidden";
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "unset";
     };
-  }, [isOpen]);
+  }, [isOpen, handleClose]);
 
   if (!isOpen) return null;
 
-  // Submit handler
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setLoading(true);
     setErrorMessage("");
     setFieldErrors([]);
 
     try {
       if (mode === "login") {
-        const res = await login(email, password);
+        const response = await login(email, password);
         toast.success({
           title: "Signed in successfully.",
-          description: `Welcome back, ${res.user.firstName || "User"}!`,
+          description: `Welcome back, ${response.user.firstName || "User"}!`,
         });
         closeModal();
-        router.push(getDashboardRoute(res.user.role));
-      } else {
-        const trimmedFullName = fullName.trim();
-        if (!trimmedFullName) {
-          setErrorMessage("Full name is required.");
-          setLoading(false);
-          return;
-        }
-        if (trimmedFullName.length < 2) {
-          setErrorMessage("Please enter your full name.");
-          setLoading(false);
-          return;
-        }
-
-        const payload: RegisterRequest = {
-          email,
-          password,
-          phone: phone.trim() || undefined,
-          role: "ROLE_FARMER",
-          fullName: trimmedFullName,
-        };
-        const res = await register(payload);
-        toast.success({
-          title: "Account created successfully.",
-          description: "Welcome to KrishiAI!",
-        });
-        closeModal();
-        router.push(getDashboardRoute(res.role));
+        router.push(getDashboardRoute(response.user.role));
+        return;
       }
-    } catch (err) {
-      const safeMsg = getApiErrorMessage(err);
-      if (err instanceof ApiError) {
-        setErrorMessage(err.message);
-        if (err.errors && err.errors.length > 0) {
-          setFieldErrors(err.errors);
-        }
+
+      const trimmedFullName = fullName.trim();
+      if (trimmedFullName.length < 2) {
+        setErrorMessage("Please enter your full name.");
+        setLoading(false);
+        return;
+      }
+
+      const payload: RegisterRequest = {
+        email,
+        password,
+        phone: phone.trim() || undefined,
+        role: "ROLE_FARMER",
+        fullName: trimmedFullName,
+      };
+      const response = await register(payload);
+      toast.success({
+        title: "Account created successfully.",
+        description: "Welcome to KrishiAI!",
+      });
+      closeModal();
+      router.push(getDashboardRoute(response.role));
+    } catch (error) {
+      const safeMessage = getApiErrorMessage(error);
+      if (error instanceof ApiError) {
+        setErrorMessage(error.message);
+        setFieldErrors(error.errors ?? []);
       } else {
-        setErrorMessage(safeMsg);
+        setErrorMessage(safeMessage);
       }
       toast.error({
         title: mode === "login" ? "Unable to sign in." : "Registration failed.",
-        description: safeMsg,
+        description: safeMessage,
       });
       setLoading(false);
     }
@@ -145,295 +135,302 @@ export function AuthModal() {
     setErrorMessage(`Single Sign-On with ${provider} will be available in production.`);
   };
 
+  const isLogin = mode === "login";
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
-      {/* Backdrop */}
-      <div
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/65 p-3 backdrop-blur-sm sm:p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="auth-modal-title"
+    >
+      <button
+        type="button"
         onClick={handleClose}
-        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity animate-in fade-in duration-200"
+        className="absolute inset-0 cursor-default"
+        aria-label="Close authentication dialog"
       />
 
-      {/* Modern SaaS Modal Container */}
-      <div className="relative w-full max-w-[380px] h-[515px] bg-white rounded-2xl p-4 sm:p-5 border border-[#E2E8E3] shadow-[0_20px_45px_-12px_rgba(0,0,0,0.15)] z-10 overflow-hidden animate-in zoom-in-95 duration-150 text-[#17201A] flex flex-col">
-        
-        {/* Subtle Accent Glow */}
-        <div className="absolute -top-12 -right-12 w-28 h-28 rounded-full bg-emerald-50/70 -z-0 pointer-events-none" />
-
-        {/* Close button */}
-        <button
-          onClick={handleClose}
-          className="absolute top-3.5 right-3.5 p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors z-20 cursor-pointer"
-          aria-label="Close"
-        >
-          <X className="w-4 h-4" />
-        </button>
-
-        {/* Top Brand Header */}
-        <div className="space-y-2 shrink-0">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-xl bg-[#F0FDF4] border border-emerald-200/90 flex items-center justify-center text-[#166534] shadow-2xs">
-              <Sprout className="w-4 h-4" />
+      <div className="relative z-10 grid w-full max-w-4xl overflow-hidden rounded-[2rem] border border-white/70 bg-white shadow-[0_30px_90px_-24px_rgba(15,61,38,0.45)] animate-in zoom-in-95 duration-200 lg:grid-cols-[0.9fr_1.1fr]">
+        <aside className="relative hidden min-h-[620px] overflow-hidden bg-[#0f3d26] p-9 text-white lg:flex lg:flex-col">
+          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/20 blur-2xl" />
+          <div className="absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-lime-300/10 blur-2xl" />
+          <div className="relative flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/20">
+              <Sprout className="h-6 w-6 text-lime-300" />
             </div>
             <div>
-              <h3 className="text-sm font-black text-[#17201A] tracking-tight leading-none">
-                Krishi<span className="text-[#166534]">AI</span>
-              </h3>
-              <span className="text-[9px] font-bold text-[#166534] uppercase tracking-wider">
-                Agricultural Advisory
-              </span>
+              <p className="text-lg font-extrabold tracking-tight">
+                Krishi<span className="text-lime-300">AI</span>
+              </p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-100/70">
+                Smarter farming
+              </p>
             </div>
           </div>
 
-          <div className="h-[36px] flex flex-col justify-center">
-            <h2 className="text-base font-bold text-[#17201A] tracking-tight leading-tight">
-              {mode === "login" ? "Welcome Back" : "Create Account"}
-            </h2>
-            <p className="text-[11px] text-[#647067] truncate">
-              {mode === "login"
-                ? "Sign in to access farm intelligence & advisory"
-                : "Join Nepal's leading platform for smarter agriculture"}
-            </p>
-          </div>
+          <div className="relative mt-auto space-y-6">
+            <div>
+              <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-lime-300">
+                Your farm, understood
+              </p>
+              <h2 className="max-w-sm text-3xl font-extrabold leading-tight tracking-tight">
+                Better decisions start with better insights.
+              </h2>
+              <p className="mt-4 max-w-sm text-sm leading-6 text-emerald-50/75">
+                Bring your crops, weather, and expert advice together in one simple workspace.
+              </p>
+            </div>
 
-          {/* Segmented Mode Switcher Tabs */}
-          <div className="grid grid-cols-2 p-0.5 bg-[#F4F6F1] border border-[#E2E8E3] rounded-xl text-xs font-semibold">
-            <button
-              type="button"
-              onClick={() => setMode("login")}
-              className={`py-1.5 rounded-lg transition-all cursor-pointer text-xs ${
-                mode === "login"
-                  ? "bg-white text-[#17201A] font-bold shadow-2xs border border-slate-200/60"
-                  : "text-[#647067] hover:text-[#17201A]"
-              }`}
-            >
-              Sign In
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode("register")}
-              className={`py-1.5 rounded-lg transition-all cursor-pointer text-xs ${
-                mode === "register"
-                  ? "bg-white text-[#17201A] font-bold shadow-2xs border border-slate-200/60"
-                  : "text-[#647067] hover:text-[#17201A]"
-              }`}
-            >
-              Create Account
-            </button>
-          </div>
-        </div>
-
-        {/* Login / Register Form (Centered in middle zone) */}
-        <div className="flex-1 flex flex-col justify-center my-auto py-1">
-          <form onSubmit={handleSubmit} className={mode === "register" ? "space-y-1.5" : "space-y-2.5"}>
-
-            {/* Error Banner */}
-            {(errorMessage || fieldErrors.length > 0) && (
-              <div className="p-2 rounded-lg bg-rose-50 border border-rose-200 flex items-start gap-2 text-xs text-rose-800 animate-in fade-in">
-                <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
-                <div className="space-y-0.5">
-                  {errorMessage && <p className="font-bold text-[11px]">{errorMessage}</p>}
-                  {fieldErrors.map((err, idx) => (
-                    <p key={idx} className="text-[10px]">• {err}</p>
-                  ))}
+            <div className="space-y-3">
+              {[
+                [Leaf, "AI-powered crop health insights"],
+                [CloudSun, "Weather-aware recommendations"],
+                [Wheat, "Support from verified experts"],
+              ].map(([Icon, text]) => (
+                <div key={text as string} className="flex items-center gap-3 text-sm text-emerald-50/90">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/10">
+                    <Icon className="h-4 w-4 text-lime-300" />
+                  </span>
+                  <span>{text as string}</span>
                 </div>
-              </div>
-            )}
+              ))}
+            </div>
 
-            {/* First + Last Name (Register only) */}
-            {mode === "register" && (
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-0.5">
-                  <label className="block text-[9px] font-bold text-[#17201A] uppercase tracking-wide">Full Name</label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
-                      <User className="w-3 h-3" />
-                    </div>
+            <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+              <div className="flex items-center gap-2 text-xs font-semibold text-lime-200">
+                <span className="h-2 w-2 rounded-full bg-lime-300" />
+                Built for farmers
+              </div>
+              <p className="mt-2 text-xs leading-5 text-emerald-50/70">
+                Practical tools and guidance, wherever your farm is growing.
+              </p>
+            </div>
+          </div>
+        </aside>
+
+        <section className="relative max-h-[calc(100vh-1.5rem)] overflow-y-auto p-5 sm:p-9">
+          <button
+            type="button"
+            onClick={handleClose}
+            className="absolute right-5 top-5 rounded-xl p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+            aria-label="Close"
+          >
+            <X className="h-5 w-5" />
+          </button>
+
+          <div className="mx-auto max-w-md">
+            <div className="mb-7 lg:hidden">
+              <div className="flex items-center gap-2">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+                  <Sprout className="h-5 w-5" />
+                </span>
+                <p className="text-lg font-extrabold tracking-tight text-slate-900">
+                  Krishi<span className="text-emerald-700">AI</span>
+                </p>
+              </div>
+            </div>
+
+            <div className="mb-7 pr-8">
+              <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-emerald-700">
+                {isLogin ? "Welcome back" : "Start growing smarter"}
+              </p>
+              <h1 id="auth-modal-title" className="text-3xl font-extrabold tracking-tight text-slate-900">
+                {isLogin ? "Sign in to KrishiAI" : "Create your farmer account"}
+              </h1>
+              <p className="mt-2 text-sm leading-6 text-slate-500">
+                {isLogin
+                  ? "Pick up where you left off with your farm insights."
+                  : "Get personalized crop insights and practical guidance in minutes."}
+              </p>
+            </div>
+
+            <div className="mb-7 grid grid-cols-2 rounded-2xl bg-slate-100 p-1">
+              {(["login", "register"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => handleModeChange(tab)}
+                  className={`rounded-xl px-3 py-2.5 text-sm font-bold transition-all ${
+                    mode === tab
+                      ? "bg-white text-[#0f3d26] shadow-sm ring-1 ring-slate-200"
+                      : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  {tab === "login" ? "Sign in" : "Create account"}
+                </button>
+              ))}
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {(errorMessage || fieldErrors.length > 0) && (
+                <div className="flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-rose-600" />
+                  <div>
+                    {errorMessage && <p className="font-semibold">{errorMessage}</p>}
+                    {fieldErrors.map((error, index) => (
+                      <p key={index} className="mt-1 text-xs">• {error}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {!isLogin && (
+                <label className="block">
+                  <span className="mb-1.5 block text-xs font-bold text-slate-700">Full name</span>
+                  <span className="relative block">
+                    <User className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
                     <input
                       type="text"
                       required
+                      autoComplete="name"
                       value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
+                      onChange={(event) => setFullName(event.target.value)}
                       placeholder="Ram Bhattarai"
-                      className="w-full pl-7 pr-2 py-1.5 rounded-lg border border-[#E2E8E3] text-xs text-[#17201A] placeholder-slate-400 bg-[#F7F9F4] focus:bg-white focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-emerald-200 transition-all"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm text-slate-900 outline-none transition focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
                     />
-                  </div>
-                </div>
-                
-              </div>
-            )}
-
-            {/* Email */}
-            <div className="space-y-0.5">
-              <label className="block text-[9px] font-bold text-[#17201A] uppercase tracking-wide">Email Address</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
-                  <Mail className="w-3 h-3" />
-                </div>
-                <input
-                  type="email"
-                  required
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={mode === "login" ? "farmer@example.com" : "your@email.com"}
-                  className="w-full pl-7 pr-3 py-1.5 rounded-lg border border-[#E2E8E3] text-xs text-[#17201A] placeholder-slate-400 bg-[#F7F9F4] focus:bg-white focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-emerald-200 transition-all"
-                />
-              </div>
-            </div>
-
-            {/* Password */}
-            <div className="space-y-0.5">
-              <label className="block text-[9px] font-bold text-[#17201A] uppercase tracking-wide">Password</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
-                  <Lock className="w-3 h-3" />
-                </div>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  required
-                  minLength={mode === "register" ? 8 : undefined}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full pl-7 pr-8 py-1.5 rounded-lg border border-[#E2E8E3] text-xs text-[#17201A] placeholder-slate-400 bg-[#F7F9F4] focus:bg-white focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-emerald-200 transition-all"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
-                  aria-label="Toggle password visibility"
-                >
-                  {showPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-                </button>
-              </div>
-            </div>
-
-            {/* Phone Number (Register only — optional) */}
-            {mode === "register" && (
-              <div className="space-y-0.5">
-                <div className="flex items-center justify-between">
-                  <label className="block text-[9px] font-bold text-[#17201A] uppercase tracking-wide">Phone Number</label>
-                  <span className="text-[9px] text-slate-400 font-medium">Optional</span>
-                </div>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
-                    <Phone className="w-3 h-3" />
-                  </div>
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+977 9801234567"
-                    className="w-full pl-7 pr-3 py-1.5 rounded-lg border border-[#E2E8E3] text-xs text-[#17201A] placeholder-slate-400 bg-[#F7F9F4] focus:bg-white focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-emerald-200 transition-all"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Remember Me & Forgot Password in one line (Login only) */}
-            {mode === "login" && (
-              <div className="flex items-center justify-between pt-0.5">
-                <label className="flex items-center gap-1.5 text-[11px] text-[#647067] font-medium cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-3.5 h-3.5 rounded border-[#E2E8E3] text-[#166534] accent-[#166534] cursor-pointer"
-                  />
-                  <span>Remember me</span>
-                </label>
-                <Link href="/forgot-password" onClick={closeModal} className="text-[11px] font-semibold text-[#166534] hover:underline">
-                  Forgot password?
-                </Link>
-              </div>
-            )}
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading || redirecting}
-              className="w-full py-2 px-3 bg-[#0f3d26] hover:bg-[#14532d] text-white font-bold text-xs rounded-xl transition-all shadow-xs hover:shadow flex items-center justify-center gap-1.5 cursor-pointer group disabled:opacity-75 mt-1"
-            >
-              {loading || redirecting ? (
-                <>
-                  <span className="inline-block w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>
-                    {redirecting
-                      ? "Success! Redirecting..."
-                      : mode === "login"
-                      ? "Signing In..."
-                      : "Creating Account..."}
                   </span>
-                </>
-              ) : (
+                </label>
+              )}
+
+              <label className="block">
+                <span className="mb-1.5 block text-xs font-bold text-slate-700">Email address</span>
+                <span className="relative block">
+                  <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
+                  <input
+                    type="email"
+                    required
+                    autoComplete="email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    placeholder="you@example.com"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm text-slate-900 outline-none transition focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                  />
+                </span>
+              </label>
+
+              <label className="block">
+                <span className="mb-1.5 block text-xs font-bold text-slate-700">Password</span>
+                <span className="relative block">
+                  <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    required
+                    minLength={isLogin ? undefined : 8}
+                    autoComplete={isLogin ? "current-password" : "new-password"}
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    placeholder={isLogin ? "Enter your password" : "At least 8 characters"}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-11 text-sm text-slate-900 outline-none transition focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((visible) => !visible)}
+                    className="absolute right-3 top-2.5 rounded-lg p-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </span>
+                {!isLogin && (
+                  <span className="mt-1.5 flex items-center gap-1.5 text-[11px] text-slate-500">
+                    <Check className="h-3.5 w-3.5 text-emerald-600" /> Use a mix of letters and numbers
+                  </span>
+                )}
+              </label>
+
+              {!isLogin && (
+                <label className="block">
+                  <span className="mb-1.5 flex items-center justify-between text-xs font-bold text-slate-700">
+                    Phone number <span className="font-medium text-slate-400">Optional</span>
+                  </span>
+                  <span className="relative block">
+                    <Phone className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
+                    <input
+                      type="tel"
+                      autoComplete="tel"
+                      value={phone}
+                      onChange={(event) => setPhone(event.target.value)}
+                      placeholder="+977 9801234567"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm text-slate-900 outline-none transition focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                    />
+                  </span>
+                </label>
+              )}
+
+              {isLogin && (
+                <div className="flex items-center justify-between text-xs">
+                  <label className="flex cursor-pointer items-center gap-2 text-slate-500">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(event) => setRememberMe(event.target.checked)}
+                      className="h-4 w-4 rounded border-slate-300 accent-emerald-700"
+                    />
+                    Remember me
+                  </label>
+                  <Link href="/forgot-password" onClick={closeModal} className="font-bold text-emerald-700 hover:underline">
+                    Forgot password?
+                  </Link>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="group flex w-full items-center justify-center gap-2 rounded-xl bg-[#0f3d26] px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-950/10 transition hover:bg-[#14532d] disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {loading ? (
+                  <>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    {isLogin ? "Signing in..." : "Creating account..."}
+                  </>
+                ) : (
+                  <>
+                    {isLogin ? "Sign in to dashboard" : "Create my account"}
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </>
+                )}
+              </button>
+            </form>
+
+            <div className="my-6 flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+              <span className="h-px flex-1 bg-slate-200" /> or continue with <span className="h-px flex-1 bg-slate-200" />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => handleOAuthDemo("Google")}
+                className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+              >
+                <span className="text-base font-extrabold text-[#4285F4]">G</span> Google
+              </button>
+              <button
+                type="button"
+                onClick={() => handleOAuthDemo("Phone OTP")}
+                className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+              >
+                <Phone className="h-3.5 w-3.5 text-emerald-700" /> Phone OTP
+              </button>
+            </div>
+
+            <p className="mt-6 text-center text-xs text-slate-500">
+              {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+              <button type="button" onClick={() => handleModeChange(isLogin ? "register" : "login")} className="font-bold text-emerald-700 hover:underline">
+                {isLogin ? "Create one now" : "Sign in"}
+              </button>
+              {!isLogin && (
                 <>
-                  <span>{mode === "login" ? "Sign In to Dashboard" : "Create My Account"}</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                  <span className="mx-2 text-slate-300">·</span>
+                  <Link href="/expert-register" onClick={closeModal} className="font-bold text-emerald-700 hover:underline">
+                    Apply as an expert
+                  </Link>
                 </>
               )}
-            </button>
-          </form>
-        </div>
-
-        {/* Bottom Section - pinned to bottom */}
-        <div className="mt-auto shrink-0 space-y-2 pt-1">
-          {/* Social / OR Section */}
-          <div className="relative flex items-center justify-center">
-            <div className="w-full border-t border-slate-200" />
-            <span className="absolute bg-white px-2 text-[9px] font-bold uppercase tracking-wider text-slate-400">or</span>
+            </p>
           </div>
-
-          {/* OAuth Buttons */}
-          <div className="grid grid-cols-2 gap-1.5">
-            <button
-              type="button"
-              onClick={() => handleOAuthDemo("Google")}
-              className="py-1.5 px-2 rounded-lg border border-[#E2E8E3] bg-[#F7F9F4] hover:bg-white text-[11px] font-semibold text-[#17201A] flex items-center justify-center gap-1.5 transition-all hover:border-slate-300 cursor-pointer"
-            >
-              <svg className="w-3 h-3" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-              </svg>
-              <span>Google</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleOAuthDemo("Phone OTP")}
-              className="py-1.5 px-2 rounded-lg border border-[#E2E8E3] bg-[#F7F9F4] hover:bg-white text-[11px] font-semibold text-[#17201A] flex items-center justify-center gap-1 transition-all hover:border-slate-300 cursor-pointer"
-            >
-              <span>📱 Phone OTP</span>
-            </button>
-          </div>
-
-          {/* Footer switch */}
-          <div className="h-[28px] flex items-center justify-center text-center text-[11px]">
-            {mode === "login" ? (
-              <p className="text-[#647067]">
-                Don&apos;t have an account?{" "}
-                <button type="button" onClick={() => setMode("register")} className="font-bold text-[#166534] hover:underline cursor-pointer">
-                  Register now
-                </button>
-              </p>
-            ) : (
-              <p className="text-[#647067]">
-                Already have an account?{" "}
-                <button type="button" onClick={() => setMode("login")} className="font-bold text-[#166534] hover:underline cursor-pointer">
-                  Sign in
-                </button>
-                {" · "}
-                <Link
-                  href="/expert-register"
-                  onClick={closeModal}
-                  className="font-bold text-[#166534] hover:underline"
-                >
-                  Expert Apply →
-                </Link>
-              </p>
-            )}
-          </div>
-        </div>
+        </section>
       </div>
     </div>
   );
