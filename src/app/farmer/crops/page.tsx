@@ -1,10 +1,9 @@
-import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { CropCard } from "@/components/farmer/crop-card";
 import { sampleCrops } from "@/data/crops";
 
 export default function FarmerCropsPage() {
   return (
-    <DashboardLayout role="farmer">
+    <div>
       <div className="space-y-6">
         <h1 className="text-2xl font-black text-slate-900">My Crops</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -13,6 +12,6 @@ export default function FarmerCropsPage() {
           ))}
         </div>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }

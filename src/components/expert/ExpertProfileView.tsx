@@ -31,7 +31,7 @@ import {
   ArrowRight,
   FileCheck2,
 } from "lucide-react";
-import { ExpertProfileData } from "./ExpertDashboardView";
+import { ExpertProfileData } from "@/types/expert-dashboard";
 import { ExpertEditAndResubmitModal } from "./ExpertEditAndResubmitModal";
 
 export function ExpertProfileView() {

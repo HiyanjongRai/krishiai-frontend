@@ -35,8 +35,7 @@ export function AuthModal() {
   const [rememberMe, setRememberMe] = useState(true);
 
   // Form state
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
@@ -97,13 +96,24 @@ export function AuthModal() {
         closeModal();
         router.push(getDashboardRoute(res.user.role));
       } else {
+        const trimmedFullName = fullName.trim();
+        if (!trimmedFullName) {
+          setErrorMessage("Full name is required.");
+          setLoading(false);
+          return;
+        }
+        if (trimmedFullName.length < 2) {
+          setErrorMessage("Please enter your full name.");
+          setLoading(false);
+          return;
+        }
+
         const payload: RegisterRequest = {
           email,
           password,
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
           phone: phone.trim() || undefined,
           role: "ROLE_FARMER",
+          fullName: trimmedFullName,
         };
         const res = await register(payload);
         toast.success({
@@ -233,7 +243,7 @@ export function AuthModal() {
             {mode === "register" && (
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-0.5">
-                  <label className="block text-[9px] font-bold text-[#17201A] uppercase tracking-wide">First Name</label>
+                  <label className="block text-[9px] font-bold text-[#17201A] uppercase tracking-wide">Full Name</label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
                       <User className="w-3 h-3" />
@@ -241,24 +251,14 @@ export function AuthModal() {
                     <input
                       type="text"
                       required
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      placeholder="Ram"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="Ram Bhattarai"
                       className="w-full pl-7 pr-2 py-1.5 rounded-lg border border-[#E2E8E3] text-xs text-[#17201A] placeholder-slate-400 bg-[#F7F9F4] focus:bg-white focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-emerald-200 transition-all"
                     />
                   </div>
                 </div>
-                <div className="space-y-0.5">
-                  <label className="block text-[9px] font-bold text-[#17201A] uppercase tracking-wide">Last Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Sharma"
-                    className="w-full px-2.5 py-1.5 rounded-lg border border-[#E2E8E3] text-xs text-[#17201A] placeholder-slate-400 bg-[#F7F9F4] focus:bg-white focus:outline-none focus:border-[#166534] focus:ring-1 focus:ring-emerald-200 transition-all"
-                  />
-                </div>
+                
               </div>
             )}
 

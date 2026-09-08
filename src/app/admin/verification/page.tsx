@@ -1,18 +1,18 @@
-import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { VerificationQueue } from "@/components/admin/verification-card";
 
 export default function AdminVerificationPage() {
   return (
-    <DashboardLayout role="admin">
+    <div>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-black text-slate-900">Expert Verification Queue</h1>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Administrator review</p>
+          <h1 className="mt-1 text-2xl font-black text-slate-900">Expert Verification</h1>
           <p className="text-sm text-slate-500 mt-1">
-            Review, approve, or reject expert applications submitted for verification.
+            Review professional credentials and expertise submitted by this expert.
           </p>
         </div>
         <VerificationQueue />
       </div>
-    </DashboardLayout>
+    </div>
   );
 }

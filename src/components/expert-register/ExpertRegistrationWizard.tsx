@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/layout/navbar";
 import { useExpertApplication } from "@/providers/expert-application-provider";
 import { RegistrationProgress } from "./RegistrationProgress";
@@ -10,11 +11,10 @@ import { ProfessionalStep } from "./ProfessionalStep";
 import { ExpertiseStep } from "./ExpertiseStep";
 import { DocumentsStep } from "./DocumentsStep";
 import { ReviewStep } from "./ReviewStep";
-import { SubmittedStep } from "./SubmittedStep";
 import { ResumeApplicationCard } from "./ResumeApplicationCard";
+import { CROPS_CATALOG, SPECIALIZATIONS_CATALOG } from "@/data/expert-options";
 
 import {
-  Sprout,
   ShieldCheck,
   Award,
   Users,
@@ -22,7 +22,6 @@ import {
   Lock,
   ArrowRight,
   Star,
-  Sparkles,
   HelpCircle,
   FileCheck2,
   PhoneCall,
@@ -31,8 +30,16 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function ExpertRegistrationWizard() {
-  const { application, hasExistingDraft, isLoading } = useExpertApplication();
+  const { application, isLoading } = useExpertApplication();
   const [showResumeBanner, setShowResumeBanner] = useState(true);
+  const router = useRouter();
+  const isSubmittedState = application.status === "SUBMITTED" || application.currentStep === 6;
+
+  useEffect(() => {
+    if (!isLoading && isSubmittedState) {
+      router.replace("/expert/dashboard");
+    }
+  }, [isLoading, isSubmittedState, router]);
 
   if (isLoading) {
     return (
@@ -73,9 +80,9 @@ export function ExpertRegistrationWizard() {
       </div>
     );
   }
+  if (isSubmittedState) return null;
 
   const currentStep = application.currentStep;
-  const isSubmittedState = application.status === "SUBMITTED" || currentStep === 6;
   const isIncompleteDraft =
     application.status === "DRAFT" &&
     (application.completedSteps.length > 0 || !!application.account.fullName);
@@ -120,7 +127,7 @@ export function ExpertRegistrationWizard() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
           
           {/* Left Column: Branding & Trust Authority Sidebar (Sticky on Desktop) */}
-          <aside className="lg:col-span-4 lg:sticky lg:top-24 space-y-4">
+          <aside className="hidden">
             
             {/* Primary Value Proposition Card */}
             <div className="bg-white rounded-2xl p-5 border border-[#E2E8E3] shadow-xs space-y-4">
@@ -252,16 +259,18 @@ export function ExpertRegistrationWizard() {
 
           </aside>
 
+          {/* Left Column: Registration progress rail */}
+          <aside className="lg:col-span-3 lg:sticky lg:top-24">
+            <RegistrationProgress />
+          </aside>
+
           {/* Right Column: Stepper & Active Step Container */}
-          <main className="lg:col-span-8 space-y-5">
+          <main className="lg:col-span-6 space-y-5">
             
             {/* Returning Incomplete Draft Banner */}
             {isIncompleteDraft && showResumeBanner && currentStep === 1 && (
               <ResumeApplicationCard onDismiss={() => setShowResumeBanner(false)} />
             )}
-
-            {/* Multi-step Stepper Progress */}
-            {!isSubmittedState && <RegistrationProgress />}
 
             {/* Step Content */}
             <div className="transition-all">
@@ -270,9 +279,87 @@ export function ExpertRegistrationWizard() {
               {currentStep === 3 && <ExpertiseStep />}
               {currentStep === 4 && <DocumentsStep />}
               {currentStep === 5 && <ReviewStep />}
-              {currentStep === 6 && <SubmittedStep />}
             </div>
           </main>
+
+          {/* Right Column: Live application summary */}
+          {!isSubmittedState && (
+            <aside className="lg:col-span-3 lg:sticky lg:top-24">
+              <div className="bg-white border border-[#DCE8DF] rounded-xl overflow-hidden shadow-[0_8px_24px_rgba(28,71,45,0.04)]">
+                <div className="px-4 py-3 border-b border-[#E8EFEA] flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-50 text-[#16834C] flex items-center justify-center">
+                    <ShieldCheck className="w-4 h-4" />
+                  </div>
+                  <h2 className="text-sm font-bold text-[#17201A]">Your application</h2>
+                </div>
+
+                <div className="p-4 space-y-4">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Account</p>
+                    <p className="text-sm font-semibold text-[#17201A] mt-1 truncate">
+                      {application.account.fullName || "Personal information"}
+                    </p>
+                    <p className="text-[11px] text-slate-500 mt-0.5 truncate">
+                      {application.account.email || "Complete your account details"}
+                    </p>
+                  </div>
+
+                  <div className="border-t border-slate-100 pt-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Expertise</p>
+                      <span className="text-[10px] font-bold text-[#16834C]">
+                        {(application.expertise.primaryCrops || application.expertise.crops).length} crops
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {(application.expertise.primaryCrops || application.expertise.crops).map((id) => {
+                        const crop = CROPS_CATALOG.find((item) => item.id === id);
+                        return crop ? (
+                          <span key={id} className="inline-flex items-center gap-1 rounded-md bg-[#F4FAF5] border border-[#D9EBDD] px-2 py-1 text-[11px] font-semibold text-[#315B3C]">
+                            <span>{crop.emoji}</span>{crop.name}
+                          </span>
+                        ) : null;
+                      })}
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {application.expertise.specializations.map((id) => {
+                        const specialization = SPECIALIZATIONS_CATALOG.find((item) => item.id === id);
+                        return specialization ? (
+                          <span key={id} className="inline-flex items-center gap-1 rounded-md bg-white border border-slate-200 px-2 py-1 text-[11px] font-medium text-slate-600">
+                            <CheckCircle2 className="w-3 h-3 text-[#16834C]" />{specialization.name}
+                          </span>
+                        ) : null;
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="border-t border-slate-100 pt-4 space-y-3">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">What happens next?</p>
+                    {[
+                      [FileCheck2, "Submit application", "Send your completed details and documents"],
+                      [ShieldCheck, "Admin verification", "Our team reviews your credentials"],
+                      [Award, "Get verified", "Start helping farmers with trusted advice"],
+                    ].map(([Icon, title, description]) => (
+                      <div key={title as string} className="flex items-start gap-2.5">
+                        <div className="w-7 h-7 rounded-full bg-emerald-50 text-[#16834C] flex items-center justify-center shrink-0">
+                          <Icon className="w-3.5 h-3.5" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-[#17201A]">{title as string}</p>
+                          <p className="text-[10px] leading-relaxed text-slate-500 mt-0.5">{description as string}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 flex items-start gap-2">
+                    <Lock className="w-3.5 h-3.5 text-amber-700 mt-0.5 shrink-0" />
+                    <p className="text-[10px] leading-relaxed text-amber-900">Your information is securely stored and used only for expert verification.</p>
+                  </div>
+                </div>
+              </div>
+            </aside>
+          )}
         </div>
       </div>
 

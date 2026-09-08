@@ -27,7 +27,7 @@ import {
 import { useToast } from "@/providers/toast-provider";
 import { getApiErrorMessage } from "@/lib/toast-utils";
 import { CROPS_CATALOG } from "@/data/expert-options";
-import { ExpertProfileData } from "./ExpertDashboardView";
+import { ExpertProfileData } from "@/types/expert-dashboard";
 
 export interface DocUploadItem {
   documentType: "IDENTITY" | "EDUCATION" | "LICENSE" | "EXPERIENCE";

@@ -36,16 +36,13 @@ export async function submitFullExpertApplication(application: ExpertApplication
   let currentToken = tokenStore.get();
 
   if (!currentToken && application.account.email && application.account.password) {
-    const names = (application.account.fullName || "").trim().split(/\s+/);
-    const firstName = names[0] || "Expert";
-    const lastName = names.slice(1).join(" ") || "User";
+    const trimmedFullName = (application.account.fullName || "").trim();
 
     try {
       await registerUser({
         email: application.account.email,
         password: application.account.password,
-        firstName,
-        lastName,
+        fullName: trimmedFullName || "Expert User",
         phone: application.account.phone,
         role: "ROLE_EXPERT",
       });
