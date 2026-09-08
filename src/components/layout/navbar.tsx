@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -29,6 +29,14 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
+  const hash = useSyncExternalStore(
+    (onStoreChange) => {
+      window.addEventListener("hashchange", onStoreChange);
+      return () => window.removeEventListener("hashchange", onStoreChange);
+    },
+    () => window.location.hash,
+    () => ""
+  );
   const { openLogin, openRegister } = useAuthModal();
   const { user, isAuthenticated, isLoading, isLoggingOut, logout } = useAuth();
   const { toast } = useToast();
@@ -163,7 +171,7 @@ export function Navbar() {
                 item.href === "/"
                   ? pathname === "/"
                   : pathname.startsWith(item.href) ||
-                    (typeof window !== "undefined" && window.location.hash === item.href.replace("/", ""));
+                    hash === item.href.replace("/", "");
               return (
                 <Link
                   key={item.label}
