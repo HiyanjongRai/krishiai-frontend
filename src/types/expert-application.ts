@@ -41,7 +41,8 @@ export interface CropExpertiseItem {
   id: string;
   name: string;
   nepaliName?: string;
-  emoji: string;
+  image : string;
+  emoji?: string;
   category: "Cereals" | "Vegetables" | "Fruits" | "Cash Crops" | "Legumes";
 }
 
@@ -56,7 +57,7 @@ export interface LocationItem {
   id: string;
   name: string;
   nepaliName?: string;
-  type: "PROVINCE" | "DISTRICT";
+  type: "PROVINCE" | "DISTRICT" | "MUNICIPALITY";
 }
 
 export interface ExpertiseData {

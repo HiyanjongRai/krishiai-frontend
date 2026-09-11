@@ -1,6 +1,1 @@
-"use client";
-import React from "react";
-
-export function QueryProvider({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
-}
+export * from "@/providers/app/query-provider";

@@ -1,6 +1,6 @@
 /**
  * Expert Application Status Page
- * Displays the complete verification journey and application status
+ * Redesigned with admin dashboard design tokens for consistency.
  */
 
 "use client";
@@ -13,12 +13,13 @@ import {
   XCircle,
   FileText,
   User,
-  Calendar,
   MessageSquare,
   ArrowRight,
+  ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
-import { ExpertApplicationProgress, VerificationStatus } from "@/types/expert-verification";
+import { VerificationStatus } from "@/types/expert-verification";
+
 
 interface ApplicationTimeline {
   stage: string;
@@ -43,72 +44,30 @@ export default function ExpertApplicationPage() {
     ],
 
     submittedDocuments: [
-      {
-        name: "B.Sc. Agriculture Certificate",
-        status: "VERIFIED",
-        verifiedAt: "January 17, 2024",
-      },
-      {
-        name: "Training Certificate - IPM",
-        status: "PENDING",
-      },
-      {
-        name: "Experience Letter",
-        status: "PENDING",
-      },
+      { name: "B.Sc. Agriculture Certificate", status: "VERIFIED", verifiedAt: "January 17, 2024" },
+      { name: "Training Certificate - IPM", status: "PENDING" },
+      { name: "Experience Letter", status: "PENDING" },
     ],
 
-    adminNotes:
-      "Application is under review. All documents received. Expertise verification in progress.",
+    adminNotes: "Application is under review. All documents received. Expertise verification in progress.",
   });
 
-  const getStatusIcon = (status: VerificationStatus) => {
+  const getStatusConfig = (status: VerificationStatus) => {
     switch (status) {
       case "APPROVED":
-        return <CheckCircle2 className="w-6 h-6 text-emerald-600" />;
+        return { icon: <CheckCircle2 className="w-5 h-5" />, label: "Approved", cardClass: "border-[#BCE9D5] bg-[#DDF4EA]", textClass: "text-[#0F9F68]" };
       case "REJECTED":
-        return <XCircle className="w-6 h-6 text-red-600" />;
+        return { icon: <XCircle className="w-5 h-5" />, label: "Rejected", cardClass: "border-rose-200 bg-rose-50", textClass: "text-rose-700" };
       case "ADDITIONAL_INFO_REQUIRED":
-        return <AlertCircle className="w-6 h-6 text-blue-600" />;
+        return { icon: <AlertCircle className="w-5 h-5" />, label: "Action Required", cardClass: "border-blue-200 bg-blue-50", textClass: "text-blue-700" };
       case "UNDER_REVIEW":
-        return <Clock className="w-6 h-6 text-amber-600" />;
-      case "PENDING":
+        return { icon: <Clock className="w-5 h-5" />, label: "Under Review", cardClass: "border-amber-200 bg-amber-50", textClass: "text-amber-700" };
       default:
-        return <Clock className="w-6 h-6 text-slate-600" />;
+        return { icon: <Clock className="w-5 h-5" />, label: "Pending", cardClass: "border-[rgba(234,234,236,0.85)] bg-[#F4F4F6]", textClass: "text-gray-500" };
     }
   };
 
-  const getStatusLabel = (status: VerificationStatus): string => {
-    switch (status) {
-      case "APPROVED":
-        return "Approved";
-      case "REJECTED":
-        return "Rejected";
-      case "ADDITIONAL_INFO_REQUIRED":
-        return "Action Required";
-      case "UNDER_REVIEW":
-        return "Under Review";
-      case "PENDING":
-      default:
-        return "Pending";
-    }
-  };
-
-  const getStatusColor = (status: VerificationStatus) => {
-    switch (status) {
-      case "APPROVED":
-        return "bg-emerald-50 border-emerald-200 text-emerald-900";
-      case "REJECTED":
-        return "bg-red-50 border-red-200 text-red-900";
-      case "ADDITIONAL_INFO_REQUIRED":
-        return "bg-blue-50 border-blue-200 text-blue-900";
-      case "UNDER_REVIEW":
-        return "bg-amber-50 border-amber-200 text-amber-900";
-      case "PENDING":
-      default:
-        return "bg-slate-50 border-slate-200 text-slate-900";
-    }
-  };
+  const statusConfig = getStatusConfig(applicationData.currentStatus);
 
   const timeline: ApplicationTimeline[] = [
     {
@@ -116,297 +75,275 @@ export default function ExpertApplicationPage() {
       status: "completed",
       date: "Jan 15, 2024",
       description: "Your application and documents have been received",
-      icon: <CheckCircle2 className="w-5 h-5 text-emerald-600" />,
+      icon: <CheckCircle2 className="w-4 h-4 text-[#0F9F68]" />,
     },
     {
       stage: "Initial Review",
       status: "completed",
       date: "Jan 16, 2024",
       description: "Documents have been verified for completeness",
-      icon: <CheckCircle2 className="w-5 h-5 text-emerald-600" />,
+      icon: <CheckCircle2 className="w-4 h-4 text-[#0F9F68]" />,
     },
     {
       stage: "Expertise Verification",
       status: "current",
       description: "Your expertise areas are being reviewed",
-      icon: <Clock className="w-5 h-5 text-amber-600" />,
+      icon: <Clock className="w-4 h-4 text-amber-500" />,
     },
     {
       stage: "Professional Review",
       status: "pending",
       description: "Additional verification may be required",
-      icon: <Clock className="w-5 h-5 text-slate-400" />,
+      icon: <Clock className="w-4 h-4 text-gray-300" />,
     },
     {
       stage: "Final Approval",
       status: "pending",
       description: "Awaiting final decision from admin",
-      icon: <Clock className="w-5 h-5 text-slate-400" />,
+      icon: <Clock className="w-4 h-4 text-gray-300" />,
     },
   ];
 
-  const handleRequestClarification = () => {
-    alert("Feature coming soon: Request clarification from admin");
-  };
-
-  const handleResubmitApplication = () => {
-    alert("Feature coming soon: Resubmit application with updates");
-  };
-
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">Application Status</h1>
-        <p className="text-slate-600 mt-1">
-          Track the progress of your expert verification application
-        </p>
+        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#0F9F68]">Verification</p>
+        <h1 className="mt-1 text-2xl sm:text-3xl font-black tracking-tight text-[#171717]">Application Status</h1>
+        <p className="mt-1 text-sm text-gray-400">Track the progress of your expert verification application.</p>
       </div>
 
-      {/* Status Overview */}
-      <div className={`rounded-2xl border-2 p-8 ${getStatusColor(applicationData.currentStatus)}`}>
-        <div className="flex items-start justify-between mb-6">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              {getStatusIcon(applicationData.currentStatus)}
-              <h2 className="text-2xl font-bold">
-                {getStatusLabel(applicationData.currentStatus)}
-              </h2>
+      {/* Status Overview Card */}
+      <div className={`rounded-[28px] border p-6 sm:p-8 ${statusConfig.cardClass}`}>
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="space-y-2">
+            <div className={`flex items-center gap-2 font-black text-lg ${statusConfig.textClass}`}>
+              {statusConfig.icon}
+              <span>{statusConfig.label}</span>
             </div>
-            <p className="text-sm opacity-75">
-              Application ID: <span className="font-mono font-bold">{applicationData.applicationId}</span>
+            <p className="text-xs text-gray-500">
+              Application ID: <span className="font-mono font-bold text-[#171717]">{applicationData.applicationId}</span>
             </p>
           </div>
         </div>
 
-        {/* Status Details Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white/50 rounded-lg p-3">
-            <div className="text-xs font-semibold opacity-75 mb-1">Submitted</div>
-            <div className="font-bold text-sm">{applicationData.submittedAt}</div>
-          </div>
-          <div className="bg-white/50 rounded-lg p-3">
-            <div className="text-xs font-semibold opacity-75 mb-1">Last Updated</div>
-            <div className="font-bold text-sm">{applicationData.lastUpdated}</div>
-          </div>
-          <div className="bg-white/50 rounded-lg p-3">
-            <div className="text-xs font-semibold opacity-75 mb-1">Est. Completion</div>
-            <div className="font-bold text-sm">{applicationData.estimatedCompletionDate}</div>
-          </div>
+        <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {[
+            { label: "Submitted", value: applicationData.submittedAt },
+            { label: "Last Updated", value: applicationData.lastUpdated },
+            { label: "Est. Completion", value: applicationData.estimatedCompletionDate },
+          ].map(({ label, value }) => (
+            <div key={label} className="bg-white/60 rounded-[16px] p-3 border border-white/80">
+              <div className="text-[10px] font-black uppercase tracking-[0.12em] text-gray-400 mb-1">{label}</div>
+              <div className="text-sm font-bold text-[#171717]">{value}</div>
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Admin Notes */}
       {applicationData.adminNotes && (
-        <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-6">
+        <div className="rounded-[24px] border border-blue-200 bg-blue-50 p-5">
           <div className="flex items-start gap-3">
-            <MessageSquare className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div className="w-8 h-8 rounded-[12px] bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+              <MessageSquare className="w-4 h-4" />
+            </div>
             <div>
-              <h3 className="font-semibold text-blue-950 mb-1">Admin Notes</h3>
-              <p className="text-blue-900">{applicationData.adminNotes}</p>
+              <h3 className="text-sm font-bold text-blue-900 mb-1">Admin Notes</h3>
+              <p className="text-sm text-blue-800">{applicationData.adminNotes}</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Timeline */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6">
-        <h2 className="text-xl font-bold text-slate-900 mb-8">Verification Journey</h2>
-
-        <div className="space-y-0">
-          {timeline.map((item, index) => (
-            <div key={index} className="flex gap-4 pb-8 relative">
-              {/* Timeline Line */}
-              {index < timeline.length - 1 && (
-                <div
-                  className={`absolute left-2.5 top-12 w-1 h-16 ${
-                    item.status === "completed"
-                      ? "bg-emerald-400"
-                      : item.status === "current"
-                        ? "bg-amber-400"
-                        : "bg-slate-200"
-                  }`}
-                />
-              )}
-
-              {/* Icon */}
-              <div className="flex-shrink-0 relative z-10 bg-white p-1 rounded-full">
-                {item.icon}
-              </div>
-
-              {/* Content */}
-              <div className="flex-1 pt-1">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-bold text-slate-900">{item.stage}</h3>
-                    <p className="text-sm text-slate-600 mt-1">{item.description}</p>
+      {/* Two-column: Timeline + Expertise/Documents */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {/* Timeline */}
+        <div className="lg:col-span-5 rounded-[28px] border border-[rgba(234,234,236,0.85)] bg-white p-6 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.02)]">
+          <h2 className="text-sm font-bold text-[#171717] mb-6">Verification Journey</h2>
+          <div className="space-y-1">
+            {timeline.map((item, index) => (
+              <div key={index} className="flex gap-3 pb-5 relative last:pb-0">
+                {/* Connector line */}
+                {index < timeline.length - 1 && (
+                  <div
+                    className={`absolute left-[15px] top-8 w-px h-6 ${
+                      item.status === "completed" ? "bg-[#0F9F68]" : item.status === "current" ? "bg-amber-400" : "bg-[rgba(234,234,236,0.85)]"
+                    }`}
+                  />
+                )}
+                {/* Icon */}
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 border ${
+                  item.status === "completed"
+                    ? "bg-[#DDF4EA] border-[#BCE9D5]"
+                    : item.status === "current"
+                    ? "bg-amber-50 border-amber-200"
+                    : "bg-[#F4F4F6] border-[rgba(234,234,236,0.85)]"
+                }`}>
+                  {item.icon}
+                </div>
+                {/* Content */}
+                <div className="flex-1 pt-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="text-xs font-bold text-[#171717]">{item.stage}</h3>
+                    {item.date && <span className="text-[10px] font-bold text-gray-400 shrink-0">{item.date}</span>}
                   </div>
-                  {item.date && (
-                    <div className="text-xs font-semibold text-slate-500 flex-shrink-0 ml-4">
-                      {item.date}
-                    </div>
+                  <p className="text-[11px] text-gray-400 mt-0.5">{item.description}</p>
+                  {item.status === "current" && (
+                    <span className="mt-2 inline-flex px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold border border-amber-200">
+                      In Progress
+                    </span>
                   )}
                 </div>
-
-                {item.status === "current" && (
-                  <div className="mt-3 inline-block px-3 py-1 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full">
-                    In Progress
-                  </div>
-                )}
               </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right column: Expertise + Documents */}
+        <div className="lg:col-span-7 space-y-5">
+          {/* Submitted Expertise */}
+          <div className="rounded-[28px] border border-[rgba(234,234,236,0.85)] bg-white p-6 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.02)]">
+            <div className="flex items-center gap-2.5 mb-4">
+              <div className="w-8 h-8 rounded-[12px] bg-[#DDF4EA] text-[#0F9F68] flex items-center justify-center">
+                <User className="w-4 h-4" />
+              </div>
+              <h2 className="text-sm font-bold text-[#171717]">Submitted Expertise</h2>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Submitted Expertise */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6">
-        <div className="flex items-center gap-2 mb-6">
-          <User className="w-5 h-5 text-emerald-600" />
-          <h2 className="text-xl font-bold text-slate-900">Submitted Expertise</h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {applicationData.submittedExpertise.map((expertise, index) => (
-            <div
-              key={index}
-              className="rounded-lg border border-slate-200 p-4 bg-slate-50 flex items-start justify-between"
-            >
-              <div>
-                <div className="font-semibold text-slate-900">{expertise.name}</div>
-                <div className="text-xs text-slate-600 mt-1">
-                  {expertise.category === "CROP" ? "Primary Crop" : "Professional Expertise"}
-                </div>
-              </div>
-              <div className="text-xs font-semibold px-2.5 py-1 bg-amber-100 text-amber-700 rounded-md">
-                ⏳ Pending
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Submitted Documents */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6">
-        <div className="flex items-center gap-2 mb-6">
-          <FileText className="w-5 h-5 text-emerald-600" />
-          <h2 className="text-xl font-bold text-slate-900">Submitted Documents</h2>
-        </div>
-
-        <div className="space-y-3">
-          {applicationData.submittedDocuments.map((doc, index) => (
-            <div
-              key={index}
-              className={`rounded-lg border p-4 ${
-                doc.status === "VERIFIED"
-                  ? "border-emerald-200 bg-emerald-50"
-                  : "border-amber-200 bg-amber-50"
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <FileText className="w-4 h-4 text-slate-600" />
-                  <div>
-                    <div className="font-semibold text-slate-900">{doc.name}</div>
-                    {doc.verifiedAt && (
-                      <div className="text-xs text-slate-600">Verified on {doc.verifiedAt}</div>
-                    )}
-                  </div>
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {applicationData.submittedExpertise.map((expertise, index) => (
                 <div
-                  className={`text-xs font-semibold px-2.5 py-1 rounded-md ${
+                  key={index}
+                  className="rounded-[20px] border border-[rgba(234,234,236,0.85)] p-3.5 flex items-start justify-between hover:bg-[#F4F4F6]/50 transition-colors"
+                >
+                  <div>
+                    <div className="text-sm font-bold text-[#171717]">{expertise.name}</div>
+                    <div className="text-[10px] text-gray-400 mt-0.5">
+                      {expertise.category === "CROP" ? "Primary Crop" : "Professional Expertise"}
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                    Pending
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Submitted Documents */}
+          <div className="rounded-[28px] border border-[rgba(234,234,236,0.85)] bg-white p-6 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.02)]">
+            <div className="flex items-center gap-2.5 mb-4">
+              <div className="w-8 h-8 rounded-[12px] bg-[#DDF4EA] text-[#0F9F68] flex items-center justify-center">
+                <FileText className="w-4 h-4" />
+              </div>
+              <h2 className="text-sm font-bold text-[#171717]">Submitted Documents</h2>
+            </div>
+            <div className="space-y-2.5">
+              {applicationData.submittedDocuments.map((doc, index) => (
+                <div
+                  key={index}
+                  className={`rounded-[20px] border p-3.5 flex items-center justify-between ${
                     doc.status === "VERIFIED"
-                      ? "bg-emerald-100 text-emerald-700"
-                      : "bg-amber-100 text-amber-700"
+                      ? "border-[#BCE9D5] bg-[#DDF4EA]/30"
+                      : "border-[rgba(234,234,236,0.85)] bg-[#F4F4F6]/50"
                   }`}
                 >
-                  {doc.status === "VERIFIED" ? "✓ Verified" : "⏳ Pending"}
+                  <div className="flex items-center gap-3">
+                    <FileText className={`w-4 h-4 shrink-0 ${doc.status === "VERIFIED" ? "text-[#0F9F68]" : "text-gray-400"}`} />
+                    <div>
+                      <div className="text-sm font-bold text-[#171717]">{doc.name}</div>
+                      {doc.verifiedAt && (
+                        <div className="text-[10px] text-gray-400">Verified on {doc.verifiedAt}</div>
+                      )}
+                    </div>
+                  </div>
+                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
+                    doc.status === "VERIFIED"
+                      ? "bg-[#DDF4EA] text-[#0F9F68] border-[#BCE9D5]"
+                      : "bg-amber-50 text-amber-700 border-amber-200"
+                  }`}>
+                    {doc.status === "VERIFIED" ? "✓ Verified" : "Pending"}
+                  </span>
                 </div>
-              </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="bg-gradient-to-r from-emerald-50 to-emerald-50 rounded-2xl border border-emerald-200 p-6">
-        <h3 className="font-bold text-emerald-950 mb-4">What's Next?</h3>
+      {/* What's Next */}
+      <div className="rounded-[28px] border border-[#BCE9D5] bg-gradient-to-br from-[#DDF4EA]/60 to-white p-6 shadow-[0_4px_20px_-2px_rgba(15,159,104,0.08)]">
+        <div className="flex items-center gap-2.5 mb-4">
+          <div className="w-8 h-8 rounded-[12px] bg-[#DDF4EA] text-[#0F9F68] flex items-center justify-center">
+            <ShieldCheck className="w-4 h-4" />
+          </div>
+          <h3 className="text-sm font-bold text-[#171717]">What&apos;s Next?</h3>
+        </div>
 
-        <div className="space-y-3">
-          {applicationData.currentStatus === "ADDITIONAL_INFO_REQUIRED" ? (
-            <>
-              <p className="text-sm text-emerald-900 mb-4">
-                Please provide the additional information requested by our team to complete your verification.
-              </p>
-              <button
-                onClick={handleResubmitApplication}
-                className="w-full px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
-              >
-                <ArrowRight className="w-4 h-4" />
-                Provide Additional Information
-              </button>
-            </>
-          ) : applicationData.currentStatus === "UNDER_REVIEW" ? (
-            <>
-              <p className="text-sm text-emerald-900 mb-4">
-                Your application is being reviewed. We typically complete verification within 7-10 business days.
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <Link
-                  href="/expert/profile"
-                  className="px-6 py-3 bg-white border-2 border-emerald-200 hover:bg-emerald-50 text-emerald-700 font-semibold rounded-lg transition-colors text-center"
-                >
-                  Update Profile
-                </Link>
-                <button
-                  onClick={handleRequestClarification}
-                  className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition-colors"
-                >
-                  Contact Support
-                </button>
-              </div>
-            </>
-          ) : applicationData.currentStatus === "APPROVED" ? (
-            <>
-              <p className="text-sm text-emerald-900 mb-4">
-                Congratulations! Your expert profile has been verified. You can now accept consultations from farmers.
-              </p>
+        {applicationData.currentStatus === "UNDER_REVIEW" && (
+          <>
+            <p className="text-sm text-gray-500 mb-4">
+              Your application is being reviewed. We typically complete verification within 7–10 business days.
+            </p>
+            <div className="flex flex-wrap gap-3">
               <Link
-                href="/expert/consultations"
-                className="w-full px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+                href="/expert/profile"
+                className="px-5 py-2.5 bg-white border border-[rgba(234,234,236,0.85)] hover:bg-[#F4F4F6] text-[#171717] font-bold text-sm rounded-full transition-colors"
               >
-                <ArrowRight className="w-4 h-4" />
-                View Consultations
+                Update Profile
               </Link>
-            </>
-          ) : applicationData.currentStatus === "REJECTED" ? (
-            <>
-              <p className="text-sm text-emerald-900 mb-4">
-                Your application was not approved. Please review the feedback and resubmit if applicable.
-              </p>
               <button
-                onClick={handleResubmitApplication}
-                className="w-full px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition-colors"
+                onClick={() => alert("Feature coming soon: Contact support")}
+                className="px-5 py-2.5 bg-[#0F9F68] hover:bg-[#0D8A5A] text-white font-bold text-sm rounded-full transition-colors shadow-[0_4px_12px_rgba(15,159,104,0.25)] cursor-pointer"
               >
-                Resubmit Application
+                Contact Support
               </button>
-            </>
-          ) : null}
-        </div>
-      </div>
+            </div>
+          </>
+        )}
 
-      {/* Help Card */}
-      <div className="bg-slate-50 rounded-2xl border border-slate-200 p-6">
-        <h3 className="font-bold text-slate-900 mb-3">Need Help?</h3>
-        <p className="text-sm text-slate-700 mb-4">
-          If you have questions about your application status or need assistance, please contact our support team.
-        </p>
-        <Link
-          href="/contact"
-          className="text-emerald-600 hover:text-emerald-700 font-semibold text-sm flex items-center gap-1"
-        >
-          Contact Support <ArrowRight className="w-3 h-3" />
-        </Link>
+        {applicationData.currentStatus === "APPROVED" && (
+          <>
+            <p className="text-sm text-gray-500 mb-4">
+              Congratulations! Your expert profile has been verified. You can now accept consultations from farmers.
+            </p>
+            <Link
+              href="/expert/consultations"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0F9F68] hover:bg-[#0D8A5A] text-white font-bold text-sm rounded-full transition-colors shadow-[0_4px_12px_rgba(15,159,104,0.25)]"
+            >
+              <ArrowRight className="w-4 h-4" />
+              View Consultations
+            </Link>
+          </>
+        )}
+
+        {applicationData.currentStatus === "REJECTED" && (
+          <>
+            <p className="text-sm text-gray-500 mb-4">
+              Your application was not approved. Please review the feedback and resubmit if applicable.
+            </p>
+            <button
+              onClick={() => alert("Feature coming soon: Resubmit application")}
+              className="px-5 py-2.5 bg-[#0F9F68] hover:bg-[#0D8A5A] text-white font-bold text-sm rounded-full transition-colors shadow-[0_4px_12px_rgba(15,159,104,0.25)] cursor-pointer"
+            >
+              Resubmit Application
+            </button>
+          </>
+        )}
+
+        {applicationData.currentStatus === "ADDITIONAL_INFO_REQUIRED" && (
+          <>
+            <p className="text-sm text-gray-500 mb-4">
+              Please provide the additional information requested by our team to complete your verification.
+            </p>
+            <button
+              onClick={() => alert("Feature coming soon: Provide additional info")}
+              className="px-5 py-2.5 bg-[#0F9F68] hover:bg-[#0D8A5A] text-white font-bold text-sm rounded-full transition-colors shadow-[0_4px_12px_rgba(15,159,104,0.25)] cursor-pointer"
+            >
+              Provide Additional Information
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

@@ -1,0 +1,180 @@
+import { CropExpertiseItem, SpecializationItem, ProfessionalTitle } from "@/types/expert-application";
+export const PROFESSIONAL_TITLES: ProfessionalTitle[] = [
+  "Agricultural Consultant",
+  "Agricultural Scientist",
+  "Agriculture Officer",
+  "Agriculture Graduate",
+  "Agrovet Professional",
+  "Researcher",
+  "Experienced Farmer",
+  "Plant Pathologist",
+  "Soil Scientist",
+  "Other",
+];
+
+export const HIGHEST_QUALIFICATIONS = [
+  "B.Sc. Agriculture (Honours)",
+  "M.Sc. Agriculture (Agronomy / Pathology / Entomology)",
+  "Ph.D. in Agricultural Sciences",
+  "Diploma in Agriculture (I.Sc. Ag / CTEVT)",
+  "B.Tech / B.E. Agricultural Engineering",
+  "M.Sc. Soil Science",
+  "Master of Veterinary Science (M.V.Sc)",
+  "Other Certified Agricultural Training",
+];
+
+export const CROPS_CATALOG: CropExpertiseItem[] = [
+  {
+    id: "Rice (Paddy)",
+    name: "Rice (Paddy)",
+    nepaliName: "धान",
+    image: "/images/crops/rice.png",
+    category: "Cereals",
+  },
+  {
+    id: "Tomato",
+    name: "Tomato",
+    nepaliName: "गोलभेंडा",
+    image: "/images/crops/tomato.png",
+    category: "Vegetables",
+  },
+  {
+    id: "Maize (Corn)",
+    name: "Maize (Corn)",
+    nepaliName: "मकै",
+    image: "/images/crops/maize.png",
+    category: "Cereals",
+  },
+  {
+    id: "Potato",
+    name: "Potato",
+    nepaliName: "आलु",
+    image: "/images/crops/patato1.png",
+    category: "Vegetables",
+  },
+  {
+    id: "Wheat",
+    name: "Wheat",
+    nepaliName: "गहुँ",
+    image: "/images/crops/wheat.png",
+    category: "Cereals",
+  },
+  {
+    id: "Apple",
+    name: "Apple",
+    nepaliName: "स्याउ",
+    image: "/images/crops/fruits.png",
+    category: "Fruits",
+  },
+  {
+    id: "Mandarin Orange",
+    name: "Mandarin Orange",
+    nepaliName: "सुन्तला",
+    image: "/images/crops/fruits.png",
+    category: "Fruits",
+  },
+  {
+    id: "Large Cardamom",
+    name: "Large Cardamom",
+    nepaliName: "अलैँची",
+    image: "/images/crops/tea.png",
+    category: "Cash Crops",
+  },
+  {
+    id: "Tea",
+    name: "Tea",
+    nepaliName: "चिया",
+    image: "/images/crops/tea.png",
+    category: "Cash Crops",
+  },
+  {
+    id: "Mustard",
+    name: "Mustard",
+    nepaliName: "तोरी",
+    image: "/images/crops/wheat.png",
+    category: "Cash Crops",
+  },
+  {
+    id: "Lentil",
+    name: "Lentil",
+    nepaliName: "मुसुरो",
+    image: "/images/crops/wheat.png",
+    category: "Legumes",
+  },
+  {
+    id: "Cauliflower",
+    name: "Cauliflower",
+    nepaliName: "काउली",
+    image: "/images/crops/tomato.png",
+    category: "Vegetables",
+  },
+];
+
+export const SPECIALIZATIONS_CATALOG: SpecializationItem[] = [
+  {
+    id: "PEST_DISEASE",
+    name: "Crop Disease Management",
+    description: "Diagnosis and remediation of fungal, bacterial, and viral plant pathogens.",
+  },
+  {
+    id: "SOIL_HEALTH",
+    name: "Soil Health & Nutrient Management",
+    description: "Soil pH balancing, organic matter enhancement, and micronutrient calibration.",
+  },
+  {
+    id: "ORGANIC_FARMING",
+    name: "Organic & Sustainable Farming",
+    description: "Drip systems, precision moisture monitoring, and furrow management.",
+  },
+  {
+    id: "IRRIGATION",
+    name: "Irrigation & Water Conservation",
+    description: "Drip irrigation, rainwater harvesting, drought management.",
+  },
+  {
+    id: "AGRONOMY",
+    name: "Agronomy & Crop Production",
+    description: "Crop rotation, varietal selection, optimal sowing and harvesting.",
+  },
+  {
+    id: "HORTICULTURE",
+    name: "Horticulture & Greenhouse Farming",
+    description: "Protected polyhouse cultivation, nursery management, grafting.",
+  },
+  {
+    id: "POST_HARVEST",
+    name: "Post-Harvest Technology",
+    description: "High-yield hybrid varieties, seed treatment, and nursery management.",
+  },
+  {
+    id: "AGRI_ECONOMICS",
+    name: "Agri-Economics & Market Linkage",
+    description: "Yield forecasting, labor optimization, and operational budgeting.",
+  },
+];
+
+export const LOCATIONS_CATALOG = [
+  { id: "koshi", name: "Koshi Province", nepaliName: "कोशी प्रदेश", type: "PROVINCE" as const },
+  { id: "Jhapa", name: "Jhapa", nepaliName: "झापा", type: "DISTRICT" as const },
+  { id: "Ilam", name: "Ilam", nepaliName: "इलाम", type: "DISTRICT" as const },
+  { id: "Morang", name: "Morang", nepaliName: "मोरङ", type: "DISTRICT" as const },
+  { id: "madhesh", name: "Madhesh Province", nepaliName: "मधेश प्रदेश", type: "PROVINCE" as const },
+  { id: "Dhanusha", name: "Dhanusha", nepaliName: "धनुषा", type: "DISTRICT" as const },
+  { id: "Sarlahi", name: "Sarlahi", nepaliName: "सर्लाही", type: "DISTRICT" as const },
+  { id: "bagmati", name: "Bagmati Province", nepaliName: "बागमती प्रदेश", type: "PROVINCE" as const },
+  { id: "Kathmandu", name: "Kathmandu", nepaliName: "काठमाडौँ", type: "DISTRICT" as const },
+  { id: "Lalitpur", name: "Lalitpur", nepaliName: "ललितपुर", type: "DISTRICT" as const },
+  { id: "Bhaktapur", name: "Bhaktapur", nepaliName: "भक्तपुर", type: "DISTRICT" as const },
+  { id: "Chitwan", name: "Chitwan", nepaliName: "चितवन", type: "DISTRICT" as const },
+  { id: "Kavrepalanchok", name: "Kavrepalanchok", nepaliName: "काभ्रेपलाञ्चोक", type: "DISTRICT" as const },
+  { id: "gandaki", name: "Gandaki Province", nepaliName: "गण्डकी प्रदेश", type: "PROVINCE" as const },
+  { id: "Kaski", name: "Kaski", nepaliName: "कास्की", type: "DISTRICT" as const },
+  { id: "Mustang", name: "Mustang", nepaliName: "मुस्ताङ", type: "DISTRICT" as const },
+  { id: "lumbini", name: "Lumbini Province", nepaliName: "लुम्बिनी प्रदेश", type: "PROVINCE" as const },
+  { id: "Rupandehi", name: "Rupandehi", nepaliName: "रुपन्देही", type: "DISTRICT" as const },
+  { id: "Kapilvastu", name: "Kapilvastu", nepaliName: "कपिलवस्तु", type: "DISTRICT" as const },
+  { id: "karnali", name: "Karnali Province", nepaliName: "कर्णाली प्रदेश", type: "PROVINCE" as const },
+  { id: "Jumla", name: "Jumla", nepaliName: "जुम्ला", type: "DISTRICT" as const },
+  { id: "sudurpashchim", name: "Sudurpashchim Province", nepaliName: "सुदूरपश्चिम प्रदेश", type: "PROVINCE" as const },
+  { id: "Kailali", name: "Kailali", nepaliName: "कैलाली", type: "DISTRICT" as const },
+];

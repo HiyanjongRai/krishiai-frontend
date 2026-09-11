@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  Home,
   Sprout,
   Scan,
   Bot,
@@ -21,18 +20,12 @@ export function FarmerSidebar() {
   const pathname = usePathname();
   const { logout } = useAuth();
 
-  const navItems = [
+  const primaryNavItems = [
     {
       label: "Dashboard",
       href: "/farmer/dashboard",
       icon: LayoutDashboard,
       isActive: pathname === "/farmer/dashboard",
-    },
-    {
-      label: "Homepage",
-      href: "/",
-      icon: Home,
-      isActive: false,
     },
     {
       label: "My Crops",
@@ -52,6 +45,9 @@ export function FarmerSidebar() {
       icon: Bot,
       isActive: pathname.startsWith("/farmer/ai-advisor"),
     },
+  ];
+
+  const secondaryNavItems = [
     {
       label: "Weather",
       href: "/farmer/dashboard#weather",
@@ -65,7 +61,7 @@ export function FarmerSidebar() {
       isActive: pathname.startsWith("/farmer/consultations"),
     },
     {
-      label: "Advisories",
+      label: "History",
       href: "/farmer/dashboard#history",
       icon: History,
       isActive: false,
@@ -73,53 +69,96 @@ export function FarmerSidebar() {
   ];
 
   return (
-    <aside className="hidden lg:flex flex-col justify-between bg-white border border-slate-100 rounded-3xl p-3.5 shadow-2xs min-h-[720px] w-52 shrink-0 sticky top-24">
-      {/* Top Navigation Items with Clear Text Labels */}
-      <div className="flex flex-col gap-1.5 w-full">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-semibold transition-all ${
-                item.isActive
-                  ? "bg-[#166534] text-white font-bold shadow-xs"
-                  : "text-slate-600 hover:text-[#166534] hover:bg-emerald-50/60"
-              }`}
-            >
-              <Icon
-                className={`w-4 h-4 shrink-0 ${
-                  item.isActive ? "text-white" : "text-slate-500"
+    <aside
+      className="hidden lg:flex flex-col justify-between bg-white border border-[rgba(234,234,236,0.85)] rounded-[24px] p-2.5 w-14 shrink-0 sticky top-20 min-h-[calc(100vh-100px)] max-h-[calc(100vh-100px)] shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.02)]"
+    >
+      {/* Top groups */}
+      <div className="space-y-4">
+        {/* Primary nav icons */}
+        <nav className="flex flex-col items-center gap-1.5">
+          {primaryNavItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.label}
+                href={item.href}
+                title={item.label}
+                className={`group relative w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-150 ${
+                  item.isActive
+                    ? "bg-[#0F9F68] text-white shadow-sm"
+                    : "text-gray-400 hover:bg-[#F4F4F6] hover:text-[#171717]"
                 }`}
-              />
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
+              >
+                <Icon className="w-4 h-4 shrink-0" />
+                {/* Tooltip */}
+                <span className="pointer-events-none absolute left-full ml-3 z-50 whitespace-nowrap rounded-lg bg-[#171717] px-2.5 py-1.5 text-[11px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-150 shadow-lg">
+                  {item.label}
+                  <span className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 bg-[#171717]" />
+                </span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Separator pill */}
+        <div className="w-6 h-[1px] bg-gray-100 mx-auto" />
+
+        {/* Secondary nav icons */}
+        <nav className="flex flex-col items-center gap-1.5">
+          {secondaryNavItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.label}
+                href={item.href}
+                title={item.label}
+                className={`group relative w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-150 ${
+                  item.isActive
+                    ? "bg-[#0F9F68] text-white shadow-sm"
+                    : "text-gray-400 hover:bg-[#F4F4F6] hover:text-[#171717]"
+                }`}
+              >
+                <Icon className="w-4 h-4 shrink-0" />
+                {/* Tooltip */}
+                <span className="pointer-events-none absolute left-full ml-3 z-50 whitespace-nowrap rounded-lg bg-[#171717] px-2.5 py-1.5 text-[11px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-150 shadow-lg">
+                  {item.label}
+                  <span className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 bg-[#171717]" />
+                </span>
+              </Link>
+            );
+          })}
+        </nav>
       </div>
 
-      {/* Bottom Controls: Settings & Logout */}
-      <div className="flex flex-col gap-1.5 w-full pt-3 border-t border-slate-100">
+      {/* Bottom: Settings + Logout */}
+      <div className="flex flex-col items-center gap-1.5 pt-3 border-t border-gray-100">
         <Link
           href="/farmer/profile"
-          className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-semibold transition-colors ${
+          title="Settings"
+          className={`group relative w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-150 ${
             pathname === "/farmer/profile"
-              ? "bg-[#166534] text-white font-bold shadow-xs"
-              : "text-slate-600 hover:text-[#166534] hover:bg-slate-50"
+              ? "bg-[#0F9F68] text-white shadow-sm"
+              : "text-gray-400 hover:bg-[#F4F4F6] hover:text-[#171717]"
           }`}
         >
-          <Settings className="w-4 h-4 shrink-0 text-slate-400" />
-          <span>Settings</span>
+          <Settings className="w-4 h-4 shrink-0" />
+          <span className="pointer-events-none absolute left-full ml-3 z-50 whitespace-nowrap rounded-lg bg-[#171717] px-2.5 py-1.5 text-[11px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-150 shadow-lg">
+            Settings
+            <span className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 bg-[#171717]" />
+          </span>
         </Link>
 
         <button
           type="button"
           onClick={logout}
-          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer text-left"
+          title="Sign Out"
+          className="group relative w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:bg-rose-50 hover:text-rose-600 transition-all duration-150 cursor-pointer"
         >
           <LogOut className="w-4 h-4 shrink-0" />
-          <span>Sign Out</span>
+          <span className="pointer-events-none absolute left-full ml-3 z-50 whitespace-nowrap rounded-lg bg-[#171717] px-2.5 py-1.5 text-[11px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-150 shadow-lg">
+            Sign Out
+            <span className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 bg-[#171717]" />
+          </span>
         </button>
       </div>
     </aside>

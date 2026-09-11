@@ -1,6 +1,6 @@
 import React from "react";
 import { ExpertApplicationProvider } from "@/providers/expert-application-provider";
-import { ApplicationStatusView } from "@/components/expert-register/ApplicationStatusView";
+import { ApplicationStatusView } from "@/components/expert/registration/ApplicationStatusView";
 
 export const metadata = {
   title: "Expert Application Status | KrishiAI",

@@ -41,22 +41,22 @@ export function ExpertSection() {
   ];
 
   return (
-    <section id="experts" className="py-20 sm:py-24 bg-white border-t border-slate-100">
+    <section id="experts" className="py-20 sm:py-24 bg-white border-t border-[rgba(234,234,236,0.85)]">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
-          
+
           <div className="lg:col-span-4 space-y-6 text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/90 text-emerald-800 text-xs font-semibold tracking-wide">
-              <UserCheck className="w-3.5 h-3.5 text-emerald-600" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#DDF4EA] border border-[#BCE9D5] text-[#0F9F68] text-xs font-bold tracking-wide">
+              <UserCheck className="w-3.5 h-3.5" />
               <span>EXPERT SUPPORT</span>
             </div>
 
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+            <h2 className="text-3xl sm:text-4xl font-black text-[#171717] tracking-tight leading-tight">
               When You Need More <br />
               Than AI, Talk to an Expert.
             </h2>
 
-            <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+            <p className="text-sm text-gray-500 leading-relaxed">
               AI can help you understand possible crop problems, but some situations
               require professional judgment. KrishiAI helps farmers connect with
               verified agricultural experts.
@@ -65,14 +65,14 @@ export function ExpertSection() {
             <div className="flex flex-wrap items-center gap-3">
               <Link
                 href="/experts"
-                className="inline-flex items-center gap-2 px-6 py-3.5 text-sm font-semibold text-white bg-[#0f3d26] hover:bg-[#14532d] rounded-xl transition-all shadow-md hover:shadow-lg group cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-3 text-sm font-bold text-white bg-[#0F9F68] hover:bg-[#0D8A5A] rounded-full transition-all shadow-[0_4px_12px_rgba(15,159,104,0.3)] group cursor-pointer"
               >
                 <span>Find an Expert</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </Link>
               <Link
                 href="/expert-register"
-                className="inline-flex items-center gap-2 px-5 py-3.5 text-sm font-semibold text-emerald-900 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 rounded-xl transition-all cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-3 text-sm font-bold text-[#0F9F68] bg-[#DDF4EA] hover:bg-[#cbf1e1] border border-[#BCE9D5] rounded-full transition-all cursor-pointer"
               >
                 <span>Join as Expert</span>
               </Link>
@@ -86,9 +86,9 @@ export function ExpertSection() {
                 return (
                   <div
                     key={exp.id}
-                    className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center space-y-3 group hover:border-emerald-200"
+                    className="rounded-[24px] border border-[rgba(234,234,236,0.85)] bg-white p-5 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.07)] hover:border-[#BCE9D5] transition-all flex flex-col items-center text-center space-y-3 group"
                   >
-                    <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-emerald-100 ring-4 ring-slate-50 group-hover:scale-105 transition-transform">
+                    <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-[rgba(234,234,236,0.85)] ring-4 ring-[#F4F4F6] group-hover:ring-[#DDF4EA] transition-all">
                       <Image
                         src={exp.avatar}
                         alt={exp.name}
@@ -99,31 +99,31 @@ export function ExpertSection() {
                     </div>
 
                     <div className="space-y-0.5">
-                      <h4 className="text-sm font-bold text-slate-900">
+                      <h4 className="text-sm font-bold text-[#171717]">
                         {exp.name}
                       </h4>
-                      <p className="text-xs text-slate-500 font-medium">
+                      <p className="text-xs text-gray-400 font-medium">
                         {exp.role}
                       </p>
                     </div>
 
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200/80 text-[11px] font-medium text-slate-700">
-                      <CatIcon className="w-3 h-3 text-emerald-600" />
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#DDF4EA] border border-[#BCE9D5] text-[11px] font-bold text-[#0F9F68]">
+                      <CatIcon className="w-3 h-3" />
                       <span>{exp.category}</span>
                     </div>
 
-                    <div className="w-full pt-2 border-t border-slate-100 space-y-1 text-xs">
-                      <div className="flex items-center justify-center gap-1 font-semibold text-slate-800">
+                    <div className="w-full pt-2 border-t border-[rgba(234,234,236,0.85)] space-y-1 text-xs">
+                      <div className="flex items-center justify-center gap-1 font-bold text-[#171717]">
                         <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                         <span>{exp.rating}</span>
-                        <span className="text-slate-400 font-normal">({exp.reviews})</span>
+                        <span className="text-gray-400 font-normal">({exp.reviews})</span>
                       </div>
-                      <p className="text-[11px] text-slate-500">
+                      <p className="text-[11px] text-gray-400">
                         {exp.experience}
                       </p>
-                      
-                      <div className="flex items-center justify-center gap-1 text-[11px] font-semibold text-emerald-700 pt-0.5">
-                        <Check className="w-3 h-3 text-emerald-600 stroke-[3]" />
+
+                      <div className="flex items-center justify-center gap-1 text-[11px] font-bold text-[#0F9F68] pt-0.5">
+                        <Check className="w-3 h-3 stroke-[3]" />
                         <span>Verified</span>
                       </div>
                     </div>
@@ -131,7 +131,7 @@ export function ExpertSection() {
                     <div className="pt-2 w-full">
                       <Link
                         href={`/experts/${exp.id}`}
-                        className="text-xs font-semibold text-emerald-800 hover:text-emerald-950 flex items-center justify-center gap-1 transition-colors"
+                        className="text-xs font-bold text-[#0F9F68] hover:text-[#0D8A5A] flex items-center justify-center gap-1 transition-colors"
                       >
                         <span>View Expert</span>
                         <ArrowRight className="w-3 h-3" />

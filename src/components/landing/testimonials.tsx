@@ -4,27 +4,30 @@ import { Quote } from "lucide-react";
 
 export function Testimonials() {
   return (
-    <section className="py-16 sm:py-20 bg-[#fafcf9] border-t border-slate-100">
+    <section className="py-16 sm:py-20 bg-[#F4F4F6] border-t border-[rgba(234,234,236,0.85)]">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#0F9F68] mb-3">
+            Testimonials
+          </p>
+          <h2 className="text-3xl font-black text-[#171717] tracking-tight">
             Trusted by Farmers Across Nepal.
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {sampleTestimonials.map((t, idx) => (
             <div
               key={idx}
-              className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs relative space-y-4"
+              className="rounded-[24px] border border-[rgba(234,234,236,0.85)] bg-white p-6 sm:p-8 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.07)] transition-shadow relative space-y-4"
             >
-              <Quote className="w-8 h-8 text-emerald-500/30" />
-              <p className="text-sm sm:text-base text-slate-700 leading-relaxed italic">
-                "{t.quote}"
+              <Quote className="w-8 h-8 text-[#DDF4EA]" />
+              <p className="text-sm text-gray-600 leading-relaxed italic">
+                &ldquo;{t.quote}&rdquo;
               </p>
-              <div className="pt-2 border-t border-slate-100">
-                <p className="text-sm font-bold text-slate-900">{t.author}</p>
-                <p className="text-xs text-slate-500">{t.crop} • {t.location}</p>
+              <div className="pt-2 border-t border-[rgba(234,234,236,0.85)]">
+                <p className="text-sm font-bold text-[#171717]">{t.author}</p>
+                <p className="text-xs text-gray-400">{t.crop} • {t.location}</p>
               </div>
             </div>
           ))}

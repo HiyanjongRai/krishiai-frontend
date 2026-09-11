@@ -2,14 +2,14 @@
 export type UserRole = "ROLE_FARMER" | "ROLE_EXPERT" | "ROLE_ADMIN";
 
 // Mirrors Java enum: com.krishiai.user.entity.UserStatus
-export type UserStatus = "ACTIVE" | "INACTIVE" | "SUSPENDED" | "PENDING_VERIFICATION";
+export type UserStatus = "ACTIVE" | "INACTIVE" | "SUSPENDED" | "PENDING" | "PENDING_VERIFICATION" | "BLOCKED";
 
 // Mirrors Java record: com.krishiai.user.dto.UserResponse
 export interface UserResponse {
   id: number;
   email: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
   fullName: string;
   phone: string | null;
   profileImage: string | null;
@@ -26,12 +26,26 @@ export interface LoginRequest {
   password: string;
 }
 
-// Mirrors Java record: com.krishiai.auth.dto.LoginResponse
+// Mirrors Java record: com.krishiai.auth.dto.LoginResponse & TokenResponse
 export interface LoginResponse {
   accessToken: string;
   tokenType: string;
   expiresInMs: number;
+  refreshToken?: string;
   user: UserResponse;
+}
+
+export type TokenResponse = LoginResponse;
+
+// Mirrors Java record: com.krishiai.auth.dto.RefreshTokenRequest
+export interface RefreshTokenRequest {
+  refreshToken: string;
+}
+
+// Mirrors Java record: com.krishiai.auth.dto.ChangePasswordRequest
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
 }
 
 // Mirrors Java record: com.krishiai.auth.dto.RegisterRequest
@@ -56,6 +70,7 @@ export interface ApiResponse<T> {
 export interface AuthContextType {
   user: UserResponse | null;
   token: string | null;
+  refreshToken: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   isLoggingOut: boolean;
@@ -64,5 +79,6 @@ export interface AuthContextType {
   checkExpertVerification: () => Promise<boolean>;
   login: (email: string, password: string) => Promise<LoginResponse>;
   register: (data: RegisterRequest) => Promise<UserResponse>;
-  logout: () => void;
+  logout: () => Promise<void>;
+  changePassword: (data: ChangePasswordRequest) => Promise<void>;
 }

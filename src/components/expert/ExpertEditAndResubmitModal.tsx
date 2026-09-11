@@ -881,7 +881,7 @@ export function ExpertEditAndResubmitModal({
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-500">
-                  Select the provinces or districts where you can provide advisory services.
+                  Select the provinces, districts, or municipalities where you can provide advisory services.
                 </p>
                 {isLoadingCatalogs && availableLocations.length === 0 ? (
                   <div className="flex flex-wrap gap-2">

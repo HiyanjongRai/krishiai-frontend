@@ -1,6 +1,6 @@
 import React from "react";
-import { Navbar } from "@/components/layout/navbar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { Navbar } from "@/components/shared/layout/navbar";
 import { RoleGuard } from "@/components/auth/RoleGuard";
 
 export const metadata = {
@@ -15,18 +15,12 @@ export default function AdminLayout({
 }) {
   return (
     <RoleGuard allowedRoles={["ROLE_ADMIN"]}>
-      <div className="min-h-screen bg-[#F8FAF6] text-[#17201A] font-sans antialiased">
-        {/* Persistent Unified Navbar */}
-        <Navbar />
-
-        {/* Main Container: Fixed Sidebar + Dynamic Content */}
-        <div className="max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex gap-5 lg:gap-6 items-start">
-            {/* Persistent Admin Sidebar */}
-            <AdminSidebar />
-
-            {/* Dynamic Admin Page Content */}
-            <main className="flex-1 min-w-0">{children}</main>
+      <div className="min-h-screen bg-[#F4F4F6] text-[#171717] font-sans antialiased">
+        <div className="flex min-h-screen">
+          <AdminSidebar />
+          <div className="flex min-w-0 flex-1 flex-col">
+            <Navbar />
+            <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 py-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6">{children}</main>
           </div>
         </div>
       </div>

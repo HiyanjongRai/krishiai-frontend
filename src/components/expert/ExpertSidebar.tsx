@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/providers/auth-provider";
 import { api } from "@/lib/api";
+import { formatFullName } from "@/lib/format-utils";
 import {
   LayoutDashboard,
   MessageSquareText,
@@ -18,6 +19,8 @@ import {
   LogOut,
   Sparkles,
   ExternalLink,
+  FileText,
+  Sprout,
 } from "lucide-react";
 
 interface ExpertQuickProfile {
@@ -33,7 +36,6 @@ export function ExpertSidebar() {
   const [profileData, setProfileData] = useState<ExpertQuickProfile | null>(null);
 
   useEffect(() => {
-    // Attempt to fetch expert profile state for dynamic badges
     let isMounted = true;
     api
       .get<any>("/v1/expert/profile")
@@ -48,7 +50,7 @@ export function ExpertSidebar() {
         }
       })
       .catch(() => {
-        // graceful fallback if offline
+        // graceful fallback
       });
 
     return () => {
@@ -68,15 +70,27 @@ export function ExpertSidebar() {
       href: "/expert/consultations",
       icon: MessageSquareText,
       badge: "5",
-      badgeColor: "bg-amber-100 text-amber-800 border-amber-200",
+      badgeColor: "bg-[#DDF4EA] text-[#0F9F68] border-[#BCE9D5]",
       isActive: pathname.startsWith("/expert/consultations"),
     },
     {
-      label: "AI Reviews",
+      label: "Crop Expertise",
+      href: "/expert/expertise",
+      icon: Sprout,
+      isActive: pathname.startsWith("/expert/expertise"),
+    },
+    {
+      label: "Verification Documents",
+      href: "/expert/documents",
+      icon: FileText,
+      isActive: pathname.startsWith("/expert/documents"),
+    },
+    {
+      label: "AI Diagnostic Reviews",
       href: "/expert/ai-reviews",
       icon: Bot,
-      badge: "New",
-      badgeColor: "bg-emerald-100 text-emerald-800 border-emerald-200",
+      badge: "AI",
+      badgeColor: "bg-blue-50 text-blue-700 border-blue-200",
       isActive: pathname.startsWith("/expert/ai-reviews"),
     },
     {
@@ -97,19 +111,19 @@ export function ExpertSidebar() {
   const appStatus = profileData?.applicationStatus || "DRAFT";
 
   return (
-    <aside className="w-64 shrink-0 hidden lg:block select-none">
-      <div className="bg-white rounded-3xl border border-[#E2E8E3] shadow-xs p-4 space-y-4 sticky top-24">
+    <aside className="w-68 shrink-0 hidden lg:block select-none">
+      <div className="bg-white rounded-[28px] border border-[rgba(234,234,236,0.85)] shadow-[0_4px_20px_-2px_rgba(0,0,0,0.03)] p-4 space-y-4 sticky top-24">
         {/* Brand / Role Banner */}
-        <div className="flex items-center gap-3 px-2 py-2 border-b border-slate-100">
-          <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-[#166534] to-[#15803d] flex items-center justify-center text-white shadow-xs">
+        <div className="flex items-center gap-3 px-2 py-2 border-b border-gray-100">
+          <div className="w-10 h-10 rounded-[14px] bg-gradient-to-br from-[#0F9F68] to-[#0A6B45] flex items-center justify-center text-white shadow-2xs ring-2 ring-[#0F9F68]/15">
             <Sparkles className="w-4 h-4" />
           </div>
           <div className="min-w-0">
-            <span className="font-black text-sm tracking-tight text-[#17201A] block leading-none">
-              Krishi<span className="text-emerald-600">AI</span>
+            <span className="font-bold text-base tracking-tight text-[#171717] block leading-none">
+              Krishi<span className="text-[#0F9F68]">AI</span>
             </span>
-            <span className="text-[10px] font-bold text-emerald-700 block mt-0.5 tracking-wide uppercase">
-              Expert Portal
+            <span className="text-[10px] font-bold text-[#0F9F68] block mt-1 tracking-wide uppercase">
+              Expert Specialist Portal
             </span>
           </div>
         </div>
@@ -117,42 +131,48 @@ export function ExpertSidebar() {
         {/* Verification Status Banner Pill */}
         <div className="px-1">
           {isVerified ? (
-            <div className="flex items-center gap-2 p-2.5 rounded-2xl bg-emerald-50 border border-emerald-200/80 text-emerald-800">
-              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+            <div className="flex items-center gap-2.5 p-3 rounded-[20px] bg-[#DDF4EA]/80 border border-[#BCE9D5] text-[#0F9F68]">
+              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#0F9F68] shadow-2xs shrink-0">
+                <ShieldCheck className="w-4 h-4" />
+              </div>
               <div className="min-w-0">
-                <span className="text-[11px] font-bold block leading-tight">Verified Expert</span>
-                <span className="text-[9px] text-emerald-600 font-medium">Licensed Agricultural Advisor</span>
+                <span className="text-xs font-bold block leading-tight text-[#171717]">Verified Expert</span>
+                <span className="text-[10px] text-[#0F9F68] font-semibold">Licensed Field Agronomist</span>
               </div>
             </div>
-          ) : appStatus === "SUBMITTED" ? (
-            <div className="flex items-center gap-2 p-2.5 rounded-2xl bg-amber-50 border border-amber-200/80 text-amber-800">
-              <Clock className="w-4 h-4 text-amber-600 shrink-0 animate-pulse" />
+          ) : appStatus === "SUBMITTED" || appStatus === "UNDER_REVIEW" ? (
+            <div className="flex items-center gap-2.5 p-3 rounded-[20px] bg-blue-50 border border-blue-200 text-blue-800">
+              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-blue-600 shadow-2xs shrink-0">
+                <Clock className="w-4 h-4 animate-pulse" />
+              </div>
               <div className="min-w-0">
-                <span className="text-[11px] font-bold block leading-tight">Under Admin Review</span>
-                <span className="text-[9px] text-amber-600 font-medium">Verification in progress</span>
+                <span className="text-xs font-bold block leading-tight text-[#171717]">Under Admin Review</span>
+                <span className="text-[10px] text-blue-600 font-medium">Verification in progress</span>
               </div>
             </div>
           ) : (
             <Link
               href="/expert/profile"
-              className="flex items-center gap-2 p-2.5 rounded-2xl bg-slate-50 border border-slate-200 hover:bg-emerald-50/50 hover:border-emerald-300 transition-colors text-slate-700 group"
+              className="flex items-center gap-2.5 p-3 rounded-[20px] bg-[#F4F4F6] border border-gray-200/80 hover:bg-[#DDF4EA]/50 hover:border-[#BCE9D5] transition-colors text-gray-700 group"
             >
-              <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
+              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-amber-500 shadow-2xs shrink-0">
+                <AlertCircle className="w-4 h-4" />
+              </div>
               <div className="min-w-0 flex-1">
-                <span className="text-[11px] font-bold block leading-tight text-slate-900 group-hover:text-emerald-700">
+                <span className="text-xs font-bold block leading-tight text-[#171717] group-hover:text-[#0F9F68]">
                   Complete Verification
                 </span>
-                <span className="text-[9px] text-slate-500">Submit documents to activate</span>
+                <span className="text-[10px] text-gray-500 font-medium">Submit documents to activate</span>
               </div>
-              <ExternalLink className="w-3 h-3 text-slate-400 group-hover:text-emerald-600 shrink-0" />
+              <ExternalLink className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#0F9F68] shrink-0" />
             </Link>
           )}
         </div>
 
         {/* Navigation Menu */}
-        <nav className="space-y-1.5">
-          <div className="text-[10px] font-bold text-slate-400 tracking-wider px-3 py-1 uppercase">
-            Navigation
+        <nav className="space-y-1">
+          <div className="text-[10px] font-bold text-gray-400 tracking-wider px-3 py-1 uppercase">
+            Workspace
           </div>
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -160,10 +180,10 @@ export function ExpertSidebar() {
               <Link
                 key={item.label}
                 href={item.href}
-                className={`flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-semibold transition-all group ${
+                className={`flex items-center justify-between px-3.5 py-2.5 rounded-full text-xs font-semibold transition-all group ${
                   item.isActive
-                    ? "bg-[#166534] text-white font-bold shadow-xs"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                    ? "bg-[#0F9F68] text-white font-bold shadow-xs"
+                    : "text-gray-600 hover:text-[#171717] hover:bg-[#F4F4F6]"
                 }`}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
@@ -171,7 +191,7 @@ export function ExpertSidebar() {
                     className={`w-4 h-4 shrink-0 transition-colors ${
                       item.isActive
                         ? "text-white"
-                        : "text-slate-400 group-hover:text-emerald-700"
+                        : "text-gray-400 group-hover:text-[#0F9F68]"
                     }`}
                   />
                   <span className="truncate">{item.label}</span>
@@ -179,7 +199,7 @@ export function ExpertSidebar() {
 
                 {item.badge && (
                   <span
-                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold border shrink-0 ${
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-black border shrink-0 ${
                       item.isActive
                         ? "bg-white/20 text-white border-white/30"
                         : item.badgeColor
@@ -194,35 +214,28 @@ export function ExpertSidebar() {
         </nav>
 
         {/* Footer Profile & Logout */}
-        <div className="pt-3 border-t border-slate-100 space-y-2.5">
-          <div className="p-2.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-emerald-700 border border-emerald-500/40 flex items-center justify-center font-bold text-xs text-white shrink-0">
-              {user?.fullName
-                ? user.fullName
-                    .split(" ")
-                    .map((n) => n[0])
-                    .slice(0, 2)
-                    .join("")
-                    .toUpperCase()
-                : "EX"}
+        <div className="pt-3 border-t border-gray-100 space-y-3">
+          <div className="p-2.5 rounded-[20px] bg-[#F4F4F6]/70 border border-gray-200/60 flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-[12px] bg-gradient-to-br from-[#0F9F68] to-[#0A6B45] flex items-center justify-center font-black text-xs text-white shrink-0 shadow-2xs">
+              {formatFullName(user?.fullName || "Expert").charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0 flex-1">
-              <span className="font-bold text-xs text-slate-900 block leading-tight truncate">
-                {user?.fullName || "Expert Specialist"}
+              <span className="font-bold text-xs text-[#171717] block leading-tight truncate">
+                {formatFullName(user?.fullName || "Expert Specialist")}
               </span>
-              <span className="text-[10px] text-slate-500 block truncate">
+              <span className="text-[10px] text-gray-500 font-medium block truncate">
                 {profileData?.designation || "Agricultural Consultant"}
               </span>
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 px-2">
+          <div className="flex items-center justify-between text-[11px] font-semibold text-gray-500 px-2">
             <Link
               href="/"
-              className="flex items-center gap-1 hover:text-emerald-700 transition-colors"
+              className="flex items-center gap-1.5 hover:text-[#0F9F68] transition-colors"
             >
               <HelpCircle className="w-3.5 h-3.5" />
-              <span>Public Site</span>
+              <span>Public Portal</span>
             </Link>
             <button
               type="button"
@@ -230,7 +243,7 @@ export function ExpertSidebar() {
               className="flex items-center gap-1 text-rose-600 hover:text-rose-700 transition-colors cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span>Logout</span>
+              <span>Sign Out</span>
             </button>
           </div>
         </div>

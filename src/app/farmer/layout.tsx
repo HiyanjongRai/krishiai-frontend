@@ -1,5 +1,5 @@
 import React from "react";
-import { Navbar } from "@/components/layout/navbar";
+import { Navbar } from "@/components/shared/layout/navbar";
 import { FarmerSidebar } from "@/components/farmer/FarmerSidebar";
 import { RoleGuard } from "@/components/auth/RoleGuard";
 
@@ -10,14 +10,14 @@ export default function FarmerLayout({
 }) {
   return (
     <RoleGuard allowedRoles={["ROLE_FARMER"]}>
-      <div className="min-h-screen bg-[#F8FAF6] text-[#17201A] font-sans antialiased">
-        {/* Persistent Unified Navbar */}
+      <div className="min-h-screen bg-[#F4F4F6] text-[#171717] font-sans antialiased">
+        {/* Persistent Top Navbar */}
         <Navbar />
 
-        {/* Main Container: Fixed Sidebar + Dynamic Content */}
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex gap-5 lg:gap-6 items-start">
-            {/* Persistent Sidebar */}
+        {/* Main Container: Slim Floating Sidebar + Content */}
+        <div className="max-w-[1600px] mx-auto px-3 sm:px-5 lg:px-7 py-4 sm:py-5">
+          <div className="flex gap-4 sm:gap-5 items-start">
+            {/* Slim Icon Rail Sidebar */}
             <FarmerSidebar />
 
             {/* Dynamic Page Content */}

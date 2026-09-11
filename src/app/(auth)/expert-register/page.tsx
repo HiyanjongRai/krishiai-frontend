@@ -1,6 +1,6 @@
 import React from "react";
 import { ExpertApplicationProvider } from "@/providers/expert-application-provider";
-import { ExpertRegistrationWizard } from "@/components/expert-register/ExpertRegistrationWizard";
+import { ExpertRegistrationWizard } from "@/components/expert/registration/ExpertRegistrationWizard";
 
 export const metadata = {
   title: "Expert Registration & Verification | KrishiAI",
