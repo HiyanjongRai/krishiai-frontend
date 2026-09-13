@@ -5,6 +5,8 @@ export interface CropCategoryResponse {
   code: string;
   description: string | null;
   icon: string | null;
+  defaultCategory?: boolean;
+  cropCount?: number;
   active: boolean;
 }
 

@@ -110,6 +110,8 @@ function sanitizeDraftForStorage(app: ExpertApplication): ExpertApplication {
       ...app.account,
       password: "",
       confirmPassword: "",
+      profilePhotoFile: undefined,
+      profilePhotoPreviewUrl: undefined,
     },
   };
 }

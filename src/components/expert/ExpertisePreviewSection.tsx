@@ -2,33 +2,12 @@
 
 import React from "react";
 import Link from "next/link";
-import { ChevronRight, Plus } from "lucide-react";
+import { Award, CheckCircle2, ChevronRight, Clock3, FileText, Leaf, Plus, XCircle } from "lucide-react";
 import { ExpertExpertise, ExpertiseStatus } from "@/types/expert-verification";
 
 interface ExpertisePreviewProps {
   expertise: ExpertExpertise[];
   maxDisplay?: number;
-}
-
-const EXPERTISE_ICONS: Record<string, string> = {
-  Tomato: "🍅",
-  Potato: "🥔",
-  Cauliflower: "🥦",
-  Rice: "🌾",
-  Maize: "🌽",
-  Wheat: "🌾",
-  Cucumber: "🥒",
-  "Pest Management": "🔬",
-  "Disease Management": "🌡️",
-  "Soil Management": "🌱",
-  Irrigation: "💧",
-  "Crop Planning": "📋",
-  "Organic Farming": "🍃",
-  "Fertilizer Management": "⚗️",
-};
-
-function getExpertiseIcon(name: string): string {
-  return EXPERTISE_ICONS[name] || "🌿";
 }
 
 function getStatusColor(
@@ -48,6 +27,13 @@ function getStatusColor(
   }
 }
 
+function StatusIcon({ status }: { status: ExpertiseStatus | string }) {
+  if (status === "VERIFIED") return <CheckCircle2 className="h-3.5 w-3.5" />;
+  if (status === "EVIDENCE_SUBMITTED") return <FileText className="h-3.5 w-3.5" />;
+  if (status === "REJECTED") return <XCircle className="h-3.5 w-3.5" />;
+  return <Clock3 className="h-3.5 w-3.5" />;
+}
+
 export function ExpertisePreviewSection({
   expertise,
   maxDisplay = 4,
@@ -57,7 +43,7 @@ export function ExpertisePreviewSection({
 
   if (expertise.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200 p-6">
+      <div className="bg-white rounded-xl border border-slate-200 p-6">
         <div className="flex items-start justify-between mb-4">
           <h3 className="text-lg font-bold text-slate-900">Your Expertise</h3>
           <Link
@@ -70,7 +56,7 @@ export function ExpertisePreviewSection({
         </div>
         <div className="text-center py-8">
           <div className="text-slate-400 mb-3">
-            <div className="text-4xl mb-2">🌱</div>
+            <Leaf className="mx-auto mb-2 h-8 w-8 text-slate-300" />
             <p className="text-sm font-medium">No expertise areas added yet</p>
           </div>
           <p className="text-xs text-slate-600 mb-4">
@@ -88,7 +74,7 @@ export function ExpertisePreviewSection({
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6">
+    <div className="bg-white rounded-xl border border-slate-200 p-6">
       <div className="flex items-start justify-between mb-4">
         <h3 className="text-lg font-bold text-slate-900">Your Expertise</h3>
         <Link
@@ -103,15 +89,17 @@ export function ExpertisePreviewSection({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {displayedExpertise.map((exp) => {
           const colors = getStatusColor(exp.status);
-          const icon = getExpertiseIcon(exp.name);
+          const ItemIcon = exp.category === "CROP" ? Leaf : Award;
 
           return (
             <div
               key={exp.id}
-              className={`rounded-xl p-4 border ${colors.bg} ${colors.border}`}
+              className={`rounded-xl p-4 border bg-white ${colors.border}`}
             >
               <div className="flex items-start gap-3">
-                <div className="text-2xl">{icon}</div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-500">
+                  <ItemIcon className="h-4 w-4" />
+                </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-sm text-slate-900">
                     {exp.name}
@@ -119,10 +107,11 @@ export function ExpertisePreviewSection({
                   <div className="text-xs text-slate-600 mt-0.5">
                     {exp.category === "CROP" ? "Primary Crop" : "Professional Expertise"}
                   </div>
-                  <div className={`inline-flex text-[11px] font-bold mt-2 px-2.5 py-0.5 rounded-full border ${colors.bg} ${colors.border} ${colors.text}`}>
-                    {exp.status === "VERIFIED" ? "✓ Verified" :
-                     exp.status === "EVIDENCE_SUBMITTED" ? "⏳ Evidence submitted" :
-                     exp.status === "REJECTED" ? "✕ Rejected" :
+                  <div className={`inline-flex items-center gap-1 text-[11px] font-semibold mt-2 px-2.5 py-0.5 rounded-md border ${colors.bg} ${colors.border} ${colors.text}`}>
+                    <StatusIcon status={exp.status} />
+                    {exp.status === "VERIFIED" ? "Verified" :
+                     exp.status === "EVIDENCE_SUBMITTED" ? "Evidence submitted" :
+                     exp.status === "REJECTED" ? "Rejected" :
                      "Self-declared"}
                   </div>
                 </div>

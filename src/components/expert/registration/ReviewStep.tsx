@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useExpertApplication } from "@/providers/expert-application-provider";
-import { CROPS_CATALOG, SPECIALIZATIONS_CATALOG, LOCATIONS_CATALOG } from "@/data/expert-options";
+import { SPECIALIZATIONS_CATALOG } from "@/data/expert-options";
+import { masterDataService } from "@/services/master-data";
+import type { CropResponse, LocationResponse } from "@/types/master-data";
 import {
   FileCheck2,
   Edit3,
@@ -40,8 +42,29 @@ export function ReviewStep() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [cropCatalog, setCropCatalog] = useState<CropResponse[]>([]);
+  const [locationCatalog, setLocationCatalog] = useState<LocationResponse[]>([]);
 
   const { account, professional, expertise, documents, agreedToTerms } = application;
+
+  useEffect(() => {
+    let alive = true;
+    Promise.all([
+      masterDataService.getCrops({ size: 200 }),
+      masterDataService.getLocations(),
+    ])
+      .then(([cropPage, locationData]) => {
+        if (!alive) return;
+        setCropCatalog(cropPage.content ?? []);
+        setLocationCatalog(locationData);
+      })
+      .catch(() => {
+        if (!alive) return;
+        setCropCatalog([]);
+        setLocationCatalog([]);
+      });
+    return () => { alive = false; };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,7 +97,10 @@ export function ReviewStep() {
     ...(expertise.secondaryCrops || []),
     ...(expertise.crops || []),
   ]);
-  const selectedCropsDetails = CROPS_CATALOG.filter((c) => allCropsSet.has(c.id));
+  const selectedCropsDetails = useMemo(
+    () => cropCatalog.filter((c) => allCropsSet.has(String(c.id))),
+    [allCropsSet, cropCatalog]
+  );
 
   const selectedAreas = expertise.expertiseAreas || [];
 
@@ -82,8 +108,9 @@ export function ReviewStep() {
     expertise.specializations.includes(s.id)
   );
 
-  const selectedLocationDetails = LOCATIONS_CATALOG.filter((l) =>
-    (expertise.locations || []).includes(l.id)
+  const selectedLocationDetails = useMemo(
+    () => locationCatalog.filter((l) => (expertise.locations || []).includes(String(l.id))),
+    [expertise.locations, locationCatalog]
   );
 
   const userInitials = account.fullName
@@ -290,13 +317,12 @@ export function ReviewStep() {
               </p>
               <div className="flex flex-wrap gap-2">
                 {selectedCropsDetails.map((crop) => {
-                  const isPrimary = (expertise.primaryCrops || []).includes(crop.id);
+                  const isPrimary = (expertise.primaryCrops || []).includes(String(crop.id));
                   return (
                     <span
                       key={crop.id}
                       className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-slate-200 text-xs font-bold text-[#17201A]"
                     >
-                      <span>{crop.emoji}</span>
                       <span>{crop.name}</span>
                       <span
                         className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold uppercase ${

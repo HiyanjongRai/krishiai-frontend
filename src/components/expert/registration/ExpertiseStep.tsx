@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useExpertApplication } from "@/providers/expert-application-provider";
 import { useToast } from "@/providers/toast-provider";
 import {
-  CROPS_CATALOG,
   SPECIALIZATIONS_CATALOG,
   EXPERTISE_AREAS_CATALOG,
-  LOCATIONS_CATALOG,
 } from "@/data/expert-options";
+import { masterDataService } from "@/services/master-data";
+import type { CropResponse, LocationResponse } from "@/types/master-data";
 import {
   Sprout,
   Check,
@@ -27,11 +27,10 @@ import {
   ChevronUp,
   FileText,
   ShieldCheck,
+  X,
   HelpCircle,
 } from "lucide-react";
 import type { ExpertiseLevel, ExpertiseSourceType } from "@/types/expert-application";
-
-type LocationFilter = "ALL" | "PROVINCE" | "DISTRICT" | "MUNICIPALITY";
 
 const EVIDENCE_TYPE_OPTIONS: { value: ExpertiseSourceType; label: string }[] = [
   { value: "CERTIFICATE", label: "Training / Academic Certificate" },
@@ -82,21 +81,121 @@ export function ExpertiseStep() {
 
   const [primaryLimitWarning, setPrimaryLimitWarning] = useState(false);
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
-  const [locationQuery, setLocationQuery] = useState("");
-  const [locationFilter, setLocationFilter] = useState<LocationFilter>("ALL");
+  const [cropQuery, setCropQuery] = useState("");
+  const [cropCatalog, setCropCatalog] = useState<CropResponse[]>([]);
+  const [cropLoadError, setCropLoadError] = useState<string | null>(null);
+  const [isLoadingCrops, setIsLoadingCrops] = useState(true);
+  const [provinces, setProvinces] = useState<LocationResponse[]>([]);
+  const [districts, setDistricts] = useState<LocationResponse[]>([]);
+  const [municipalities, setMunicipalities] = useState<LocationResponse[]>([]);
+  const [selectedProvinceId, setSelectedProvinceId] = useState("");
+  const [selectedDistrictId, setSelectedDistrictId] = useState("");
+  const [selectedMunicipalityId, setSelectedMunicipalityId] = useState("");
+  const [isLoadingProvinces, setIsLoadingProvinces] = useState(true);
+  const [isLoadingDistricts, setIsLoadingDistricts] = useState(false);
+  const [isLoadingMunicipalities, setIsLoadingMunicipalities] = useState(false);
+  const [locationLoadError, setLocationLoadError] = useState<string | null>(null);
 
   const hasPrimaryCrops = primaryCrops.length > 0;
   const hasExpertiseOrSpec = expertiseAreas.length > 0 || specializations.length > 0;
   const isValid = hasPrimaryCrops;
 
-  const normalizedLocationQuery = locationQuery.trim().toLowerCase();
-  const visibleLocations = LOCATIONS_CATALOG.filter((location) => {
-    const matchesType = locationFilter === "ALL" || location.type === locationFilter;
-    const matchesQuery = !normalizedLocationQuery
-      || location.name.toLowerCase().includes(normalizedLocationQuery)
-      || location.nepaliName?.toLowerCase().includes(normalizedLocationQuery);
-    return matchesType && matchesQuery;
-  });
+  useEffect(() => {
+    let alive = true;
+    setIsLoadingCrops(true);
+    masterDataService.getCrops({ size: 200 })
+      .then((page) => {
+        if (!alive) return;
+        setCropCatalog(page.content ?? []);
+        setCropLoadError(null);
+      })
+      .catch(() => {
+        if (!alive) return;
+        setCropCatalog([]);
+        setCropLoadError("Unable to load crops from the server.");
+      })
+      .finally(() => {
+        if (alive) setIsLoadingCrops(false);
+      });
+
+    setIsLoadingProvinces(true);
+    masterDataService.getProvinces()
+      .then((data) => {
+        if (!alive) return;
+        setProvinces(data);
+        setLocationLoadError(null);
+      })
+      .catch(() => {
+        if (!alive) return;
+        setProvinces([]);
+        setLocationLoadError("Unable to load locations from the server.");
+      })
+      .finally(() => {
+        if (alive) setIsLoadingProvinces(false);
+      });
+
+    return () => { alive = false; };
+  }, []);
+
+  useEffect(() => {
+    if (!selectedProvinceId) {
+      setDistricts([]);
+      setSelectedDistrictId("");
+      return;
+    }
+    setIsLoadingDistricts(true);
+    setSelectedDistrictId("");
+    setSelectedMunicipalityId("");
+    setMunicipalities([]);
+    masterDataService.getDistricts(Number(selectedProvinceId))
+      .then(setDistricts)
+      .catch(() => {
+        setDistricts([]);
+        setLocationLoadError("Unable to load districts for the selected province.");
+      })
+      .finally(() => setIsLoadingDistricts(false));
+  }, [selectedProvinceId]);
+
+  useEffect(() => {
+    if (!selectedDistrictId) {
+      setMunicipalities([]);
+      setSelectedMunicipalityId("");
+      return;
+    }
+    setIsLoadingMunicipalities(true);
+    setSelectedMunicipalityId("");
+    masterDataService.getMunicipalities(Number(selectedDistrictId))
+      .then(setMunicipalities)
+      .catch(() => {
+        setMunicipalities([]);
+        setLocationLoadError("Unable to load municipalities for the selected district.");
+      })
+      .finally(() => setIsLoadingMunicipalities(false));
+  }, [selectedDistrictId]);
+
+  const cropNameById = useMemo(() => new Map(cropCatalog.map((crop) => [String(crop.id), crop.name])), [cropCatalog]);
+  const locationNameById = useMemo(() => {
+    const all = [...provinces, ...districts, ...municipalities];
+    return new Map(all.map((location) => [String(location.id), location.name]));
+  }, [provinces, districts, municipalities]);
+
+  const filteredCrops = useMemo(() => {
+    const query = cropQuery.trim().toLowerCase();
+    return cropCatalog.filter((crop) => {
+      if (!query) return true;
+      return crop.name.toLowerCase().includes(query)
+        || crop.nepaliName?.toLowerCase().includes(query)
+        || crop.categoryName?.toLowerCase().includes(query);
+    });
+  }, [cropCatalog, cropQuery]);
+
+  const cropsByCategory = useMemo(() => {
+    return filteredCrops.reduce<Record<string, CropResponse[]>>((acc, crop) => {
+      const category = crop.categoryName || "Uncategorized";
+      acc[category] = [...(acc[category] ?? []), crop];
+      return acc;
+    }, {});
+  }, [filteredCrops]);
 
   const handlePrimaryCropClick = (cropId: string) => {
     const isCurrentlySelected = primaryCrops.includes(cropId);
@@ -163,8 +262,8 @@ export function ExpertiseStep() {
 
   // List of all selected claim keys for Section 4 details
   const allSelectedClaims = [
-    ...primaryCrops.map((c) => ({ key: c, name: c, type: "PRIMARY CROP" as const })),
-    ...secondaryCrops.map((c) => ({ key: c, name: c, type: "SECONDARY CROP" as const })),
+    ...primaryCrops.map((c) => ({ key: c, name: cropNameById.get(c) ?? c, type: "PRIMARY CROP" as const })),
+    ...secondaryCrops.map((c) => ({ key: c, name: cropNameById.get(c) ?? c, type: "SECONDARY CROP" as const })),
     ...expertiseAreas.map((a) => {
       const item = EXPERTISE_AREAS_CATALOG.find((x) => x.id === a);
       return { key: a, name: item ? item.name : a, type: "DOMAIN AREA" as const };
@@ -240,43 +339,78 @@ export function ExpertiseStep() {
             </div>
           )}
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
-            {CROPS_CATALOG.map((crop) => {
-              const isSelected = primaryCrops.includes(crop.id);
-              const isSecondary = secondaryCrops.includes(crop.id);
-              return (
-                <button
-                  key={crop.id}
-                  type="button"
-                  onClick={() => handlePrimaryCropClick(crop.id)}
-                  className={`p-3 rounded-xl border text-left transition-all relative flex flex-col justify-between min-h-[96px] ${
-                    isSelected
-                      ? "border-[#166534] bg-[#F0FDF4] shadow-xs"
-                      : isSecondary
-                      ? "border-emerald-200/60 bg-white opacity-60 hover:opacity-100"
-                      : "border-[#E2E8E3] bg-white hover:border-emerald-300 hover:bg-[#FAFDFB]"
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-1">
-                    <span className="text-xl">{crop.emoji || "🌱"}</span>
-                    {isSelected && (
-                      <span className="w-4 h-4 rounded-full bg-[#166534] text-white flex items-center justify-center shrink-0">
-                        <Check className="w-2.5 h-2.5 stroke-[3]" />
-                      </span>
-                    )}
-                  </div>
-                  <div>
-                    <p className={`text-xs font-bold ${isSelected ? "text-[#166534]" : "text-[#17201A]"}`}>
-                      {crop.name}
-                    </p>
-                    {crop.nepaliName && (
-                      <p className="text-[10px] text-gray-400">{crop.nepaliName}</p>
-                    )}
-                  </div>
-                </button>
-              );
-            })}
+          <div className="relative">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="search"
+              value={cropQuery}
+              onChange={(event) => setCropQuery(event.target.value)}
+              placeholder="Search crops by name, Nepali name, or category"
+              aria-label="Search crops"
+              className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-xs text-slate-800 outline-none transition-colors focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10"
+            />
           </div>
+
+          {isLoadingCrops ? (
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-6 text-center text-xs text-slate-500">
+              Loading crops from catalog...
+            </div>
+          ) : cropLoadError ? (
+            <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs text-rose-800">
+              {cropLoadError}
+            </div>
+          ) : Object.keys(cropsByCategory).length === 0 ? (
+            <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-xs text-slate-500">
+              No active crops match your search.
+            </div>
+          ) : (
+            <div className="space-y-5">
+              {Object.entries(cropsByCategory).map(([category, categoryCrops]) => (
+                <div key={category} className="space-y-2">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">{category}</h3>
+                  <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+                    {categoryCrops.map((crop) => {
+                      const cropId = String(crop.id);
+                      const isSelected = primaryCrops.includes(cropId);
+                      const isSecondary = secondaryCrops.includes(cropId);
+                      return (
+                        <button
+                          key={crop.id}
+                          type="button"
+                          onClick={() => handlePrimaryCropClick(cropId)}
+                          className={`flex min-h-[88px] items-center gap-3 rounded-xl border p-3 text-left transition-colors ${
+                            isSelected
+                              ? "border-emerald-700 bg-emerald-50"
+                              : isSecondary
+                              ? "border-emerald-200 bg-white opacity-70 hover:opacity-100"
+                              : "border-slate-200 bg-white hover:border-emerald-300"
+                          }`}
+                        >
+                          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
+                            {crop.imageUrl ? (
+                              <Image src={crop.imageUrl} alt={crop.name} fill sizes="48px" className="object-contain p-1.5" unoptimized />
+                            ) : (
+                              <Sprout className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 text-slate-300" />
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className={`truncate text-xs font-bold ${isSelected ? "text-emerald-800" : "text-slate-900"}`}>{crop.name}</p>
+                            {crop.nepaliName && <p className="truncate text-[11px] text-slate-500">{crop.nepaliName}</p>}
+                            <p className="mt-0.5 truncate text-[10px] font-medium text-slate-400">{crop.categoryName}</p>
+                          </div>
+                          {isSelected && (
+                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-emerald-700 text-white">
+                              <Check className="w-3 h-3 stroke-[3]" />
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
           {attemptedSubmit && !hasPrimaryCrops && (
             <p className="text-xs text-rose-600 flex items-center gap-1 font-medium">
               <AlertCircle className="w-3.5 h-3.5" /> Please select at least one primary crop.
@@ -296,23 +430,23 @@ export function ExpertiseStep() {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {CROPS_CATALOG.map((crop) => {
-              const isPrimary = primaryCrops.includes(crop.id);
-              const isSecondary = secondaryCrops.includes(crop.id);
+            {cropCatalog.map((crop) => {
+              const cropId = String(crop.id);
+              const isPrimary = primaryCrops.includes(cropId);
+              const isSecondary = secondaryCrops.includes(cropId);
               if (isPrimary) return null; // Don't show in secondary if primary
 
               return (
                 <button
                   key={`sec-${crop.id}`}
                   type="button"
-                  onClick={() => toggleSecondaryCrop(crop.id)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all flex items-center gap-1.5 ${
+                  onClick={() => toggleSecondaryCrop(cropId)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors flex items-center gap-1.5 ${
                     isSecondary
-                      ? "bg-emerald-50 border-emerald-300 text-[#166534] font-bold shadow-xs"
+                      ? "bg-emerald-50 border-emerald-300 text-[#166534] font-bold"
                       : "bg-white border-[#E2E8E3] text-[#425046] hover:border-emerald-300 hover:bg-[#FAFDFB]"
                   }`}
                 >
-                  <span>{crop.emoji || "🌱"}</span>
                   <span>{crop.name}</span>
                   {isSecondary && <Check className="w-3 h-3 text-[#166534]" />}
                 </button>
@@ -567,55 +701,91 @@ export function ExpertiseStep() {
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-2">
-            <div className="relative flex-1">
-              <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-2.5" />
-              <input
-                type="text"
-                value={locationQuery}
-                onChange={(e) => setLocationQuery(e.target.value)}
-                placeholder="Search district or province..."
-                className="w-full text-xs rounded-lg border border-slate-200 pl-8 pr-3 py-1.5 text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-              />
+          {locationLoadError && (
+            <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-800">
+              {locationLoadError}
             </div>
-            <div className="flex gap-1">
-              {(["ALL", "PROVINCE", "DISTRICT"] as const).map((filter) => (
-                <button
-                  key={filter}
-                  type="button"
-                  onClick={() => setLocationFilter(filter)}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-colors ${
-                    locationFilter === filter
-                      ? "bg-slate-800 text-white border-slate-800"
-                      : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
-                  }`}
-                >
-                  {filter}
-                </button>
-              ))}
+          )}
+
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <div>
+              <label className="mb-1 block text-[11px] font-bold text-slate-700">Province</label>
+              <select
+                value={selectedProvinceId}
+                onChange={(event) => setSelectedProvinceId(event.target.value)}
+                disabled={isLoadingProvinces}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 outline-none transition-colors focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 disabled:bg-slate-50"
+              >
+                <option value="">{isLoadingProvinces ? "Loading provinces..." : "Select province"}</option>
+                {provinces.map((province) => (
+                  <option key={province.id} value={province.id}>{province.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="mb-1 block text-[11px] font-bold text-slate-700">District</label>
+              <select
+                value={selectedDistrictId}
+                onChange={(event) => setSelectedDistrictId(event.target.value)}
+                disabled={!selectedProvinceId || isLoadingDistricts}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 outline-none transition-colors focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 disabled:bg-slate-50"
+              >
+                <option value="">{isLoadingDistricts ? "Loading districts..." : "Select district"}</option>
+                {districts.map((district) => (
+                  <option key={district.id} value={district.id}>{district.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="mb-1 block text-[11px] font-bold text-slate-700">Municipality / Local Level</label>
+              <select
+                value={selectedMunicipalityId}
+                onChange={(event) => setSelectedMunicipalityId(event.target.value)}
+                disabled={!selectedDistrictId || isLoadingMunicipalities}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 outline-none transition-colors focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 disabled:bg-slate-50"
+              >
+                <option value="">{isLoadingMunicipalities ? "Loading local levels..." : "Select local level"}</option>
+                {municipalities.map((municipality) => (
+                  <option key={municipality.id} value={municipality.id}>{municipality.name}</option>
+                ))}
+              </select>
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto p-2 border border-slate-200 rounded-xl bg-slate-50/40">
-            {visibleLocations.map((loc) => {
-              const isSelected = locations.includes(loc.id);
-              return (
-                <button
-                  key={loc.id}
-                  type="button"
-                  onClick={() => toggleLocation(loc.id)}
-                  className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors flex items-center gap-1 ${
-                    isSelected
-                      ? "bg-emerald-100 text-emerald-800 border-emerald-300 font-bold"
-                      : "bg-white text-slate-600 border-slate-200 hover:border-emerald-300"
-                  }`}
-                >
-                  <MapPin className="w-2.5 h-2.5" />
-                  <span>{loc.name}</span>
-                  {isSelected && <Check className="w-2.5 h-2.5" />}
-                </button>
-              );
-            })}
+          <button
+            type="button"
+            disabled={!selectedMunicipalityId}
+            onClick={() => {
+              if (selectedMunicipalityId) toggleLocation(selectedMunicipalityId);
+            }}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <MapPin className="h-3.5 w-3.5" />
+            {selectedMunicipalityId && locations.includes(selectedMunicipalityId) ? "Remove selected location" : "Add selected location"}
+          </button>
+
+          <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-3">
+            {locations.length === 0 ? (
+              <p className="text-xs text-slate-500">No service coverage locations selected.</p>
+            ) : (
+              <div className="flex flex-wrap gap-1.5">
+                {locations.map((locationId) => (
+                  <button
+                    key={locationId}
+                    type="button"
+                    onClick={() => toggleLocation(locationId)}
+                    className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-white px-2.5 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-50"
+                    title="Remove location"
+                  >
+                    <MapPin className="w-2.5 h-2.5" />
+                    <span>{locationNameById.get(locationId) ?? `Location #${locationId}`}</span>
+                    <X className="w-2.5 h-2.5" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

@@ -52,6 +52,8 @@ export interface AccountData {
   phone: string;
   password: string;
   confirmPassword: string;
+  profilePhotoFile?: File;
+  profilePhotoPreviewUrl?: string;
 }
 
 export interface ProfessionalData {

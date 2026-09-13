@@ -8,6 +8,7 @@ import {
   ChevronDown,
   ChevronUp,
   FileText,
+  Layers,
   Info,
   Leaf,
   Loader2,
@@ -109,15 +110,21 @@ function statusBadge(status: ExpertiseClaim["verificationStatus"]) {
 function ClaimCard({ claim, onRemove, removing }: { claim: ExpertiseClaim; onRemove: () => void; removing: boolean; }) {
   const [expanded, setExpanded] = useState(false);
   const badge = statusBadge(claim.verificationStatus);
-  const displayName = claim.cropEmoji ? `${claim.cropEmoji} ${claim.cropName ?? claim.expertiseArea ?? ""}` : (claim.cropName ?? claim.expertiseArea ?? "Domain");
+  const displayName = claim.cropName ?? claim.expertiseArea ?? "Domain";
+  const ClaimIcon = claim.expertiseType === "AREA" ? Award : Leaf;
   return (
     <div className={`rounded-xl border bg-white shadow-xs transition-all ${expanded ? "border-emerald-200" : "border-slate-200"}`}>
       <button type="button" onClick={() => setExpanded((p) => !p)} className="flex w-full items-center justify-between gap-3 p-4 text-left">
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-slate-900">{displayName}</p>
-          <p className="mt-0.5 truncate text-xs text-slate-500">
-            {claim.categoryName ?? claim.expertiseType}{claim.expertiseLevel ? ` \u00b7 ${claim.expertiseLevel.toLowerCase()}` : ""}{claim.yearsOfExperience ? ` \u00b7 ${claim.yearsOfExperience} yrs` : ""}
-          </p>
+        <div className="min-w-0 flex flex-1 items-center gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-500">
+            <ClaimIcon className="h-4 w-4" />
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-slate-900">{displayName}</p>
+            <p className="mt-0.5 truncate text-xs text-slate-500">
+              {claim.categoryName ?? claim.expertiseType}{claim.expertiseLevel ? ` \u00b7 ${claim.expertiseLevel.toLowerCase()}` : ""}{claim.yearsOfExperience ? ` \u00b7 ${claim.yearsOfExperience} yrs` : ""}
+            </p>
+          </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <span className={`rounded-md border px-2 py-0.5 text-[10px] font-semibold ${badge.cls}`}>{badge.label}</span>
@@ -207,7 +214,7 @@ function AddExpertiseModal({ crops, existingClaims, primaryCount, onClose, onSav
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-xs p-0 sm:p-4 animate-in fade-in duration-150">
-      <div className="w-full sm:max-w-lg bg-white sm:rounded-2xl rounded-t-2xl border border-slate-200 shadow-2xl flex flex-col max-h-[90vh]">
+      <div className="w-full sm:max-w-lg bg-white sm:rounded-xl rounded-t-xl border border-slate-200 shadow-xl flex flex-col max-h-[90vh]">
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
           <div><h3 className="text-base font-bold text-slate-900">Add Expertise Claim</h3><p className="text-xs text-slate-500 mt-0.5">Your professional verification status is not affected.</p></div>
           <button type="button" onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-100"><X className="h-4 w-4" /></button>
@@ -215,8 +222,8 @@ function AddExpertiseModal({ crops, existingClaims, primaryCount, onClose, onSav
         <div className="overflow-y-auto flex-1 px-5 py-4 space-y-4">
           <div className="flex gap-1 rounded-lg bg-slate-100 p-1">
             {(["crop", "area"] as const).map((t) => (
-              <button key={t} type="button" onClick={() => setTab(t)} className={`flex-1 rounded-md py-1.5 text-xs font-semibold transition-colors ${tab === t ? "bg-white text-slate-900 shadow-xs" : "text-slate-500"}`}>
-                {t === "crop" ? "\uD83C\uDF31 Crop Expertise" : "\uD83C\uDFAF Domain Area"}
+              <button key={t} type="button" onClick={() => setTab(t)} className={`flex-1 rounded-md py-1.5 text-xs font-semibold transition-colors ${tab === t ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-700"}`}>
+                {t === "crop" ? "Crop Expertise" : "Domain Area"}
               </button>
             ))}
           </div>
@@ -226,15 +233,15 @@ function AddExpertiseModal({ crops, existingClaims, primaryCount, onClose, onSav
                 <label className="mb-1 block text-xs font-semibold text-slate-700">Crop *</label>
                 <select value={cropId} onChange={(e) => setCropId(e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs text-slate-700 outline-none focus:border-emerald-500">
                   <option value="">Choose a crop...</option>
-                  {availableCrops.map((c) => <option key={c.id} value={c.id}>{c.emoji ? `${c.emoji} ` : ""}{c.name}{c.categoryName ? ` (${c.categoryName})` : ""}</option>)}
+                  {availableCrops.map((c) => <option key={c.id} value={c.id}>{c.name}{c.categoryName ? ` (${c.categoryName})` : ""}</option>)}
                 </select>
               </div>
               <div>
                 <label className="mb-1 block text-xs font-semibold text-slate-700">Type</label>
                 <div className="flex gap-2">
                   {(["PRIMARY", "SECONDARY"] as const).map((t) => (
-                    <button key={t} type="button" onClick={() => setExpertiseType(t)} className={`flex-1 rounded-xl border py-2 text-xs font-semibold transition-colors ${expertiseType === t ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-600"}`}>
-                      {t === "PRIMARY" ? "\uD83C\uDF1F Primary" : "Secondary"}
+                    <button key={t} type="button" onClick={() => setExpertiseType(t)} className={`flex-1 rounded-lg border py-2 text-xs font-semibold transition-colors ${expertiseType === t ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}>
+                      {t === "PRIMARY" ? "Primary" : "Secondary"}
                     </button>
                   ))}
                 </div>
@@ -408,7 +415,7 @@ export default function ExpertExpertisePage() {
         <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div><h2 className="flex items-center gap-2 text-sm font-bold text-slate-900"><Leaf className="h-4 w-4 text-emerald-600 shrink-0" />Primary Crops</h2><p className="mt-0.5 text-xs text-slate-500">Up to 3 crops where you have deepest expertise.</p></div>
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">{primaryCrops.length} / 3</span>
+            <span className="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">{primaryCrops.length} / 3</span>
           </div>
           <div className="mt-4 space-y-2.5">
             {primaryCrops.length === 0 ? <EmptySection message="No primary crops added yet." onAdd={() => setShowAddModal(true)} /> : primaryCrops.map((c) => <ClaimCard key={c.id} claim={c} onRemove={() => handleRemove(c.id, c.cropId)} removing={removing === c.id} />)}
@@ -418,7 +425,7 @@ export default function ExpertExpertisePage() {
         <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div><h2 className="flex items-center gap-2 text-sm font-bold text-slate-900"><Leaf className="h-4 w-4 text-slate-400 shrink-0" />Secondary Crops</h2><p className="mt-0.5 text-xs text-slate-500">Additional crops you can advise on. No limit.</p></div>
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">{secondaryCrops.length}</span>
+            <span className="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">{secondaryCrops.length}</span>
           </div>
           <div className="mt-4 space-y-2.5">
             {secondaryCrops.length === 0 ? <EmptySection message="No secondary crops added yet." onAdd={() => setShowAddModal(true)} /> : secondaryCrops.map((c) => <ClaimCard key={c.id} claim={c} onRemove={() => handleRemove(c.id, c.cropId)} removing={removing === c.id} />)}
@@ -427,8 +434,8 @@ export default function ExpertExpertisePage() {
 
         <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-            <div><h2 className="flex items-center gap-2 text-sm font-bold text-slate-900"><Award className="h-4 w-4 text-emerald-600 shrink-0" />Agricultural Domain Areas</h2><p className="mt-0.5 text-xs text-slate-500">Functional domains from the agronomy catalog.</p></div>
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">{areaClaims.length}</span>
+            <div><h2 className="flex items-center gap-2 text-sm font-bold text-slate-900"><Layers className="h-4 w-4 text-emerald-600 shrink-0" />Agricultural Domain Areas</h2><p className="mt-0.5 text-xs text-slate-500">Functional domains from the agronomy catalog.</p></div>
+            <span className="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">{areaClaims.length}</span>
           </div>
           <div className="mt-4 space-y-2.5">
             {areaClaims.length === 0 ? <EmptySection message="No domain areas added yet." onAdd={() => setShowAddModal(true)} /> : areaClaims.map((c) => <ClaimCard key={c.id} claim={c} onRemove={() => handleRemove(c.id)} removing={removing === c.id} />)}
@@ -441,7 +448,7 @@ export default function ExpertExpertisePage() {
             <p className="mt-2 text-xs text-amber-800">These claims have evidence attached and are in the admin review queue:</p>
             <div className="mt-3 space-y-2">
               {pendingEvidence.map((c) => {
-                const name = c.cropEmoji ? `${c.cropEmoji} ${c.cropName ?? c.expertiseArea ?? ""}` : (c.cropName ?? c.expertiseArea ?? "Domain");
+                const name = c.cropName ?? c.expertiseArea ?? "Domain";
                 return (
                   <div key={c.id} className="flex items-center gap-3 rounded-lg border border-amber-200 bg-white p-3">
                     <FileText className="h-4 w-4 text-amber-600 shrink-0" />

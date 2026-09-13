@@ -6,6 +6,11 @@ import { useAuthModal } from "@/providers/auth-modal-provider";
 import { useAuth } from "@/providers/auth-provider";
 import { ProfileImageUpload } from "@/components/ui/profile-image-upload";
 import {
+  ALLOWED_TYPE_LABELS,
+  MAX_IMAGE_SIZE_LABEL,
+  validateImageFile,
+} from "@/services/media/mediaService";
+import {
   Eye,
   EyeOff,
   User,
@@ -35,6 +40,7 @@ export function AccountStep() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [photoError, setPhotoError] = useState<string | null>(null);
 
   // Validation
   const errors: Record<string, string> = {};
@@ -71,6 +77,10 @@ export function AccountStep() {
     errors.confirmPassword = "Passwords do not match";
   }
 
+  if (!user?.profileImage && !account.profilePhotoFile) {
+    errors.profilePhoto = "Professional profile photo is required";
+  }
+
   const getPasswordStrength = (pwd: string) => {
     if (!pwd) return { score: 0, label: "None", color: "bg-[#F4F4F6]", text: "text-gray-400" };
     let score = 0;
@@ -95,10 +105,40 @@ export function AccountStep() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setTouched({ fullName: true, email: true, phone: true, password: true, confirmPassword: true });
+    setTouched({ fullName: true, email: true, phone: true, password: true, confirmPassword: true, profilePhoto: true });
     if (Object.keys(errors).length === 0) {
       nextStep();
     }
+  };
+
+  const handlePendingPhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const validationError = validateImageFile(file);
+    if (validationError) {
+      setPhotoError(validationError);
+      updateAccount({ profilePhotoFile: undefined, profilePhotoPreviewUrl: undefined });
+      event.target.value = "";
+      return;
+    }
+
+    if (account.profilePhotoPreviewUrl) {
+      URL.revokeObjectURL(account.profilePhotoPreviewUrl);
+    }
+    setPhotoError(null);
+    updateAccount({
+      profilePhotoFile: file,
+      profilePhotoPreviewUrl: URL.createObjectURL(file),
+    });
+    event.target.value = "";
+  };
+
+  const clearPendingPhoto = () => {
+    if (account.profilePhotoPreviewUrl) {
+      URL.revokeObjectURL(account.profilePhotoPreviewUrl);
+    }
+    updateAccount({ profilePhotoFile: undefined, profilePhotoPreviewUrl: undefined });
   };
 
   const inputBase =
@@ -124,8 +164,12 @@ export function AccountStep() {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Profile Picture Section */}
-        {user ? (
-          <div className="p-4 rounded-[20px] bg-[#F4F4F6] border border-[rgba(234,234,236,0.85)] flex flex-col sm:flex-row items-center gap-4">
+        <div className={`p-4 rounded-[20px] border flex flex-col sm:flex-row items-center gap-4 ${
+          touched.profilePhoto && errors.profilePhoto
+            ? "bg-rose-50 border-rose-200"
+            : "bg-[#F4F4F6] border-[rgba(234,234,236,0.85)]"
+        }`}>
+          {user ? (
             <ProfileImageUpload
               currentImageUrl={user.profileImage}
               userName={user.fullName || account.fullName}
@@ -133,30 +177,63 @@ export function AccountStep() {
               onRemoveSuccess={(updated) => updateUser(updated)}
               size="md"
             />
-            <div className="space-y-1 text-center sm:text-left">
-              <h4 className="text-xs font-black text-[#171717] uppercase tracking-[0.12em]">
-                Profile Photo (Optional)
-              </h4>
-              <p className="text-xs text-gray-500">
-                A clear, professional headshot builds trust with farmers and speeds up admin verification.
+          ) : (
+            <div className="flex flex-col items-center gap-2">
+              <div className="relative h-20 w-20 overflow-hidden rounded-full border border-gray-200 bg-white">
+                {account.profilePhotoPreviewUrl ? (
+                  // A blob preview cannot use Next/Image reliably across all browsers.
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={account.profilePhotoPreviewUrl}
+                    alt="Selected profile preview"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-gray-400">
+                    <Camera className="h-6 w-6" />
+                  </div>
+                )}
+              </div>
+              <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-[#0F9F68] px-3.5 py-1.5 text-[11px] font-bold text-white shadow-xs transition-colors hover:bg-[#0D8A5A]">
+                <Camera className="h-3.5 w-3.5" />
+                {account.profilePhotoFile ? "Change Photo" : "Upload Photo"}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="sr-only"
+                  onChange={handlePendingPhotoChange}
+                />
+              </label>
+              {account.profilePhotoFile && (
+                <button
+                  type="button"
+                  onClick={clearPendingPhoto}
+                  className="text-[10px] font-semibold text-rose-500 transition-colors hover:text-rose-600"
+                >
+                  Remove photo
+                </button>
+              )}
+            </div>
+          )}
+
+          <div className="space-y-1 text-center sm:text-left">
+            <h4 className="text-xs font-black text-[#171717] uppercase tracking-[0.12em]">
+              Profile Photo <span className="text-rose-500">*</span>
+            </h4>
+            <p className="text-xs text-gray-500">
+              Upload a clear professional headshot for admin verification and farmer trust.
+            </p>
+            <p className="text-[10px] text-gray-400">
+              {ALLOWED_TYPE_LABELS} &bull; Max {MAX_IMAGE_SIZE_LABEL}
+            </p>
+            {(photoError || (touched.profilePhoto && errors.profilePhoto)) && (
+              <p className="text-[11px] font-medium text-rose-600 flex items-center justify-center gap-1 sm:justify-start">
+                <X className="w-3 h-3" />
+                <span>{photoError || errors.profilePhoto}</span>
               </p>
-            </div>
+            )}
           </div>
-        ) : (
-          <div className="p-4 rounded-[20px] bg-[#F4F4F6] border border-[rgba(234,234,236,0.85)] flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-400 shrink-0">
-              <Camera className="w-6 h-6" />
-            </div>
-            <div className="space-y-1">
-              <h4 className="text-xs font-black text-[#171717] uppercase tracking-[0.12em]">
-                Profile Photo (Optional)
-              </h4>
-              <p className="text-xs text-gray-500">
-                You can upload your professional photo anytime from your profile dashboard once registered.
-              </p>
-            </div>
-          </div>
-        )}
+        </div>
 
         {/* Full Name */}
         <div className="space-y-1.5">

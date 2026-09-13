@@ -12,7 +12,9 @@ import { ExpertiseStep } from "./ExpertiseStep";
 import { DocumentsStep } from "./DocumentsStep";
 import { ReviewStep } from "./ReviewStep";
 import { ResumeApplicationCard } from "./ResumeApplicationCard";
-import { CROPS_CATALOG, SPECIALIZATIONS_CATALOG } from "@/data/expert-options";
+import { SPECIALIZATIONS_CATALOG } from "@/data/expert-options";
+import { masterDataService } from "@/services/master-data";
+import type { CropResponse } from "@/types/master-data";
 
 import {
   ShieldCheck,
@@ -152,14 +154,7 @@ export function ExpertRegistrationWizard() {
                       </span>
                     </div>
                     <div className="flex flex-wrap gap-1.5">
-                      {(application.expertise.primaryCrops || application.expertise.crops).map((id) => {
-                        const crop = CROPS_CATALOG.find((item) => item.id === id);
-                        return crop ? (
-                          <span key={id} className="inline-flex items-center gap-1 rounded-full bg-[#DDF4EA] border border-[#BCE9D5] px-2 py-0.5 text-[10px] font-bold text-[#0F9F68]">
-                            {crop.name}
-                          </span>
-                        ) : null;
-                      })}
+                      <SelectedCropBadges cropIds={application.expertise.primaryCrops || application.expertise.crops} />
                       {application.expertise.specializations.map((id) => {
                         const spec = SPECIALIZATIONS_CATALOG.find((item) => item.id === id);
                         return spec ? (
@@ -201,5 +196,29 @@ export function ExpertRegistrationWizard() {
         </div>
       </div>
     </div>
+  );
+}
+
+function SelectedCropBadges({ cropIds }: { cropIds: string[] }) {
+  const [cropCatalog, setCropCatalog] = useState<CropResponse[]>([]);
+
+  useEffect(() => {
+    if (cropIds.length === 0) return;
+    void masterDataService
+      .getCrops({ size: 200 })
+      .then((page) => setCropCatalog(page.content ?? []))
+      .catch(() => setCropCatalog([]));
+  }, [cropIds.length]);
+
+  const cropNameById = new Map(cropCatalog.map((crop) => [String(crop.id), crop.name]));
+
+  return (
+    <>
+      {cropIds.map((id) => (
+        <span key={id} className="inline-flex items-center gap-1 rounded-full bg-[#DDF4EA] border border-[#BCE9D5] px-2 py-0.5 text-[10px] font-bold text-[#0F9F68]">
+          {cropNameById.get(String(id)) || "Selected crop"}
+        </span>
+      ))}
+    </>
   );
 }

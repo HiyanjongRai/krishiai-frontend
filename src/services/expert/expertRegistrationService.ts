@@ -1,5 +1,6 @@
 import { api, tokenStore, ApiError } from "@/lib/api";
 import { loginUser, registerUser } from "@/lib/auth";
+import { uploadProfileImage } from "@/services/media/mediaService";
 import type { ExpertApplication } from "@/types/expert-application";
 
 interface CropCatalogItem {
@@ -7,6 +8,8 @@ interface CropCatalogItem {
   name: string;
   nepaliName?: string;
   emoji?: string;
+  imageUrl?: string;
+  categoryName?: string;
 }
 
 interface SpecializationCatalogItem {
@@ -19,6 +22,7 @@ interface LocationCatalogItem {
   id: number;
   name: string;
   type: string;
+  parentId?: number | null;
 }
 
 interface CropCatalogResponse {
@@ -58,6 +62,10 @@ export async function submitFullExpertApplication(application: ExpertApplication
     const loginRes = await loginUser(application.account.email, application.account.password);
     tokenStore.set(loginRes.accessToken);
     currentToken = loginRes.accessToken;
+
+    if (application.account.profilePhotoFile) {
+      await uploadProfileImage(application.account.profilePhotoFile);
+    }
   }
 
   // If we have token, proceed with profile updates
@@ -192,7 +200,8 @@ export async function submitFullExpertApplication(application: ExpertApplication
       // Link locations
       for (const locKey of application.expertise.locations || []) {
         const match = locList.find(
-          (l) => l.name.toLowerCase().includes(locKey.toLowerCase())
+          (l) => l.id.toString() === locKey ||
+                 l.name.toLowerCase().includes(locKey.toLowerCase())
         );
         if (match) {
           await api.post(`/v1/expert/profile/locations/${match.id}`, {});

@@ -13,6 +13,25 @@ import type {
   CropCategoryResponse,
   UpdateCropCategoryRequest,
 } from "@/types/crop-category";
+import type {
+  CreateCropRequest,
+  CreateLocationRequest,
+  CropPageResponse,
+  CropResponse,
+  LocationResponse,
+  LocationType,
+  UpdateCropRequest,
+  UpdateLocationRequest,
+} from "@/types/master-data";
+
+function queryString(params: Record<string, string | number | boolean | undefined>) {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") query.set(key, String(value));
+  });
+  const encoded = query.toString();
+  return encoded ? `?${encoded}` : "";
+}
 
 export const adminService = {
   /**
@@ -255,5 +274,108 @@ export const adminService = {
    */
   deleteCropCategory: async (id: number): Promise<void> => {
     return api.delete<void>(`/v1/admin/crop-categories/${id}`);
+  },
+
+  adminCreateCategory: async (
+    data: CreateCropCategoryRequest
+  ): Promise<CropCategoryResponse> => {
+    return api.post<CropCategoryResponse>("/v1/admin/crop-categories", data);
+  },
+
+  adminUpdateCategory: async (
+    id: number,
+    data: UpdateCropCategoryRequest
+  ): Promise<CropCategoryResponse> => {
+    return api.put<CropCategoryResponse>(`/v1/admin/crop-categories/${id}`, data);
+  },
+
+  adminDeleteCategory: async (id: number): Promise<void> => {
+    return api.delete<void>(`/v1/admin/crop-categories/${id}`);
+  },
+
+  getCrops: async (params?: {
+    categoryId?: number;
+    search?: string;
+    activeOnly?: boolean;
+    page?: number;
+    size?: number;
+  }): Promise<CropPageResponse> => {
+    return api.get<CropPageResponse>(`/v1/admin/crops${queryString(params ?? {})}`);
+  },
+
+  getCrop: async (id: number): Promise<CropResponse> => {
+    return api.get<CropResponse>(`/v1/admin/crops/${id}`);
+  },
+
+  getCropsByCategory: async (categoryId: number): Promise<CropResponse[]> => {
+    return api.get<CropResponse[]>(`/v1/crop-categories/${categoryId}/crops`);
+  },
+
+  adminCreateCrop: async (data: CreateCropRequest): Promise<CropResponse> => {
+    return api.post<CropResponse>("/v1/admin/crops", data);
+  },
+
+  adminUpdateCrop: async (id: number, data: UpdateCropRequest): Promise<CropResponse> => {
+    return api.put<CropResponse>(`/v1/admin/crops/${id}`, data);
+  },
+
+  adminDeleteCrop: async (id: number): Promise<void> => {
+    return api.delete<void>(`/v1/admin/crops/${id}`);
+  },
+
+  getProvinces: async (): Promise<LocationResponse[]> => {
+    return api.get<LocationResponse[]>("/v1/locations/provinces");
+  },
+
+  getDistricts: async (provinceId: number): Promise<LocationResponse[]> => {
+    return api.get<LocationResponse[]>(`/v1/locations/provinces/${provinceId}/districts`);
+  },
+
+  getMunicipalities: async (districtId: number): Promise<LocationResponse[]> => {
+    return api.get<LocationResponse[]>(`/v1/locations/districts/${districtId}/municipalities`);
+  },
+
+  adminGetLocations: async (params?: {
+    type?: LocationType;
+    parentId?: number;
+    activeOnly?: boolean;
+  }): Promise<LocationResponse[]> => {
+    return api.get<LocationResponse[]>(`/v1/admin/locations${queryString(params ?? {})}`);
+  },
+
+  adminCreateProvince: async (data: CreateLocationRequest): Promise<LocationResponse> => {
+    return api.post<LocationResponse>("/v1/admin/locations/provinces", data);
+  },
+
+  adminUpdateProvince: async (id: number, data: UpdateLocationRequest): Promise<LocationResponse> => {
+    return api.put<LocationResponse>(`/v1/admin/locations/provinces/${id}`, data);
+  },
+
+  adminDeleteProvince: async (id: number): Promise<void> => {
+    return api.delete<void>(`/v1/admin/locations/provinces/${id}`);
+  },
+
+  adminCreateDistrict: async (data: CreateLocationRequest): Promise<LocationResponse> => {
+    return api.post<LocationResponse>("/v1/admin/locations/districts", data);
+  },
+
+  adminUpdateDistrict: async (id: number, data: UpdateLocationRequest): Promise<LocationResponse> => {
+    return api.put<LocationResponse>(`/v1/admin/locations/districts/${id}`, data);
+  },
+
+  adminDeleteDistrict: async (id: number): Promise<void> => {
+    return api.delete<void>(`/v1/admin/locations/districts/${id}`);
+  },
+
+  adminCreateMunicipality: async (data: CreateLocationRequest): Promise<LocationResponse> => {
+    return api.post<LocationResponse>("/v1/admin/locations/municipalities", data);
+  },
+
+  adminUpdateMunicipality: async (id: number, data: UpdateLocationRequest): Promise<LocationResponse> => {
+    return api.put<LocationResponse>(`/v1/admin/locations/municipalities/${id}`, data);
+  },
+
+  adminDeleteMunicipality: async (id: number): Promise<void> => {
+    return api.delete<void>(`/v1/admin/locations/municipalities/${id}`);
   },
 };
