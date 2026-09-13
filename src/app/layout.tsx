@@ -28,7 +28,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${jakarta.variable} scroll-smooth`} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${jakarta.variable} scroll-smooth`}
+      suppressHydrationWarning
+      data-scroll-behavior="smooth"
+    >
       <body
         className="min-h-screen bg-white text-slate-900 flex flex-col font-sans antialiased"
         suppressHydrationWarning

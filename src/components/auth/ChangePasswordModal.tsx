@@ -69,7 +69,7 @@ export function ChangePasswordModal({ isOpen, onClose }: ChangePasswordModalProp
 
     setIsSubmitting(true);
     try {
-      await changePassword({ currentPassword, newPassword });
+      await changePassword({ currentPassword, newPassword, confirmPassword });
       toast.success({
         title: "Password updated",
         description: "Your password has been changed successfully. Active sessions on other devices were revoked.",

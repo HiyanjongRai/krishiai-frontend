@@ -189,6 +189,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
+  // ─── Update User ───────────────────────────────────────────────────────────
+  const updateUser = useCallback((updatedUser: UserResponse) => {
+    setUser(updatedUser);
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -205,6 +210,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         register,
         logout,
         changePassword,
+        updateUser,
       }}
     >
       {children}

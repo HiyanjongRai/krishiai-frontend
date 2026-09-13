@@ -13,6 +13,7 @@ export interface UserResponse {
   fullName: string;
   phone: string | null;
   profileImage: string | null;
+  profileImagePublicId?: string | null;
   role: UserRole;
   status: UserStatus;
   emailVerified: boolean;
@@ -46,6 +47,19 @@ export interface RefreshTokenRequest {
 export interface ChangePasswordRequest {
   currentPassword: string;
   newPassword: string;
+  confirmPassword?: string;
+}
+
+// Mirrors Java record: com.krishiai.auth.dto.ForgotPasswordRequest
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+// Mirrors Java record: com.krishiai.auth.dto.ResetPasswordRequest
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
 // Mirrors Java record: com.krishiai.auth.dto.RegisterRequest
@@ -81,4 +95,6 @@ export interface AuthContextType {
   register: (data: RegisterRequest) => Promise<UserResponse>;
   logout: () => Promise<void>;
   changePassword: (data: ChangePasswordRequest) => Promise<void>;
+  /** Push an updated user object into auth state (e.g. after profile image upload) */
+  updateUser: (user: UserResponse) => void;
 }

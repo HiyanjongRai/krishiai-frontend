@@ -1,0 +1,1 @@
+export { consultationMessageService } from "./consultationMessageService";

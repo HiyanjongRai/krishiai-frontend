@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useExpertApplication } from "@/providers/expert-application-provider";
 import { useAuthModal } from "@/providers/auth-modal-provider";
+import { useAuth } from "@/providers/auth-provider";
+import { ProfileImageUpload } from "@/components/ui/profile-image-upload";
 import {
   Eye,
   EyeOff,
@@ -13,12 +15,22 @@ import {
   ArrowRight,
   X,
   ShieldCheck,
+  Camera,
 } from "lucide-react";
 
 export function AccountStep() {
   const { application, updateAccount, nextStep } = useExpertApplication();
   const { openLogin } = useAuthModal();
+  const { user, updateUser } = useAuth();
   const account = application.account;
+
+  useEffect(() => {
+    if (user) {
+      if (!account.fullName && user.fullName) updateAccount({ fullName: user.fullName });
+      if (!account.email && user.email) updateAccount({ email: user.email });
+      if (!account.phone && user.phone) updateAccount({ phone: user.phone });
+    }
+  }, [user]);
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -111,6 +123,41 @@ export function AccountStep() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Profile Picture Section */}
+        {user ? (
+          <div className="p-4 rounded-[20px] bg-[#F4F4F6] border border-[rgba(234,234,236,0.85)] flex flex-col sm:flex-row items-center gap-4">
+            <ProfileImageUpload
+              currentImageUrl={user.profileImage}
+              userName={user.fullName || account.fullName}
+              onUploadSuccess={(updated) => updateUser(updated)}
+              onRemoveSuccess={(updated) => updateUser(updated)}
+              size="md"
+            />
+            <div className="space-y-1 text-center sm:text-left">
+              <h4 className="text-xs font-black text-[#171717] uppercase tracking-[0.12em]">
+                Profile Photo (Optional)
+              </h4>
+              <p className="text-xs text-gray-500">
+                A clear, professional headshot builds trust with farmers and speeds up admin verification.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="p-4 rounded-[20px] bg-[#F4F4F6] border border-[rgba(234,234,236,0.85)] flex items-center gap-4">
+            <div className="w-14 h-14 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-400 shrink-0">
+              <Camera className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <h4 className="text-xs font-black text-[#171717] uppercase tracking-[0.12em]">
+                Profile Photo (Optional)
+              </h4>
+              <p className="text-xs text-gray-500">
+                You can upload your professional photo anytime from your profile dashboard once registered.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Full Name */}
         <div className="space-y-1.5">
           <label className="block text-[11px] font-black text-[#171717] uppercase tracking-[0.12em]">

@@ -34,7 +34,10 @@ export default function ExpertProfessionalPage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleInputChange = (field: keyof ProfessionalFormData, value: any) => {
+  const handleInputChange = (
+    field: keyof ProfessionalFormData,
+    value: ProfessionalFormData[keyof ProfessionalFormData]
+  ) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,

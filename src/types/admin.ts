@@ -25,6 +25,7 @@ export interface FarmerSummary {
   location?: string;
   status: string;
   emailVerified: boolean;
+  profileImage?: string;
   createdAt?: string;
   cropsCount?: number;
   aiAnalysesCount?: number;
@@ -38,3 +39,20 @@ export interface AdminDashboardStats {
   totalConsultations: number;
   activeConsultations: number;
 }
+
+// Mirrors Java record: com.krishiai.common.response.PageResponse<T>
+export interface PageResponse<T> {
+  content: T[];
+  pageNumber: number;
+  pageSize: number;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+}
+
+// Mirrors Java record: com.krishiai.admin.dto.UpdateUserRoleRequest
+export interface UpdateUserRoleRequest {
+  role: UserRole;
+  reason?: string;
+}
+

@@ -42,6 +42,36 @@ export interface DocUploadItem {
   newFileUrl?: string;
 }
 
+interface ExistingExpertDocument {
+  documentType?: string;
+  fileName?: string;
+  title?: string;
+  fileSize?: string;
+  fileUrl?: string;
+}
+
+interface CropCatalogItem {
+  id: number;
+  name: string;
+  emoji?: string;
+}
+
+interface CropCatalogResponse {
+  content?: CropCatalogItem[];
+}
+
+interface SpecializationCatalogItem {
+  id: number;
+  name: string;
+  code: string;
+}
+
+interface LocationCatalogItem {
+  id: number;
+  name: string;
+  type: string;
+}
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;
@@ -118,95 +148,102 @@ export function ExpertEditAndResubmitModal({
   // Sync profile data when opened
   useEffect(() => {
     if (!profile) return;
-    setDesignation(profile.designation || "");
-    setOrganization(profile.organization || "");
-    setYearsOfExperience(profile.yearsOfExperience || 1);
-    setQualification(profile.qualification || "");
-    setInstitution(profile.institution || "");
-    setBio(profile.bio || "");
-    setWebsiteUrl(profile.websiteUrl || "");
+    const timer = window.setTimeout(() => {
+      setDesignation(profile.designation || "");
+      setOrganization(profile.organization || "");
+      setYearsOfExperience(profile.yearsOfExperience || 1);
+      setQualification(profile.qualification || "");
+      setInstitution(profile.institution || "");
+      setBio(profile.bio || "");
+      setWebsiteUrl(profile.websiteUrl || "");
 
-    const prim = (profile.crops || [])
-      .filter((c) => c.expertiseType === "PRIMARY")
-      .map((c) => c.cropId);
-    const sec = (profile.crops || [])
-      .filter((c) => c.expertiseType === "SECONDARY")
-      .map((c) => c.cropId);
-    setSelectedPrimaryCrops(prim);
-    setSelectedSecondaryCrops(sec);
+      const prim = (profile.crops || [])
+        .filter((c) => c.expertiseType === "PRIMARY")
+        .map((c) => c.cropId);
+      const sec = (profile.crops || [])
+        .filter((c) => c.expertiseType === "SECONDARY")
+        .map((c) => c.cropId);
+      setSelectedPrimaryCrops(prim);
+      setSelectedSecondaryCrops(sec);
 
-    const specs = (profile.specializations || []).map((s) => s.id);
-    setSelectedSpecs(specs);
+      const specs = (profile.specializations || []).map((s) => s.id);
+      setSelectedSpecs(specs);
 
-    const locs = (profile.locations || []).map((l) => l.id);
-    setSelectedLocations(locs);
+      const locs = (profile.locations || []).map((l) => l.id);
+      setSelectedLocations(locs);
 
-    // Fetch existing documents from backend
-    api.get<any[]>("/v1/expert/profile/documents")
-      .then((docs) => {
-        if (Array.isArray(docs)) {
-          setDocuments((prev) => {
-            const next = { ...prev };
-            docs.forEach((d) => {
-              const dt = (d.documentType || "").toUpperCase() as keyof typeof next;
-              if (next[dt]) {
-                next[dt] = {
-                  ...next[dt],
-                  existingFileName: d.fileName || d.title || "Uploaded Document",
-                  existingFileSize: d.fileSize,
-                  existingFileUrl: d.fileUrl,
-                };
-              }
+      api.get<ExistingExpertDocument[]>("/v1/expert/profile/documents")
+        .then((docs) => {
+          if (Array.isArray(docs)) {
+            setDocuments((prev) => {
+              const next = { ...prev };
+              docs.forEach((d) => {
+                const dt = (d.documentType || "").toUpperCase() as keyof typeof next;
+                if (next[dt]) {
+                  next[dt] = {
+                    ...next[dt],
+                    existingFileName: d.fileName || d.title || "Uploaded Document",
+                    existingFileSize: d.fileSize,
+                    existingFileUrl: d.fileUrl,
+                  };
+                }
+              });
+              return next;
             });
-            return next;
-          });
-        }
-      })
-      .catch((e) => console.warn("Could not load current documents:", e));
+          }
+        })
+        .catch((e: unknown) => console.warn("Could not load current documents:", e));
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, [profile, isOpen]);
 
   // Load catalogs
   useEffect(() => {
     if (!isOpen) return;
-    setIsLoadingCatalogs(true);
-    Promise.allSettled([
-      api.get<any>("/v1/crops?size=100"),
-      api.get<any[]>("/v1/specializations"),
-      api.get<any[]>("/v1/locations"),
-    ]).then(([cropsRes, specsRes, locsRes]) => {
-      if (cropsRes.status === "fulfilled" && cropsRes.value) {
-        const val = cropsRes.value as any;
-        const list = Array.isArray(val)
-          ? val
-          : Array.isArray(val?.content)
-          ? val.content
-          : [];
-        if (list.length > 0) {
-          setAvailableCrops(list);
+    const timer = window.setTimeout(() => {
+      setIsLoadingCatalogs(true);
+      Promise.allSettled([
+        api.get<CropCatalogItem[] | CropCatalogResponse>("/v1/crops?size=100"),
+        api.get<SpecializationCatalogItem[]>("/v1/specializations"),
+        api.get<LocationCatalogItem[]>("/v1/locations"),
+      ]).then(([cropsRes, specsRes, locsRes]) => {
+        if (cropsRes.status === "fulfilled" && cropsRes.value) {
+          const val = cropsRes.value;
+          const list = Array.isArray(val)
+            ? val
+            : Array.isArray(val.content)
+            ? val.content
+            : [];
+          if (list.length > 0) {
+            setAvailableCrops(list);
+          } else {
+            setAvailableCrops(
+              CROPS_CATALOG.map((c, idx) => ({ id: idx + 1, name: c.name, emoji: c.emoji }))
+            );
+          }
         } else {
           setAvailableCrops(
             CROPS_CATALOG.map((c, idx) => ({ id: idx + 1, name: c.name, emoji: c.emoji }))
           );
         }
-      } else {
+
+        if (specsRes.status === "fulfilled" && Array.isArray(specsRes.value)) {
+          setAvailableSpecs(specsRes.value);
+        }
+        if (locsRes.status === "fulfilled" && Array.isArray(locsRes.value)) {
+          setAvailableLocations(locsRes.value);
+        }
+      }).catch(() => {
         setAvailableCrops(
           CROPS_CATALOG.map((c, idx) => ({ id: idx + 1, name: c.name, emoji: c.emoji }))
         );
-      }
+      }).finally(() => {
+        setIsLoadingCatalogs(false);
+      });
+    }, 0);
 
-      if (specsRes.status === "fulfilled" && Array.isArray(specsRes.value)) {
-        setAvailableSpecs(specsRes.value);
-      }
-      if (locsRes.status === "fulfilled" && Array.isArray(locsRes.value)) {
-        setAvailableLocations(locsRes.value);
-      }
-    }).catch(() => {
-      setAvailableCrops(
-        CROPS_CATALOG.map((c, idx) => ({ id: idx + 1, name: c.name, emoji: c.emoji }))
-      );
-    }).finally(() => {
-      setIsLoadingCatalogs(false);
-    });
+    return () => window.clearTimeout(timer);
   }, [isOpen]);
 
   if (!isOpen) return null;
@@ -401,7 +438,7 @@ export function ExpertEditAndResubmitModal({
         onSuccess();
         onClose();
       }, 1500);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Resubmit error:", err);
       const msg = getApiErrorMessage(err, "Failed to save profile. Please verify your details and try again.");
       toast.error({
@@ -415,28 +452,28 @@ export function ExpertEditAndResubmitModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-4xl overflow-hidden flex flex-col my-auto max-h-[92vh]">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-2.5 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
+      <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 w-full max-w-4xl overflow-hidden flex flex-col my-auto max-h-[94vh] sm:max-h-[92vh]">
         
         {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-slate-50 to-emerald-50/40">
-          <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-100 flex items-center justify-between gap-3 bg-gradient-to-r from-slate-50 to-emerald-50/40">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className={`w-9 sm:w-10 h-9 sm:h-10 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 ${
               ["SUBMITTED", "UNDER_REVIEW"].includes(profile?.applicationStatus || "")
                 ? "bg-blue-100 border border-blue-200 text-blue-600"
                 : "bg-rose-100 border border-rose-200 text-rose-600"
             }`}>
-              <RotateCcw className="w-5 h-5" />
+              <RotateCcw className="w-4 sm:w-5 h-4 sm:h-5" />
             </div>
-            <div>
-              <h3 className="text-lg font-black text-slate-900 leading-tight">
+            <div className="min-w-0">
+              <h3 className="text-base sm:text-lg font-black text-slate-900 leading-tight truncate">
                 {["SUBMITTED", "UNDER_REVIEW"].includes(profile?.applicationStatus || "")
                   ? "Edit Profile"
-                  : "Update Profile & Resubmit Verification"}
+                  : "Update Profile & Resubmit"}
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 line-clamp-1 sm:line-clamp-none">
                 {["SUBMITTED", "UNDER_REVIEW"].includes(profile?.applicationStatus || "")
-                  ? "Update your credentials and documents. No re-submission required — your application is under review."
+                  ? "Update your credentials and documents. No re-submission required."
                   : "Edit your credentials, re-upload documents, and resubmit for administrator review."}
               </p>
             </div>
@@ -444,7 +481,8 @@ export function ExpertEditAndResubmitModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-slate-200/60 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors"
+            className="min-w-[36px] min-h-[36px] rounded-full bg-slate-200/60 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors shrink-0"
+            aria-label="Close modal"
           >
             <X className="w-4 h-4" />
           </button>
@@ -452,18 +490,18 @@ export function ExpertEditAndResubmitModal({
 
         {/* Admin Feedback Banner if rejected */}
         {profile?.adminNotes && (
-          <div className="mx-6 mt-4 p-4 rounded-2xl bg-rose-50 border-2 border-rose-200 flex items-start gap-3 text-rose-950">
-            <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+          <div className="mx-4 sm:mx-6 mt-3 sm:mt-4 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-rose-50 border-2 border-rose-200 flex items-start gap-3 text-rose-950">
+            <AlertCircle className="w-4 sm:w-5 h-4 sm:h-5 text-rose-600 shrink-0 mt-0.5" />
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-200/80 text-rose-900">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-200/80 text-rose-900">
                   Admin Feedback to Address
                 </span>
               </div>
-              <p className="text-sm font-semibold text-rose-900">
+              <p className="text-xs sm:text-sm font-semibold text-rose-900">
                 &ldquo;{profile.adminNotes}&rdquo;
               </p>
-              <p className="text-xs text-rose-700">
+              <p className="text-[11px] sm:text-xs text-rose-700">
                 Please update your qualifications or re-upload clearer copies of your credentials below according to this review.
               </p>
             </div>
@@ -471,7 +509,7 @@ export function ExpertEditAndResubmitModal({
         )}
 
         {/* Tab Navigation */}
-        <div className="px-6 pt-3 flex border-b border-slate-200 gap-2">
+        <div className="px-4 sm:px-6 pt-2 sm:pt-3 flex border-b border-slate-200 gap-2 overflow-x-auto no-scrollbar flex-nowrap">
           <button
             type="button"
             onClick={() => setActiveTab("credentials")}
@@ -946,22 +984,22 @@ export function ExpertEditAndResubmitModal({
         )}
 
         {/* Modal Footer */}
-        <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between gap-3">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-t border-slate-200 bg-slate-50 flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
           <button
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 text-xs font-bold transition-colors disabled:opacity-50"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 text-xs font-bold transition-colors disabled:opacity-50 min-h-[42px]"
           >
             Cancel
           </button>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
             <button
               type="button"
               onClick={handleSaveAndResubmit}
               disabled={isSubmitting || !qualification.trim() || !designation.trim()}
-              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white text-xs font-bold flex items-center gap-2 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className="w-full sm:w-auto justify-center px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white text-xs font-bold flex items-center gap-2 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-h-[42px]"
             >
               {isSubmitting ? (
                 <>

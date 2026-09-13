@@ -69,9 +69,14 @@ export function ReviewStep() {
     }
   };
 
-  const selectedCropsDetails = CROPS_CATALOG.filter((c) =>
-    expertise.crops.includes(c.id)
-  );
+  const allCropsSet = new Set([
+    ...(expertise.primaryCrops || []),
+    ...(expertise.secondaryCrops || []),
+    ...(expertise.crops || []),
+  ]);
+  const selectedCropsDetails = CROPS_CATALOG.filter((c) => allCropsSet.has(c.id));
+
+  const selectedAreas = expertise.expertiseAreas || [];
 
   const selectedSpecDetails = SPECIALIZATIONS_CATALOG.filter((s) =>
     expertise.specializations.includes(s.id)
@@ -307,6 +312,26 @@ export function ReviewStep() {
                 })}
               </div>
             </div>
+
+            {/* Expertise Areas */}
+            {selectedAreas.length > 0 && (
+              <div className="pt-2 border-t border-slate-200/50">
+                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                  Agricultural Domains ({selectedAreas.length})
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {selectedAreas.map((areaId) => (
+                    <span
+                      key={areaId}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>{areaId.replace(/_/g, " ")}</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Specializations */}
             <div className="pt-2 border-t border-slate-200/50">

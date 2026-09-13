@@ -9,12 +9,13 @@ import { Statistics } from "@/components/landing/statistics";
 import { Testimonials } from "@/components/landing/testimonials";
 import { CTA } from "@/components/landing/cta";
 import { Footer } from "@/components/layout/footer";
+import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 
 export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
-      <main className="flex-1">
+      <main className="flex-1 pb-16 md:pb-0">
         <Hero />
         <Features />
         <HowItWorks />
@@ -25,6 +26,7 @@ export default function HomePage() {
         <CTA />
       </main>
       <Footer />
+      <MobileBottomNav />
     </div>
   );
 }

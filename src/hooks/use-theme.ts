@@ -5,8 +5,12 @@ export function useTheme() {
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
-    const stored = localStorage.getItem("theme") as "light" | "dark" | null;
-    if (stored) setTheme(stored);
+    const timer = window.setTimeout(() => {
+      const stored = localStorage.getItem("theme") as "light" | "dark" | null;
+      if (stored) setTheme(stored);
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, []);
 
   const toggleTheme = () => {

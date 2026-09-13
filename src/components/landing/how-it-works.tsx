@@ -32,13 +32,13 @@ export function HowItWorks() {
   ];
 
   return (
-    <section id="how-it-works" className="py-20 bg-white border-y border-[rgba(234,234,236,0.85)]">
+    <section id="how-it-works" className="py-14 sm:py-20 bg-white border-y border-[rgba(234,234,236,0.85)]">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#0F9F68] mb-3">
+        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#0F9F68] mb-2.5">
             Simple Process
           </p>
-          <h2 className="text-3xl sm:text-4xl font-black text-[#171717] tracking-tight">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#171717] tracking-tight">
             From Crop to Clearer Decisions.
           </h2>
         </div>
@@ -46,18 +46,21 @@ export function HowItWorks() {
         <div className="relative">
           <div className="hidden lg:block absolute top-9 left-20 right-20 h-0.5 border-t-2 border-dashed border-[rgba(234,234,236,0.85)] -z-0" />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-7 lg:gap-6 relative z-10">
             {steps.map((item, idx) => {
               const Icon = item.icon;
               return (
-                <div key={idx} className="flex flex-col items-center text-center group">
-                  <div className="w-16 h-16 rounded-[20px] border border-[rgba(234,234,236,0.85)] bg-white shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04)] flex items-center justify-center text-[#0F9F68] mb-5 group-hover:bg-[#DDF4EA] group-hover:shadow-[0_8px_30px_-4px_rgba(15,159,104,0.15)] transition-all">
-                    <Icon className="w-6 h-6" />
+                <div
+                  key={idx}
+                  className="flex flex-col items-center text-center p-5 sm:p-4 rounded-2xl bg-slate-50/50 sm:bg-transparent border border-slate-100 sm:border-transparent group transition-all"
+                >
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[18px] sm:rounded-[20px] border border-[rgba(234,234,236,0.85)] bg-white shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04)] flex items-center justify-center text-[#0F9F68] mb-4 sm:mb-5 group-hover:bg-[#DDF4EA] group-hover:shadow-[0_8px_30px_-4px_rgba(15,159,104,0.15)] transition-all">
+                    <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
                   <span className="text-[10px] font-black text-[#0F9F68] tracking-[0.16em] uppercase mb-1.5">
                     {item.step}
                   </span>
-                  <h3 className="text-sm font-bold text-[#171717] mb-2">
+                  <h3 className="text-sm font-bold text-[#171717] mb-1.5">
                     {item.title}
                   </h3>
                   <p className="text-xs text-gray-500 leading-relaxed max-w-xs">

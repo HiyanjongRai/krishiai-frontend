@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { ChevronRight, Plus } from "lucide-react";
-import { ExpertExpertise } from "@/types/expert-verification";
+import { ExpertExpertise, ExpertiseStatus } from "@/types/expert-verification";
 
 interface ExpertisePreviewProps {
   expertise: ExpertExpertise[];
@@ -32,16 +32,19 @@ function getExpertiseIcon(name: string): string {
 }
 
 function getStatusColor(
-  status: "PENDING" | "VERIFIED" | "REJECTED"
+  status: ExpertiseStatus | string
 ): { bg: string; text: string; border: string } {
   switch (status) {
     case "VERIFIED":
       return { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200" };
+    case "EVIDENCE_SUBMITTED":
+      return { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" };
     case "REJECTED":
       return { bg: "bg-red-50", text: "text-red-700", border: "border-red-200" };
+    case "SELF_DECLARED":
     case "PENDING":
     default:
-      return { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" };
+      return { bg: "bg-slate-50", text: "text-slate-600", border: "border-slate-200" };
   }
 }
 
@@ -116,10 +119,11 @@ export function ExpertisePreviewSection({
                   <div className="text-xs text-slate-600 mt-0.5">
                     {exp.category === "CROP" ? "Primary Crop" : "Professional Expertise"}
                   </div>
-                  <div className={`inline-flex text-xs font-semibold mt-2 px-2 py-1 rounded-md ${colors.text}`}>
-                    {exp.status === "VERIFIED" ? "✓ Verified" : 
-                     exp.status === "REJECTED" ? "✗ Rejected" : 
-                     "⏳ Pending"}
+                  <div className={`inline-flex text-[11px] font-bold mt-2 px-2.5 py-0.5 rounded-full border ${colors.bg} ${colors.border} ${colors.text}`}>
+                    {exp.status === "VERIFIED" ? "✓ Verified" :
+                     exp.status === "EVIDENCE_SUBMITTED" ? "⏳ Evidence submitted" :
+                     exp.status === "REJECTED" ? "✕ Rejected" :
+                     "Self-declared"}
                   </div>
                 </div>
               </div>

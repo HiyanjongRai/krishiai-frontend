@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { ChevronRight, FileText, CheckCircle2, Clock, AlertCircle } from "lucide-react";
-import { ExpertDocument } from "@/types/expert-verification";
+import { ExpertDocument, DocumentStatus } from "@/types/expert-verification";
 
 interface DocumentsPreviewProps {
   documents: ExpertDocument[];
@@ -14,8 +14,9 @@ function getDocumentIcon(type: string): React.ReactNode {
   return <FileText className="w-4 h-4" />;
 }
 
-function getStatusIcon(status: "PENDING" | "VERIFIED" | "REJECTED" | "ADDITIONAL_INFO_REQUIRED") {
+function getStatusIcon(status: DocumentStatus) {
   switch (status) {
+    case "APPROVED":
     case "VERIFIED":
       return <CheckCircle2 className="w-4 h-4 text-emerald-600" />;
     case "REJECTED":
@@ -29,9 +30,10 @@ function getStatusIcon(status: "PENDING" | "VERIFIED" | "REJECTED" | "ADDITIONAL
 }
 
 function getStatusColor(
-  status: "PENDING" | "VERIFIED" | "REJECTED" | "ADDITIONAL_INFO_REQUIRED"
+  status: DocumentStatus
 ): { bg: string; text: string } {
   switch (status) {
+    case "APPROVED":
     case "VERIFIED":
       return { bg: "bg-emerald-50", text: "text-emerald-700" };
     case "REJECTED":

@@ -97,55 +97,58 @@ export default function ExpertConsultationsPage() {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {/* Header */}
       <div>
-        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#0F9F68]">Farmer Support</p>
-        <h1 className="mt-1 text-2xl sm:text-3xl font-black tracking-tight text-[#171717]">Assigned Consultations</h1>
-        <p className="mt-1 text-sm text-gray-400">Review and respond to farmer queries assigned to you.</p>
+        <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">Farmer Support</p>
+        <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">Assigned Consultations</h1>
+        <p className="mt-0.5 text-xs text-slate-500 font-medium">Review, diagnose, and advise on agricultural issues submitted by farmers.</p>
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: "Total", value: counts.ALL, icon: <MessageSquare className="w-4 h-4" />, cls: "bg-[#DDF4EA] text-[#0F9F68]" },
-          { label: "Pending", value: counts.PENDING, icon: <Clock className="w-4 h-4" />, cls: "bg-amber-50 text-amber-600" },
-          { label: "Active", value: counts.ACTIVE, icon: <CheckCircle2 className="w-4 h-4" />, cls: "bg-blue-50 text-blue-600" },
-          { label: "Resolved", value: counts.RESOLVED, icon: <CheckCircle2 className="w-4 h-4" />, cls: "bg-[#F4F4F6] text-gray-500" },
+          { label: "Total Queries", value: counts.ALL, icon: <MessageSquare className="w-4 h-4" />, cls: "bg-emerald-50 text-emerald-700 border-emerald-100" },
+          { label: "Pending Response", value: counts.PENDING, icon: <Clock className="w-4 h-4" />, cls: "bg-amber-50 text-amber-700 border-amber-100" },
+          { label: "Active Consultations", value: counts.ACTIVE, icon: <CheckCircle2 className="w-4 h-4" />, cls: "bg-blue-50 text-blue-700 border-blue-100" },
+          { label: "Resolved Cases", value: counts.RESOLVED, icon: <CheckCircle2 className="w-4 h-4" />, cls: "bg-slate-100 text-slate-700 border-slate-200" },
         ].map(({ label, value, icon, cls }) => (
-          <div key={label} className="rounded-[24px] border border-[rgba(234,234,236,0.85)] bg-white p-4 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04)]">
-            <div className={`w-8 h-8 rounded-[12px] ${cls} flex items-center justify-center mb-2`}>{icon}</div>
-            <div className="text-2xl font-black text-[#171717]">{value}</div>
-            <div className="text-[11px] font-bold text-gray-400 mt-0.5">{label}</div>
+          <div key={label} className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-slate-500">{label}</span>
+              <div className={`w-7 h-7 rounded-lg ${cls} flex items-center justify-center border shadow-2xs`}>{icon}</div>
+            </div>
+            <div className="text-2xl font-bold tracking-tight text-slate-900 mt-2">{value}</div>
           </div>
         ))}
       </div>
 
       {/* Filter tabs */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <Filter className="w-3.5 h-3.5 text-gray-400" />
-        {(["ALL", "PENDING", "ACTIVE", "RESOLVED"] as FilterType[]).map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-3.5 py-1.5 rounded-full text-[11px] font-bold border transition-all cursor-pointer ${
-              filter === f
-                ? "bg-[#0F9F68] text-white border-[#0F9F68] shadow-[0_4px_12px_rgba(15,159,104,0.2)]"
-                : "bg-white text-gray-500 border-[rgba(234,234,236,0.85)] hover:bg-[#F4F4F6]"
-            }`}
-          >
-            {f === "ALL" ? `All (${counts.ALL})` : f === "PENDING" ? `Pending (${counts.PENDING})` : f === "ACTIVE" ? `Active (${counts.ACTIVE})` : `Resolved (${counts.RESOLVED})`}
-          </button>
-        ))}
+      <div className="flex items-center justify-between gap-3 overflow-x-auto no-scrollbar pb-1">
+        <div className="inline-flex items-center rounded-xl bg-slate-100 p-1 text-xs font-medium text-slate-600 gap-1 flex-nowrap">
+          {(["ALL", "PENDING", "ACTIVE", "RESOLVED"] as FilterType[]).map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap min-h-[36px] ${
+                filter === f
+                  ? "bg-white text-slate-900 shadow-xs"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              {f === "ALL" ? `All (${counts.ALL})` : f === "PENDING" ? `Pending (${counts.PENDING})` : f === "ACTIVE" ? `Active (${counts.ACTIVE})` : `Resolved (${counts.RESOLVED})`}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Consultation list */}
       <div className="space-y-3">
         {filtered.length === 0 && (
-          <div className="rounded-[28px] border border-[rgba(234,234,236,0.85)] bg-white p-12 text-center shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04)]">
-            <MessageSquare className="w-10 h-10 text-gray-200 mx-auto mb-3" />
-            <p className="text-sm font-bold text-gray-400">No consultations found</p>
-            <p className="text-xs text-gray-400 mt-1">Farmer queries will appear here once assigned to you.</p>
+          <div className="rounded-xl border border-slate-200 bg-white p-12 text-center shadow-xs">
+            <MessageSquare className="w-8 h-8 text-slate-300 mx-auto mb-2.5" />
+            <p className="text-sm font-bold text-slate-800">No consultations found</p>
+            <p className="text-xs text-slate-500 mt-0.5">Farmer queries will appear here once assigned to you.</p>
           </div>
         )}
 
@@ -156,47 +159,47 @@ export default function ExpertConsultationsPage() {
           return (
             <div
               key={consultation.id}
-              className="rounded-[24px] border border-[rgba(234,234,236,0.85)] bg-white p-5 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] transition-all group"
+              className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs hover:border-slate-300 transition-colors"
             >
-              <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-start gap-3.5">
                 {/* Avatar */}
-                <div className="w-10 h-10 rounded-full bg-[#DDF4EA] text-[#0F9F68] flex items-center justify-center font-black text-sm shrink-0">
+                <div className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs">
                   {consultation.farmerName.charAt(0)}
                 </div>
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <span className="text-sm font-bold text-[#171717]">{consultation.farmerName}</span>
-                    <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${statusCfg.cls}`}>
+                    <span className="text-xs font-bold text-slate-900">{consultation.farmerName}</span>
+                    <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md border ${statusCfg.cls}`}>
                       {statusCfg.icon}{statusCfg.label}
                     </span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${priorityCfg.cls}`}>
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md border ${priorityCfg.cls}`}>
                       {priorityCfg.label}
                     </span>
                   </div>
 
-                  <h3 className="text-sm font-bold text-[#171717] mb-1">{consultation.cropIssue}</h3>
-                  <p className="text-[11px] text-gray-400 leading-relaxed mb-2 line-clamp-2">{consultation.description}</p>
+                  <h3 className="text-sm font-semibold text-slate-900 mb-0.5">{consultation.cropIssue}</h3>
+                  <p className="text-xs text-slate-500 leading-relaxed mb-2 line-clamp-2">{consultation.description}</p>
 
-                  <div className="flex flex-wrap items-center gap-3 text-[10px] text-gray-400">
+                  <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-400 font-medium">
                     <span className="flex items-center gap-1">
-                      <Leaf className="w-3 h-3 text-[#0F9F68]" />
-                      <span>{consultation.crop}</span>
+                      <Leaf className="w-3.5 h-3.5 text-emerald-600" />
+                      <span className="text-slate-600">{consultation.crop}</span>
                     </span>
                     <span className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
+                      <Calendar className="w-3.5 h-3.5" />
                       <span>{consultation.date}</span>
                     </span>
-                    <span className="font-mono text-gray-300">#{consultation.id}</span>
+                    <span className="font-mono text-slate-400">#{consultation.id}</span>
                   </div>
                 </div>
 
                 {/* CTA */}
-                <div className="sm:ml-auto">
-                  <button className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0F9F68] hover:bg-[#0D8A5A] text-white text-[11px] font-bold rounded-full transition-all shadow-[0_4px_12px_rgba(15,159,104,0.2)] cursor-pointer group-hover:shadow-[0_4px_16px_rgba(15,159,104,0.3)]">
-                    <span>{consultation.status === "PENDING" ? "Respond" : "View"}</span>
-                    <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                <div className="sm:ml-auto w-full sm:w-auto pt-2 sm:pt-0">
+                  <button className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold rounded-lg transition-colors shadow-xs cursor-pointer min-h-[40px]">
+                    <span>{consultation.status === "PENDING" ? "Respond to Farmer" : "View Consultation"}</span>
+                    <ArrowRight className="w-3.5 h-3.5 shrink-0" />
                   </button>
                 </div>
               </div>

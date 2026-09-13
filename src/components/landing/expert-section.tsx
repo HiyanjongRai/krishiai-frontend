@@ -41,9 +41,9 @@ export function ExpertSection() {
   ];
 
   return (
-    <section id="experts" className="py-20 sm:py-24 bg-white border-t border-[rgba(234,234,236,0.85)]">
+    <section id="experts" className="py-14 sm:py-20 lg:py-24 bg-white border-t border-[rgba(234,234,236,0.85)]">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
 
           <div className="lg:col-span-4 space-y-6 text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#DDF4EA] border border-[#BCE9D5] text-[#0F9F68] text-xs font-bold tracking-wide">
@@ -51,7 +51,7 @@ export function ExpertSection() {
               <span>EXPERT SUPPORT</span>
             </div>
 
-            <h2 className="text-3xl sm:text-4xl font-black text-[#171717] tracking-tight leading-tight">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#171717] tracking-tight leading-tight">
               When You Need More <br />
               Than AI, Talk to an Expert.
             </h2>
@@ -62,17 +62,17 @@ export function ExpertSection() {
               verified agricultural experts.
             </p>
 
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <Link
                 href="/experts"
-                className="inline-flex items-center gap-2 px-5 py-3 text-sm font-bold text-white bg-[#0F9F68] hover:bg-[#0D8A5A] rounded-full transition-all shadow-[0_4px_12px_rgba(15,159,104,0.3)] group cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold text-white bg-[#0F9F68] hover:bg-[#0D8A5A] rounded-full transition-all shadow-[0_4px_12px_rgba(15,159,104,0.3)] group cursor-pointer min-h-[44px] active:scale-98 text-center"
               >
                 <span>Find an Expert</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </Link>
               <Link
                 href="/expert-register"
-                className="inline-flex items-center gap-2 px-5 py-3 text-sm font-bold text-[#0F9F68] bg-[#DDF4EA] hover:bg-[#cbf1e1] border border-[#BCE9D5] rounded-full transition-all cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold text-[#0F9F68] bg-[#DDF4EA] hover:bg-[#cbf1e1] border border-[#BCE9D5] rounded-full transition-all cursor-pointer min-h-[44px] active:scale-98 text-center"
               >
                 <span>Join as Expert</span>
               </Link>

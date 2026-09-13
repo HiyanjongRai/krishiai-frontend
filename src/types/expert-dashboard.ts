@@ -4,7 +4,8 @@ export interface ExpertProfileData {
     id: number;
     fullName: string;
     email: string;
-    phone?: string;
+    phone?: string | null;
+    profileImage?: string | null;
     role: string;
   };
   bio?: string;

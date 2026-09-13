@@ -47,10 +47,14 @@ export function AuthModal() {
 
   // Reset all states when modal opens/closes or mode changes
   useEffect(() => {
-    setLoading(false);
-    setRedirecting(false);
-    setErrorMessage("");
-    setFieldErrors([]);
+    const timer = window.setTimeout(() => {
+      setLoading(false);
+      setRedirecting(false);
+      setErrorMessage("");
+      setFieldErrors([]);
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, [isOpen, mode]);
 
   const handleClose = () => {

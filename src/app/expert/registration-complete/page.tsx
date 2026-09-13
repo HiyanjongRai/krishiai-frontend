@@ -69,7 +69,7 @@ export default function ExpertRegistrationCompletionPage() {
 
         {/* Main Message Card */}
         <div className="bg-white border border-emerald-200 rounded-2xl p-6 mb-6 shadow-sm">
-          <h2 className="font-semibold text-slate-900 mb-3">What's Next?</h2>
+          <h2 className="font-semibold text-slate-900 mb-3">What&apos;s Next?</h2>
 
           <div className="space-y-3">
             <div className="flex gap-3">
@@ -178,7 +178,7 @@ export default function ExpertRegistrationCompletionPage() {
               ⏳ Under Review
             </div>
             <div className="text-xs text-slate-600 mt-1">
-              We'll notify you via email when verification is complete
+              We&apos;ll notify you via email when verification is complete
             </div>
           </div>
         </div>

@@ -91,48 +91,24 @@ export async function submitFullExpertApplication(application: ExpertApplication
       const specList = specializations;
       const locList = locations;
 
-      // Link primary crops (max 3)
-      const primaryCropIds = application.expertise.primaryCrops || application.expertise.crops.slice(0, 3);
-      for (const cropKey of primaryCropIds.slice(0, 3)) {
-        const match = cropsList.find(
-          (c) => c.name.toLowerCase().includes(cropKey.toLowerCase()) ||
-                 c.id.toString() === cropKey
-        );
-        if (!match) throw new Error(`Crop catalog item not found: ${cropKey}`);
-        await api.post("/v1/expert/profile/crops", { cropId: match.id, expertiseType: "PRIMARY" });
+      // Step 4: Upload / save verification documents first so we have document IDs for claims if needed
+      let supportingDocId: number | undefined;
+      if (application.expertise.supportingEvidence?.fileUrl) {
+        try {
+          const docRes = await api.post<{ id: number }>("/v1/expert/profile/documents", {
+            documentType: application.expertise.supportingEvidence.sourceType || "CERTIFICATE",
+            title: application.expertise.supportingEvidence.title || "Expertise Certificate",
+            fileName: application.expertise.supportingEvidence.fileName || "certificate.pdf",
+            fileType: application.expertise.supportingEvidence.fileType || "application/pdf",
+            fileSize: application.expertise.supportingEvidence.fileSize || "1.5 MB",
+            fileUrl: application.expertise.supportingEvidence.fileUrl,
+          });
+          supportingDocId = docRes.id;
+        } catch {
+          // ignore if document upload fails, continue with claims
+        }
       }
 
-      // Link secondary crops
-      const secondaryCropIds = application.expertise.secondaryCrops || [];
-      for (const cropKey of secondaryCropIds) {
-        const match = cropsList.find(
-          (c) => c.name.toLowerCase().includes(cropKey.toLowerCase()) ||
-                 c.id.toString() === cropKey
-        );
-        if (!match) throw new Error(`Crop catalog item not found: ${cropKey}`);
-        await api.post("/v1/expert/profile/crops", { cropId: match.id, expertiseType: "SECONDARY" });
-      }
-
-      // Link specializations
-      for (const specKey of application.expertise.specializations || []) {
-        const match = specList.find(
-          (s) => s.code.toLowerCase() === specKey.toLowerCase() ||
-                 s.name.toLowerCase().includes(specKey.toLowerCase())
-        );
-        if (!match) throw new Error(`Specialization catalog item not found: ${specKey}`);
-        await api.post(`/v1/expert/profile/specializations/${match.id}`, {});
-      }
-
-      // Link locations
-      for (const locKey of application.expertise.locations || []) {
-        const match = locList.find(
-          (l) => l.name.toLowerCase().includes(locKey.toLowerCase())
-        );
-        if (!match) throw new Error(`Location catalog item not found: ${locKey}`);
-        await api.post(`/v1/expert/profile/locations/${match.id}`, {});
-      }
-
-      // Step 4: Upload / save verification documents
       if (application.documents) {
         for (const [docKey, doc] of Object.entries(application.documents)) {
           if (doc && doc.fileName) {
@@ -145,6 +121,81 @@ export async function submitFullExpertApplication(application: ExpertApplication
                 fileUrl: doc.previewUrl || "",
               });
           }
+        }
+      }
+
+      const claimDetails = application.expertise.claimDetails || {};
+
+      // Link primary crops (max 3)
+      const primaryCropIds = application.expertise.primaryCrops || application.expertise.crops.slice(0, 3);
+      for (const cropKey of primaryCropIds.slice(0, 3)) {
+        const match = cropsList.find(
+          (c) => c.name.toLowerCase().includes(cropKey.toLowerCase()) ||
+                 c.id.toString() === cropKey
+        );
+        if (!match) continue;
+        const detail = claimDetails[cropKey] || {};
+        await api.post("/v1/expert/profile/crops", {
+          cropId: match.id,
+          expertiseType: "PRIMARY",
+          expertiseLevel: detail.level,
+          yearsOfExperience: detail.yearsOfExperience,
+          description: detail.description,
+          evidenceDocumentId: supportingDocId,
+        });
+      }
+
+      // Link secondary crops
+      const secondaryCropIds = application.expertise.secondaryCrops || [];
+      for (const cropKey of secondaryCropIds) {
+        const match = cropsList.find(
+          (c) => c.name.toLowerCase().includes(cropKey.toLowerCase()) ||
+                 c.id.toString() === cropKey
+        );
+        if (!match) continue;
+        const detail = claimDetails[cropKey] || {};
+        await api.post("/v1/expert/profile/crops", {
+          cropId: match.id,
+          expertiseType: "SECONDARY",
+          expertiseLevel: detail.level,
+          yearsOfExperience: detail.yearsOfExperience,
+          description: detail.description,
+          evidenceDocumentId: supportingDocId,
+        });
+      }
+
+      // Link agricultural domain areas
+      const areas = application.expertise.expertiseAreas || [];
+      for (const areaKey of areas) {
+        const detail = claimDetails[areaKey] || {};
+        await api.post("/v1/expert/profile/crops", {
+          expertiseArea: areaKey,
+          expertiseType: "AREA",
+          expertiseLevel: detail.level,
+          yearsOfExperience: detail.yearsOfExperience,
+          description: detail.description,
+          evidenceDocumentId: supportingDocId,
+        });
+      }
+
+      // Link specializations
+      for (const specKey of application.expertise.specializations || []) {
+        const match = specList.find(
+          (s) => s.code.toLowerCase() === specKey.toLowerCase() ||
+                 s.name.toLowerCase().includes(specKey.toLowerCase())
+        );
+        if (match) {
+          await api.post(`/v1/expert/profile/specializations/${match.id}`, {});
+        }
+      }
+
+      // Link locations
+      for (const locKey of application.expertise.locations || []) {
+        const match = locList.find(
+          (l) => l.name.toLowerCase().includes(locKey.toLowerCase())
+        );
+        if (match) {
+          await api.post(`/v1/expert/profile/locations/${match.id}`, {});
         }
       }
 

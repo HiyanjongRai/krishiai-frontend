@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/providers/auth-provider";
 import { useToast } from "@/providers/toast-provider";
+import { farmService } from "@/services/farm";
+import type { FarmerDashboardResponse } from "@/types/farm";
 
 import {
   Scan,
@@ -107,6 +109,22 @@ export function FarmerDashboardView() {
   const { toast } = useToast();
   const [chatInput, setChatInput] = useState("");
   const [chartMode, setChartMode] = useState<"Monthly" | "Annually">("Monthly");
+  const [dashboardData, setDashboardData] = useState<FarmerDashboardResponse | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    farmService
+      .getFarmerDashboard()
+      .then((data) => {
+        if (active) setDashboardData(data);
+      })
+      .catch(() => {
+        // Silently fallback to standard layout metrics
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const farmerName = user?.fullName?.split(" ")[0] || "Ram";
 
@@ -135,32 +153,34 @@ export function FarmerDashboardView() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap">
+        <div className="flex items-center gap-2.5 flex-wrap w-full sm:w-auto">
           {/* Date Range Pill */}
-          <div className="flex items-center gap-2 bg-white border border-[rgba(234,234,236,0.85)] rounded-full px-4 py-2.5 text-xs font-semibold text-gray-700 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.03)] cursor-pointer hover:border-gray-300 transition-colors">
-            <Calendar className="w-3.5 h-3.5 text-gray-400" />
-            <span>Kharif 2081 (Jun – Sep)</span>
-            <ChevronDown className="w-3 h-3 text-gray-400" />
+          <div className="flex items-center justify-between sm:justify-start gap-2 bg-white border border-[rgba(234,234,236,0.85)] rounded-full px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs font-semibold text-gray-700 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.03)] cursor-pointer hover:border-gray-300 transition-colors flex-1 sm:flex-initial">
+            <div className="flex items-center gap-2 min-w-0">
+              <Calendar className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+              <span className="truncate">Kharif 2081 (Jun – Sep)</span>
+            </div>
+            <ChevronDown className="w-3 h-3 text-gray-400 shrink-0" />
           </div>
 
           {/* Primary Action Button */}
           <Link
             href="/farmer/analysis"
-            className="flex items-center gap-2 bg-[#0F9F68] hover:bg-[#0D8A5A] text-white rounded-full px-5 py-2.5 text-xs font-bold shadow-sm transition-all active:scale-95"
+            className="flex items-center justify-center gap-2 bg-[#0F9F68] hover:bg-[#0D8A5A] text-white rounded-full px-4 sm:px-5 py-2 sm:py-2.5 text-xs font-bold shadow-sm transition-all active:scale-95 flex-1 sm:flex-initial min-h-[40px]"
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>New Crop Analysis</span>
+            <Plus className="w-3.5 h-3.5 shrink-0" />
+            <span className="whitespace-nowrap">New Crop Analysis</span>
           </Link>
         </div>
       </div>
 
-      {/* ─── 3-COLUMN ASYMMETRIC DASHBOARD GRID ─────────────────────────────── */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
+      {/* ─── 3-COLUMN RESPONSIVE DASHBOARD GRID ─────────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
         {/* ════════════════════════════════════════════════════════════════════
-            LEFT COLUMN (3 cols)
+            LEFT COLUMN (Desktop: 3 cols, Laptop/Tablet: 4 cols)
             ════════════════════════════════════════════════════════════════════ */}
-        <div className="xl:col-span-3 space-y-5">
+        <div className="lg:col-span-4 xl:col-span-3 space-y-5">
 
           {/* Card: Hero Crop Summary (Credit-Card Style) */}
           <div className="rounded-[24px] border border-[rgba(234,234,236,0.85)] bg-white p-5 space-y-4 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.02)]">
@@ -181,8 +201,12 @@ export function FarmerDashboardView() {
             <div className="bg-gradient-to-br from-[#0F9F68] to-[#0A8754] rounded-[22px] p-5 text-white shadow-md relative overflow-hidden space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] font-bold tracking-wider text-emerald-200 uppercase">Primary Harvest</span>
-                  <p className="text-xl font-black tracking-tight mt-0.5">Tomato</p>
+                  <span className="text-[10px] font-bold tracking-wider text-emerald-200 uppercase">
+                    {dashboardData?.primaryFarm ? "Primary Farm" : "Primary Harvest"}
+                  </span>
+                  <p className="text-xl font-black tracking-tight mt-0.5 truncate max-w-[170px]">
+                    {dashboardData?.primaryFarm?.farmName || "Tomato"}
+                  </p>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center backdrop-blur-xs">
                   <Sprout className="w-5 h-5 text-white" />
@@ -191,12 +215,18 @@ export function FarmerDashboardView() {
 
               <div>
                 <p className="text-[10px] font-semibold text-emerald-100 opacity-90">Field Area</p>
-                <p className="text-2xl font-black tracking-tight">1.5 Hectares</p>
+                <p className="text-2xl font-black tracking-tight">
+                  {dashboardData?.primaryFarm?.area
+                    ? `${dashboardData.primaryFarm.area} ${dashboardData.primaryFarm.areaUnit.toLowerCase()}`
+                    : "1.5 Hectares"}
+                </p>
               </div>
 
               <div className="flex items-center justify-between pt-1 border-t border-white/20 text-[10px] text-emerald-100">
-                <span className="font-mono tracking-wider">Kathmandu Farm</span>
-                <span>EXP: 09/81</span>
+                <span className="font-mono tracking-wider truncate max-w-[140px]">
+                  {dashboardData?.primaryFarm?.location?.name || "Kathmandu Farm"}
+                </span>
+                <span>{dashboardData ? `${dashboardData.totalFarms} Farms` : "EXP: 09/81"}</span>
               </div>
             </div>
 
@@ -204,10 +234,12 @@ export function FarmerDashboardView() {
             <div className="flex items-center justify-between pt-1">
               <div>
                 <p className="text-[11px] text-gray-400 font-semibold">Active Crops</p>
-                <p className="text-xl font-black text-[#171717]">8 Crops</p>
+                <p className="text-xl font-black text-[#171717]">
+                  {dashboardData ? `${dashboardData.cropCount} Crops` : "8 Crops"}
+                </p>
               </div>
               <span className="px-2.5 py-1 rounded-full bg-[#DDF4EA] text-[#0F9F68] text-[10px] font-bold border border-[#BCE9D5]">
-                +12.8%
+                {dashboardData?.activeConsultations ? `${dashboardData.activeConsultations} Active Sessions` : "+12.8%"}
               </span>
             </div>
           </div>
@@ -216,6 +248,20 @@ export function FarmerDashboardView() {
           <div className="rounded-[24px] border border-[rgba(234,234,236,0.85)] bg-white p-5 space-y-3 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.02)]">
             <p className="text-xs font-bold text-[#171717]">Quick Operations</p>
             <div className="space-y-2">
+              <Link
+                href="/farmer/farms"
+                className="flex items-center gap-3 p-3 rounded-2xl hover:bg-[#F4F4F6] transition-colors group cursor-pointer"
+              >
+                <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <MapPin className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-[#171717]">Manage My Farms</p>
+                  <p className="text-[10px] text-gray-400 truncate">Plots, coordinates &amp; units</p>
+                </div>
+                <ArrowUpRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-emerald-600 transition-colors" />
+              </Link>
+
               <Link
                 href="/farmer/analysis"
                 className="flex items-center gap-3 p-3 rounded-2xl hover:bg-[#F4F4F6] transition-colors group cursor-pointer"
@@ -262,15 +308,15 @@ export function FarmerDashboardView() {
         </div>
 
         {/* ════════════════════════════════════════════════════════════════════
-            CENTER COLUMN (6 cols)
+            CENTER COLUMN (Desktop: 6 cols, Laptop/Tablet: 8 cols)
             ════════════════════════════════════════════════════════════════════ */}
-        <div className="xl:col-span-6 space-y-5">
+        <div className="lg:col-span-8 xl:col-span-6 space-y-5">
 
           {/* Card: Engagement Rate / Analysis Activity (Quixotic Center Top Card) */}
-          <div className="rounded-[24px] border border-[rgba(234,234,236,0.85)] bg-white p-6 space-y-5 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.02)]">
+          <div className="rounded-[20px] sm:rounded-[24px] border border-[rgba(234,234,236,0.85)] bg-white p-4 sm:p-5 md:p-6 space-y-5 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.02)]">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-[#DDF4EA] flex items-center justify-center text-[#0F9F68]">
+                <div className="w-8 h-8 rounded-xl bg-[#DDF4EA] flex items-center justify-center text-[#0F9F68] shrink-0">
                   <Activity className="w-4 h-4" />
                 </div>
                 <div>
@@ -284,7 +330,7 @@ export function FarmerDashboardView() {
                   <button
                     key={mode}
                     onClick={() => setChartMode(mode)}
-                    className={`px-3.5 py-1.5 rounded-full text-[11px] font-semibold transition-all cursor-pointer ${
+                    className={`px-3 sm:px-3.5 py-1.5 rounded-full text-[11px] font-semibold transition-all cursor-pointer ${
                       chartMode === mode
                         ? "bg-[#0F9F68] text-white shadow-xs"
                         : "text-gray-500 hover:bg-gray-100"
@@ -293,7 +339,7 @@ export function FarmerDashboardView() {
                     {mode}
                   </button>
                 ))}
-                <button className="w-7 h-7 rounded-full border border-gray-100 flex items-center justify-center text-gray-400 hover:text-[#0F9F68] hover:border-[#BCE9D5] transition-colors ml-1">
+                <button className="w-7 h-7 rounded-full border border-gray-100 flex items-center justify-center text-gray-400 hover:text-[#0F9F68] hover:border-[#BCE9D5] transition-colors ml-1 shrink-0">
                   <ArrowUpRight className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -302,8 +348,8 @@ export function FarmerDashboardView() {
             <MiniBarChart />
           </div>
 
-          {/* Card: Diagnostic History Table (Quixotic Bottom Left Table) */}
-          <div id="history" className="rounded-[24px] border border-[rgba(234,234,236,0.85)] bg-white p-6 space-y-4 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.02)]">
+          {/* Card: Diagnostic History Table (Responsive Contained Table + Mobile Cards) */}
+          <div id="history" className="rounded-[20px] sm:rounded-[24px] border border-[rgba(234,234,236,0.85)] bg-white p-4 sm:p-5 md:p-6 space-y-4 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.02)]">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-bold text-[#171717]">Diagnostic History</p>
@@ -317,8 +363,36 @@ export function FarmerDashboardView() {
               </Link>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+            {/* Mobile Cards View (sm:hidden) */}
+            <div className="sm:hidden space-y-2.5">
+              {[
+                { crop: "Tomato", icon: "🍅", date: "16 Jun 2025", time: "10:30 PM", status: "Successful", conf: "94.2%", color: "emerald" },
+                { crop: "Potato", icon: "🥔", date: "15 Jun 2025", time: "11:45 PM", status: "Successful", conf: "91.5%", color: "emerald" },
+                { crop: "Maize", icon: "🌽", date: "14 Jun 2025", time: "10:15 PM", status: "Review", conf: "82.4%", color: "amber" },
+                { crop: "Rice", icon: "🌾", date: "12 Jun 2025", time: "08:20 AM", status: "Successful", conf: "96.8%", color: "emerald" },
+              ].map((row) => (
+                <div key={row.crop} className="p-3 rounded-2xl bg-slate-50/70 border border-slate-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className="text-xl leading-none shrink-0">{row.icon}</span>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-[#171717] truncate">{row.crop}</p>
+                      <p className="text-[10px] text-gray-400">{row.date} · {row.time}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-0.5 shrink-0">
+                    <span className="text-xs font-black text-[#171717]">{row.conf}</span>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-700">
+                      <span className={`w-1.5 h-1.5 rounded-full ${row.color === "emerald" ? "bg-[#0F9F68]" : "bg-amber-500"}`} />
+                      {row.status}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop / Tablet Table View (hidden sm:block) */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full text-left text-xs min-w-[420px]">
                 <thead>
                   <tr className="border-b border-gray-100 text-[10px] font-bold uppercase tracking-wider text-gray-400">
                     <th className="pb-3 font-semibold">Crop</th>
@@ -361,9 +435,9 @@ export function FarmerDashboardView() {
           </div>
 
           {/* Card: Ask KrishiAI Interactive Input */}
-          <div className="rounded-[24px] border border-[rgba(234,234,236,0.85)] bg-white p-6 space-y-3.5 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.02)]">
+          <div className="rounded-[20px] sm:rounded-[24px] border border-[rgba(234,234,236,0.85)] bg-white p-4 sm:p-5 md:p-6 space-y-3.5 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.02)]">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#DDF4EA] text-[#0F9F68] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-[#DDF4EA] text-[#0F9F68] flex items-center justify-center shrink-0">
                 <Bot className="w-4 h-4" />
               </div>
               <div>
@@ -382,6 +456,7 @@ export function FarmerDashboardView() {
               />
               <button
                 type="submit"
+                aria-label="Send query"
                 className="w-8 h-8 rounded-full bg-[#0F9F68] hover:bg-[#0D8A5A] text-white flex items-center justify-center absolute right-1.5 top-1.5 transition-colors cursor-pointer shadow-xs"
               >
                 <Send className="w-3.5 h-3.5" />
@@ -407,9 +482,9 @@ export function FarmerDashboardView() {
         </div>
 
         {/* ════════════════════════════════════════════════════════════════════
-            RIGHT COLUMN (3 cols)
+            RIGHT COLUMN (Desktop: 3 cols, Laptop: full 12 cols with 2 sub-cols)
             ════════════════════════════════════════════════════════════════════ */}
-        <div className="xl:col-span-3 space-y-5">
+        <div className="lg:col-span-12 xl:col-span-3 space-y-5 lg:grid lg:grid-cols-2 xl:block lg:gap-5 xl:space-y-5">
 
           {/* Card: Farm Health Score (Quixotic Top Right Card) */}
           <div className="rounded-[24px] border border-[rgba(234,234,236,0.85)] bg-white p-5 space-y-3.5 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.02)]">

@@ -8,6 +8,7 @@ import {
   Sprout,
   Scan,
   Bot,
+  MapPin,
   CloudSun,
   Users,
   History,
@@ -15,10 +16,11 @@ import {
   LogOut,
 } from "lucide-react";
 import { useAuth } from "@/providers/auth-provider";
+import { UserAvatar } from "@/components/ui/avatar";
 
 export function FarmerSidebar() {
   const pathname = usePathname();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
 
   const primaryNavItems = [
     {
@@ -26,6 +28,12 @@ export function FarmerSidebar() {
       href: "/farmer/dashboard",
       icon: LayoutDashboard,
       isActive: pathname === "/farmer/dashboard",
+    },
+    {
+      label: "My Farms",
+      href: "/farmer/farms",
+      icon: MapPin,
+      isActive: pathname.startsWith("/farmer/farms"),
     },
     {
       label: "My Crops",
@@ -70,7 +78,7 @@ export function FarmerSidebar() {
 
   return (
     <aside
-      className="hidden lg:flex flex-col justify-between bg-white border border-[rgba(234,234,236,0.85)] rounded-[24px] p-2.5 w-14 shrink-0 sticky top-20 min-h-[calc(100vh-100px)] max-h-[calc(100vh-100px)] shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.02)]"
+      className="hidden md:flex flex-col justify-between bg-white border border-[rgba(234,234,236,0.85)] rounded-[24px] p-2.5 w-14 shrink-0 sticky top-24 min-h-[calc(100vh-120px)] max-h-[calc(100vh-120px)] overflow-y-auto no-scrollbar shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.02)]"
     >
       {/* Top groups */}
       <div className="space-y-4">
@@ -130,8 +138,25 @@ export function FarmerSidebar() {
         </nav>
       </div>
 
-      {/* Bottom: Settings + Logout */}
+      {/* Bottom: Profile + Settings + Logout */}
       <div className="flex flex-col items-center gap-1.5 pt-3 border-t border-gray-100">
+        {/* Profile avatar link */}
+        <Link
+          href="/farmer/profile"
+          title="Profile & Settings"
+          className="group relative flex items-center justify-center"
+        >
+          <UserAvatar
+            src={user?.profileImage}
+            name={user?.fullName}
+            size="sm"
+            className="ring-2 ring-transparent group-hover:ring-[#0F9F68] transition-all"
+          />
+          <span className="pointer-events-none absolute left-full ml-3 z-50 whitespace-nowrap rounded-lg bg-[#171717] px-2.5 py-1.5 text-[11px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-150 shadow-lg">
+            Profile
+            <span className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 bg-[#171717]" />
+          </span>
+        </Link>
         <Link
           href="/farmer/profile"
           title="Settings"

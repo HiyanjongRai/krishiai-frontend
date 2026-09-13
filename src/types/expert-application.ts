@@ -6,6 +6,34 @@ export type ApplicationStatus =
   | "APPROVED"
   | "REJECTED";
 
+export type ExpertiseVerificationStatus =
+  | "SELF_DECLARED"
+  | "EVIDENCE_SUBMITTED"
+  | "VERIFIED"
+  | "REJECTED";
+
+export type ExpertiseSourceType =
+  | "SELF_DECLARED"
+  | "QUALIFICATION"
+  | "CERTIFICATE"
+  | "EXPERIENCE"
+  | "ORGANIZATION"
+  | "LICENSE"
+  | "ADMIN_REVIEW";
+
+export type ExpertiseLevel =
+  | "BEGINNER"
+  | "INTERMEDIATE"
+  | "ADVANCED"
+  | "SPECIALIST";
+
+export type ExpertiseVerificationMethod =
+  | "NONE"
+  | "DOCUMENT_REVIEW"
+  | "CREDENTIAL_REVIEW"
+  | "ADMIN_REVIEW"
+  | "SYSTEM_SUPPORTED";
+
 export type ProfessionalTitle =
   | "Agricultural Consultant"
   | "Agricultural Scientist"
@@ -41,7 +69,7 @@ export interface CropExpertiseItem {
   id: string;
   name: string;
   nepaliName?: string;
-  image : string;
+  image: string;
   emoji?: string;
   category: "Cereals" | "Vegetables" | "Fruits" | "Cash Crops" | "Legumes";
 }
@@ -60,12 +88,40 @@ export interface LocationItem {
   type: "PROVINCE" | "DISTRICT" | "MUNICIPALITY";
 }
 
+export interface ClaimDetail {
+  key: string;
+  type: "CROP" | "AREA";
+  name: string;
+  expertiseType?: "PRIMARY" | "SECONDARY" | "AREA";
+  level?: ExpertiseLevel;
+  yearsOfExperience?: number;
+  description?: string;
+  sourceType?: ExpertiseSourceType;
+  evidenceDocKey?: string;
+  evidenceFileUrl?: string;
+  verificationStatus?: ExpertiseVerificationStatus;
+  rejectionReason?: string;
+}
+
+export interface ExpertiseEvidence {
+  title?: string;
+  sourceType?: ExpertiseSourceType;
+  fileName?: string;
+  fileUrl?: string;
+  fileSize?: string;
+  fileType?: string;
+  appliedTo?: string[];
+}
+
 export interface ExpertiseData {
   crops: string[];
   primaryCrops?: string[];
   secondaryCrops?: string[];
+  expertiseAreas?: string[];
   specializations: string[];
   locations?: string[];
+  claimDetails?: Record<string, ClaimDetail>;
+  supportingEvidence?: ExpertiseEvidence;
 }
 
 export interface UploadedDocument {
@@ -101,7 +157,7 @@ export interface ExpertApplication {
   rejectionReason?: string;
   actionRequiredNotes?: string;
   requiredDocumentUpdate?: "identity" | "education" | "license" | "experience";
-  
+
   // Data sections
   account: AccountData;
   professional: ProfessionalData;

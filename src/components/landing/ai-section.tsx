@@ -174,7 +174,7 @@ export function AISection() {
                 <button
                   type="button"
                   onClick={openRegister}
-                  className="inline-flex items-center gap-2 px-6 py-3.5 text-sm font-semibold text-white bg-[#0f3d26] hover:bg-[#14532d] rounded-xl transition-all shadow-md hover:shadow-lg group cursor-pointer"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 text-sm font-semibold text-white bg-[#0f3d26] hover:bg-[#14532d] rounded-xl transition-all shadow-md hover:shadow-lg group cursor-pointer min-h-[44px] active:scale-98"
                 >
                   <span>Try AI Analysis</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
@@ -292,19 +292,19 @@ export function AISection() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-7 gap-1.5 sm:gap-2 pt-1 text-center">
+                <div className="flex sm:grid sm:grid-cols-7 gap-2 overflow-x-auto pb-2 pt-1 text-center scrollbar-none snap-x -mx-1 px-1">
                   {forecast.map((f, i) => {
                     const FIcon = f.icon;
                     return (
                       <div
                         key={i}
-                        className={`p-2 rounded-xl border ${
+                        className={`min-w-[68px] sm:min-w-0 flex-1 shrink-0 p-2.5 sm:p-2 rounded-xl border snap-start ${
                           i === 0
-                            ? "bg-emerald-50/60 border-emerald-200"
-                            : "bg-slate-50/50 border-slate-100"
-                        } space-y-1`}
+                            ? "bg-emerald-50/70 border-emerald-200 ring-1 ring-emerald-500/20"
+                            : "bg-slate-50/60 border-slate-100"
+                        } space-y-1 transition-all`}
                       >
-                        <p className="text-[10px] sm:text-[11px] font-semibold text-slate-600">
+                        <p className="text-[11px] font-semibold text-slate-600">
                           {f.day}
                         </p>
                         <div className="flex justify-center my-0.5">
@@ -314,10 +314,10 @@ export function AISection() {
                             }`}
                           />
                         </div>
-                        <div className="text-[10px] sm:text-[11px] font-bold text-slate-800">
+                        <div className="text-[11px] sm:text-xs font-bold text-slate-800">
                           {f.tempHigh}
                         </div>
-                        <div className="text-[9px] sm:text-[10px] text-slate-400">
+                        <div className="text-[10px] text-slate-400">
                           {f.tempLow}
                         </div>
                       </div>

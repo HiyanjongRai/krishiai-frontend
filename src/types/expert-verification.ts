@@ -5,8 +5,8 @@
 
 export type ExpertAccountStatus = "ACTIVE" | "INACTIVE" | "SUSPENDED";
 export type VerificationStatus = "PENDING" | "UNDER_REVIEW" | "ADDITIONAL_INFO_REQUIRED" | "APPROVED" | "REJECTED";
-export type ExpertiseStatus = "PENDING" | "VERIFIED" | "REJECTED";
-export type DocumentStatus = "PENDING" | "VERIFIED" | "REJECTED" | "ADDITIONAL_INFO_REQUIRED";
+export type ExpertiseStatus = "SELF_DECLARED" | "EVIDENCE_SUBMITTED" | "VERIFIED" | "REJECTED" | "PENDING";
+export type DocumentStatus = "PENDING" | "APPROVED" | "VERIFIED" | "REJECTED" | "ADDITIONAL_INFO_REQUIRED";
 
 export interface ExpertAccountInfo {
   accountStatus: ExpertAccountStatus; // ACTIVE, even while verification is pending

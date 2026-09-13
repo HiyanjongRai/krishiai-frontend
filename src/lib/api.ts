@@ -2,33 +2,31 @@ import type { ApiResponse, TokenResponse } from "@/types/auth";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080/api";
 
-// ─── Token helpers (localStorage) ─────────────────────────────────────────────
+// ─── Token helpers ────────────────────────────────────────────────────────────
 const TOKEN_KEY = "krishiai_access_token";
-const REFRESH_TOKEN_KEY = "krishiai_refresh_token";
+const REQUEST_TIMEOUT_MS = 15_000;
+let refreshTokenMemory: string | null = null;
 
 export const tokenStore = {
   get: (): string | null => {
     if (typeof window === "undefined") return null;
-    return localStorage.getItem(TOKEN_KEY);
+    return sessionStorage.getItem(TOKEN_KEY);
   },
   set: (token: string): void => {
     if (typeof window !== "undefined") {
-      localStorage.setItem(TOKEN_KEY, token);
+      sessionStorage.setItem(TOKEN_KEY, token);
     }
   },
   getRefreshToken: (): string | null => {
-    if (typeof window === "undefined") return null;
-    return localStorage.getItem(REFRESH_TOKEN_KEY);
+    return refreshTokenMemory;
   },
   setRefreshToken: (token: string): void => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem(REFRESH_TOKEN_KEY, token);
-    }
+    refreshTokenMemory = token;
   },
   clear: (): void => {
+    refreshTokenMemory = null;
     if (typeof window !== "undefined") {
-      localStorage.removeItem(TOKEN_KEY);
-      localStorage.removeItem(REFRESH_TOKEN_KEY);
+      sessionStorage.removeItem(TOKEN_KEY);
     }
   },
 };
@@ -63,7 +61,7 @@ async function attemptTokenRefresh(): Promise<string | null> {
   if (!currentRefreshToken) return null;
 
   try {
-    const res = await fetch(`${BASE_URL}/v1/auth/refresh`, {
+    const res = await fetchWithTimeout(`${BASE_URL}/v1/auth/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ refreshToken: currentRefreshToken }),
@@ -103,7 +101,7 @@ async function apiFetch<T>(
 
   let res: Response;
   try {
-    res = await fetch(`${BASE_URL}${path}`, {
+    res = await fetchWithTimeout(`${BASE_URL}${path}`, {
       ...options,
       headers,
     });
@@ -175,6 +173,24 @@ async function apiFetch<T>(
   return body.data;
 }
 
+async function fetchWithTimeout(
+  input: RequestInfo | URL,
+  init: RequestInit = {},
+  timeoutMs = REQUEST_TIMEOUT_MS
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeout = globalThis.setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(input, {
+      ...init,
+      signal: init.signal ?? controller.signal,
+    });
+  } finally {
+    globalThis.clearTimeout(timeout);
+  }
+}
+
 // ─── Public API methods ────────────────────────────────────────────────────────
 export const api = {
   get: <T>(path: string) =>
@@ -189,6 +205,12 @@ export const api = {
   patch: <T>(path: string, body: unknown = {}) =>
     apiFetch<T>(path, {
       method: "PATCH",
+      body: JSON.stringify(body),
+    }),
+
+  put: <T>(path: string, body: unknown = {}) =>
+    apiFetch<T>(path, {
+      method: "PUT",
       body: JSON.stringify(body),
     }),
 

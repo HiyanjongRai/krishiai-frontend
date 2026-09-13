@@ -61,6 +61,26 @@ export async function changePassword(
 }
 
 /**
+ * POST /api/v1/auth/forgot-password
+ * Triggers password reset email with a secure token.
+ */
+export async function forgotPassword(email: string): Promise<void> {
+  return api.post<void>("/v1/auth/forgot-password", { email });
+}
+
+/**
+ * POST /api/v1/auth/reset-password
+ * Resets user password using the token provided via email.
+ */
+export async function resetPassword(data: {
+  token: string;
+  newPassword: string;
+  confirmPassword: string;
+}): Promise<void> {
+  return api.post<void>("/v1/auth/reset-password", data);
+}
+
+/**
  * GET /api/v1/users/me
  * Requires a valid Bearer token in the API client.
  * Returns the logged-in user's profile.

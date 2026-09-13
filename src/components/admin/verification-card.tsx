@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 import { getApiErrorMessage } from "@/lib/toast-utils";
@@ -24,16 +25,15 @@ import {
   Mail,
   MapPin,
   Phone,
-  Radio,
   RefreshCw,
   Search,
-  Sparkles,
   Sprout,
   UserRound,
   X,
   XCircle,
 } from "lucide-react";
 import { AdminExpertDetailsModal, type DetailedExpert } from "./AdminExpertDetailsModal";
+import { UserAvatar } from "@/components/ui/avatar";
 
 interface ExpertDoc {
   id?: number | string;
@@ -60,6 +60,7 @@ interface PendingExpert {
   fullName: string;
   email: string;
   phone?: string;
+  profileImage?: string;
   designation?: string;
   organization?: string;
   yearsOfExperience?: number;
@@ -149,7 +150,6 @@ export function VerificationQueue({
 
   const [experts, setExperts] = useState<PendingExpert[]>([]);
   const [selected, setSelected] = useState<PendingExpert | null>(null);
-  const [stats, setStats] = useState<VerificationStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -161,7 +161,6 @@ export function VerificationQueue({
   const [reviewAction, setReviewAction] = useState<"reject" | "info" | null>(null);
   const [viewingDoc, setViewingDoc] = useState<ExpertDoc | null>(null);
   const [modalExpert, setModalExpert] = useState<PendingExpert | null>(null);
-  const [timeframe, setTimeframe] = useState<"monthly" | "annually">("annually");
 
   // Status Filter: "PENDING" | "UNDER_REVIEW" | "REJECTED" | "ALL"
   const [activeStatusTab, setActiveStatusTab] = useState<"PENDING" | "UNDER_REVIEW" | "REJECTED" | "ALL">(
@@ -170,7 +169,8 @@ export function VerificationQueue({
 
   // Sync with searchParams or initialStatus
   useEffect(() => {
-    setActiveStatusTab(normalizedStatus);
+    const timer = window.setTimeout(() => setActiveStatusTab(normalizedStatus), 0);
+    return () => window.clearTimeout(timer);
   }, [normalizedStatus]);
 
   const handleTabChange = (tab: "PENDING" | "UNDER_REVIEW" | "REJECTED" | "ALL") => {
@@ -216,7 +216,7 @@ export function VerificationQueue({
 
       const next = Array.from(map.values());
       setExperts(next);
-      setStats(dashboardStats);
+      void dashboardStats;
       setSelected((current) => next.find((item) => item.profileId === current?.profileId) ?? next[0] ?? null);
     } catch (error) {
       setLoadError(getApiErrorMessage(error, "Unable to load expert verification details."));
@@ -296,7 +296,13 @@ export function VerificationQueue({
     setProcessing(true);
     try {
       await api.post(`/v1/admin/experts/${selected.profileId}/start-review`);
-      toast.info({ title: "Review started", description: "Application marked as Under Review." });
+      toast.info({
+        title: "Review started",
+        description: `Application for ${formatFullName(selected.fullName)} is now Under Review.`,
+      });
+      // Optimistically update status so the evaluation and approval options immediately appear
+      setSelected((prev) => (prev && prev.profileId === selected.profileId ? { ...prev, applicationStatus: "UNDER_REVIEW" } : prev));
+      setExperts((prev) => prev.map((exp) => exp.profileId === selected.profileId ? { ...exp, applicationStatus: "UNDER_REVIEW" } : exp));
       await fetchPending();
     } catch (error) {
       toast.error({
@@ -308,6 +314,16 @@ export function VerificationQueue({
     }
   };
 
+  const resolveExpertStatus = useCallback((e?: PendingExpert | null): string => {
+    if (!e) return "PENDING";
+    if (e.verifiedExpert) return "APPROVED";
+    const appSt = (e.applicationStatus || "").toUpperCase();
+    if (appSt) return appSt;
+    const verSt = (e.verificationStatus || "").toUpperCase();
+    if (verSt && verSt !== "UNVERIFIED") return verSt;
+    return "PENDING";
+  }, []);
+
   // Status counts across all loaded experts
   const statusCounts = useMemo(() => {
     let pending = 0;
@@ -315,18 +331,18 @@ export function VerificationQueue({
     let rejected = 0;
 
     experts.forEach((e) => {
-      const st = (e.verificationStatus || e.applicationStatus || "PENDING").toUpperCase();
+      const st = resolveExpertStatus(e);
       if (st === "UNDER_REVIEW") {
         review++;
       } else if (st === "REJECTED") {
         rejected++;
-      } else if (!e.verifiedExpert && st !== "APPROVED" && st !== "VERIFIED") {
+      } else if (st !== "APPROVED" && st !== "VERIFIED") {
         pending++;
       }
     });
 
     return { pending, review, rejected, total: experts.length };
-  }, [experts]);
+  }, [experts, resolveExpertStatus]);
 
   // Filtered by search query and activeStatusTab
   const filteredExperts = useMemo(() => {
@@ -340,11 +356,10 @@ export function VerificationQueue({
         (e.designation ?? "").toLowerCase().includes(q) ||
         (e.organization ?? "").toLowerCase().includes(q);
 
-      const st = (e.verificationStatus || e.applicationStatus || "PENDING").toUpperCase();
+      const st = resolveExpertStatus(e);
       let matchesStatus = true;
       if (activeStatusTab === "PENDING") {
         matchesStatus =
-          !e.verifiedExpert &&
           st !== "APPROVED" &&
           st !== "VERIFIED" &&
           st !== "UNDER_REVIEW" &&
@@ -357,23 +372,27 @@ export function VerificationQueue({
 
       return matchesSearch && matchesStatus;
     });
-  }, [experts, searchQuery, activeStatusTab]);
+  }, [experts, searchQuery, activeStatusTab, resolveExpertStatus]);
 
   // Ensure selected candidate is visible in current filter
   useEffect(() => {
-    if (filteredExperts.length > 0) {
-      const exists = filteredExperts.some((e) => e.profileId === selected?.profileId);
-      if (!exists) {
-        setSelected(filteredExperts[0]);
+    const timer = window.setTimeout(() => {
+      if (filteredExperts.length > 0) {
+        const exists = filteredExperts.some((e) => e.profileId === selected?.profileId);
+        if (!exists) {
+          setSelected(filteredExperts[0]);
+        }
       }
-    }
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [filteredExperts, selected]);
 
   const totalPages = Math.max(1, Math.ceil(filteredExperts.length / PAGE_SIZE));
   const visibleExperts = filteredExperts.slice(listPage * PAGE_SIZE, (listPage + 1) * PAGE_SIZE);
-  const status = selected?.verificationStatus || selected?.applicationStatus || "PENDING";
+  const status = resolveExpertStatus(selected);
   const isApproved = selected?.verifiedExpert || status === "APPROVED" || status === "VERIFIED";
   const isRejected = status === "REJECTED";
+  const isUnderReview = status === "UNDER_REVIEW";
 
   const cropDetails = selected?.cropDetails ?? [];
   const crops: CropDetail[] = cropDetails.length
@@ -396,9 +415,9 @@ export function VerificationQueue({
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-[340px_minmax(0,1fr)]">
         <div className="space-y-3">
           {[1, 2, 3, 4].map((item) => (
-            <div key={item} className="rounded-[28px] border border-[rgba(234,234,236,0.85)] bg-white p-4">
+            <div key={item} className="rounded-xl border border-slate-200 bg-white p-4">
               <div className="flex gap-3">
-                <Skeleton className="h-10 w-10 rounded-full" />
+                <Skeleton className="h-9 w-9 rounded-full" />
                 <div className="flex-1 space-y-2">
                   <Skeleton className="h-3 w-3/4" />
                   <Skeleton className="h-3 w-1/2" />
@@ -407,7 +426,7 @@ export function VerificationQueue({
             </div>
           ))}
         </div>
-        <div className="rounded-[28px] border border-[rgba(234,234,236,0.85)] bg-white p-6 space-y-4">
+        <div className="rounded-xl border border-slate-200 bg-white p-6 space-y-4">
           <Skeleton className="h-8 w-1/3" />
           <Skeleton className="h-24 w-full" />
           <div className="grid grid-cols-2 gap-4">
@@ -421,212 +440,80 @@ export function VerificationQueue({
 
   if (loadError) {
     return (
-      <div className="rounded-[28px] border border-rose-200 bg-rose-50/70 p-10 text-center">
+      <div className="rounded-xl border border-rose-200 bg-rose-50/60 p-8 text-center">
         <AlertCircle className="mx-auto h-8 w-8 text-rose-500" />
-        <h2 className="mt-3 text-base font-bold text-slate-900">Unable to load expert verification details.</h2>
-        <p className="mt-1 text-sm text-slate-600">{loadError}</p>
+        <h2 className="mt-3 text-sm font-bold text-slate-900">Unable to load expert verification pipeline</h2>
+        <p className="mt-1 text-xs text-slate-600">{loadError}</p>
         <button
           onClick={() => { setIsLoading(true); void fetchPending(); }}
-          className="mt-5 inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-2 text-xs font-bold text-white hover:bg-slate-800 cursor-pointer"
+          className="mt-4 inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-800 transition-colors cursor-pointer"
         >
-          <RefreshCw className="h-3.5 w-3.5" /> Try Again
+          <RefreshCw className="h-3.5 w-3.5" /> Retry Request
         </button>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* ─── 1. TOP BENTO GRID (MATCHING REFERENCE UI) ────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-        
-        {/* Card 1 (Left): Green Emerald Hero Card & Sub-stat (4 cols) */}
-        <div className="lg:col-span-4 flex flex-col justify-between gap-4">
-          <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[#0F9F68] via-[#0D8A5A] to-[#0A6B45] p-5 text-white shadow-[0_10px_30px_-8px_rgba(15,159,104,0.35)]">
-            <div className="absolute -right-8 -top-8 h-36 w-36 rounded-full bg-white/10 blur-xl pointer-events-none" />
-            <div className="absolute -left-8 -bottom-8 h-32 w-32 rounded-full bg-black/10 blur-lg pointer-events-none" />
-
-            <div className="relative z-10 flex items-center justify-between">
-              <span className="text-[10px] font-black uppercase tracking-[0.16em] text-white/90">
-                Active Verification Queue
-              </span>
-              <Radio className="h-4 w-4 text-white/80 animate-pulse" />
-            </div>
-
-            <div className="relative z-10 mt-5">
-              <p className="text-[11px] font-medium text-white/80">Pending Candidate Reviews</p>
-              <p className="text-3xl sm:text-4xl font-black tracking-tight mt-0.5">
-                {statusCounts.pending}
-                <span className="text-sm font-semibold text-white/80 ml-1.5">pending</span>
-              </p>
-            </div>
-
-            <div className="relative z-10 mt-5 flex items-center justify-between border-t border-white/20 pt-3 text-[11px] font-medium text-white/90">
-              <span className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-white shadow-xs" />
-                Priority: Expedited Review
-              </span>
-              <span className="font-mono text-white/70">KRISHI-SEC</span>
-            </div>
-          </div>
-
-          <div className="rounded-[24px] border border-[rgba(234,234,236,0.85)] bg-white p-4 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.03)] flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Weekly Candidate Inflow</p>
-              <p className="text-xl font-black text-[#171717] mt-0.5">
-                +{Math.max(6, statusCounts.pending + 2)} Applicants
-              </p>
-            </div>
-            <span className="inline-flex items-center gap-1 rounded-full bg-[#DDF4EA] px-2.5 py-1 text-xs font-black text-[#0F9F68]">
-              +14.2%
+    <div className="space-y-5">
+      {/* ─── 1. REAL METRIC SUMMARY CARDS ───────────────────────────── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">Total Candidacies</span>
+            <span className="p-1.5 rounded-lg bg-slate-100 text-slate-600">
+              <FileCheck2 className="h-4 w-4" />
             </span>
           </div>
+          <p className="mt-2 text-2xl font-bold text-slate-900 tracking-tight">{statusCounts.total}</p>
+          <p className="mt-0.5 text-xs text-slate-500">All submissions</p>
         </div>
 
-        {/* Card 2 (Middle): Pipeline Bar Distribution Widget (4 cols) */}
-        <div className="lg:col-span-4 rounded-[28px] border border-[rgba(234,234,236,0.85)] bg-white p-5 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04)] flex flex-col justify-between">
+        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-[#DDF4EA] text-[#0F9F68]">
-                <Sparkles className="h-3.5 w-3.5" />
-              </span>
-              <span className="text-xs font-bold text-[#171717]">Review Pipeline Velocity</span>
-            </div>
-
-            <div className="flex items-center rounded-full bg-[#F4F4F6] p-0.5 text-[10px] font-bold">
-              <button
-                type="button"
-                onClick={() => setTimeframe("monthly")}
-                className={`rounded-full px-2.5 py-1 transition-all cursor-pointer ${
-                  timeframe === "monthly" ? "bg-[#0F9F68] text-white shadow-xs" : "text-gray-500 hover:text-gray-800"
-                }`}
-              >
-                Monthly
-              </button>
-              <button
-                type="button"
-                onClick={() => setTimeframe("annually")}
-                className={`rounded-full px-2.5 py-1 transition-all cursor-pointer ${
-                  timeframe === "annually" ? "bg-[#0F9F68] text-white shadow-xs" : "text-gray-500 hover:text-gray-800"
-                }`}
-              >
-                Annually
-              </button>
-            </div>
+            <span className="text-xs font-medium text-slate-500">Pending Initial Review</span>
+            <span className="p-1.5 rounded-lg bg-amber-50 text-amber-600 border border-amber-200/60">
+              <Clock3 className="h-4 w-4" />
+            </span>
           </div>
-
-          <div className="my-3 flex items-end justify-between gap-2.5 px-2 h-28">
-            {[
-              { label: "PEND", height: "h-20", active: activeStatusTab === "PENDING" },
-              { label: "REV", height: "h-24", active: activeStatusTab === "UNDER_REVIEW", badge: "+17.8%" },
-              { label: "APPR", height: "h-28", active: false },
-              { label: "REJ", height: "h-14", active: activeStatusTab === "REJECTED" },
-              { label: "ACT", height: "h-18", active: false },
-            ].map((bar) => (
-              <div key={bar.label} className="flex flex-1 flex-col items-center gap-1.5 h-full justify-end">
-                {bar.active && bar.badge && (
-                  <span className="rounded-full bg-[#0F9F68] px-1.5 py-0.2 text-[9px] font-black text-white shadow-2xs mb-0.5">
-                    {bar.badge}
-                  </span>
-                )}
-                <div
-                  className={`w-full rounded-t-xl rounded-b-md transition-all ${bar.height} ${
-                    bar.active
-                      ? "bg-[#0F9F68] shadow-[0_4px_12px_rgba(15,159,104,0.3)]"
-                      : "bg-[#DDF4EA]/70 hover:bg-[#DDF4EA]"
-                  }`}
-                />
-                <span className={`text-[10px] font-bold ${bar.active ? "text-[#0F9F68]" : "text-gray-400"}`}>
-                  {bar.label}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex items-center justify-between border-t border-gray-100 pt-2.5 text-[11px]">
-            <span className="text-gray-400 font-medium">Approval Ratio:</span>
-            <span className="font-black text-[#0F9F68]">94.2% verified successfully</span>
-          </div>
+          <p className="mt-2 text-2xl font-bold text-slate-900 tracking-tight">{statusCounts.pending}</p>
+          <p className="mt-0.5 text-xs text-amber-700 font-medium">Awaiting evaluation</p>
         </div>
 
-        {/* Card 3 (Right): Wave Area Chart & Reviewer Team (4 cols) */}
-        <div className="lg:col-span-4 rounded-[28px] border border-[rgba(234,234,236,0.85)] bg-white p-5 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04)] flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-gray-400">Total Verified Network</span>
-              <button
-                type="button"
-                className="flex h-7 w-7 items-center justify-center rounded-full bg-[#F4F4F6] text-gray-400 hover:text-gray-700 cursor-pointer"
-                title="View Analytics"
-              >
-                <ArrowUpRight className="h-3.5 w-3.5" />
-              </button>
-            </div>
-            <p className="text-2xl sm:text-3xl font-black tracking-tight text-[#171717] mt-1">
-              {stats?.verifiedExperts ?? 142}
-              <span className="text-xs font-semibold text-gray-400 ml-1.5">Approved</span>
-            </p>
+        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">Under Review</span>
+            <span className="p-1.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-200/60">
+              <UserRound className="h-4 w-4" />
+            </span>
           </div>
-
-          <div className="my-2 h-14 w-full">
-            <svg viewBox="0 0 300 60" className="w-full h-full overflow-visible" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="waveGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#0F9F68" stopOpacity="0.25" />
-                  <stop offset="100%" stopColor="#0F9F68" stopOpacity="0.0" />
-                </linearGradient>
-              </defs>
-              <path
-                d="M0,45 C40,25 70,50 110,30 C150,10 190,40 230,20 C260,8 280,25 300,15 L300,60 L0,60 Z"
-                fill="url(#waveGrad)"
-              />
-              <path
-                d="M0,45 C40,25 70,50 110,30 C150,10 190,40 230,20 C260,8 280,25 300,15"
-                fill="none"
-                stroke="#0F9F68"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
-
-          <div className="flex items-center justify-between border-t border-gray-100 pt-3">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Review Board</p>
-              <p className="text-xs font-bold text-[#171717]">Agronomy Council</p>
-            </div>
-
-            <div className="flex items-center -space-x-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white ring-2 ring-white">
-                AK
-              </div>
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-teal-600 text-[10px] font-bold text-white ring-2 ring-white">
-                SR
-              </div>
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white ring-2 ring-white">
-                PB
-              </div>
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#0F9F68] text-[9px] font-black text-white ring-2 ring-white">
-                +4
-              </div>
-            </div>
-          </div>
+          <p className="mt-2 text-2xl font-bold text-slate-900 tracking-tight">{statusCounts.review}</p>
+          <p className="mt-0.5 text-xs text-blue-700 font-medium">In active audit</p>
         </div>
 
+        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">Rejected / Returned</span>
+            <span className="p-1.5 rounded-lg bg-rose-50 text-rose-600 border border-rose-200/60">
+              <XCircle className="h-4 w-4" />
+            </span>
+          </div>
+          <p className="mt-2 text-2xl font-bold text-slate-900 tracking-tight">{statusCounts.rejected}</p>
+          <p className="mt-0.5 text-xs text-rose-700 font-medium">Declined candidacies</p>
+        </div>
       </div>
 
-      {/* ─── 2. TOOLBAR WITH STATUS FILTER OPTIONS (Pending, Under Review, Rejected) ─── */}
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between pt-2">
-        
-        {/* Status Option Tabs as requested: Under Review, Pending, Rejected */}
-        <div className="flex items-center rounded-full bg-[#F4F4F6] p-1 text-xs font-semibold text-gray-600 flex-wrap gap-1">
+      {/* ─── 2. TOOLBAR WITH STATUS FILTER TABS ───────────────────────── */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pt-1">
+        {/* Segmented Filter Control */}
+        <div className="flex overflow-x-auto gap-1 bg-slate-100 p-1 rounded-lg no-scrollbar">
           <button
             type="button"
             onClick={() => handleTabChange("PENDING")}
-            className={`px-4 py-1.5 rounded-full transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer text-xs font-semibold ${
               activeStatusTab === "PENDING"
-                ? "bg-white text-[#171717] font-bold shadow-xs"
-                : "text-gray-500 hover:text-[#171717]"
+                ? "bg-white text-slate-900 shadow-xs"
+                : "text-slate-600 hover:text-slate-900"
             }`}
           >
             Pending ({statusCounts.pending})
@@ -634,10 +521,10 @@ export function VerificationQueue({
           <button
             type="button"
             onClick={() => handleTabChange("UNDER_REVIEW")}
-            className={`px-4 py-1.5 rounded-full transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer text-xs font-semibold ${
               activeStatusTab === "UNDER_REVIEW"
-                ? "bg-white text-[#171717] font-bold shadow-xs"
-                : "text-gray-500 hover:text-[#171717]"
+                ? "bg-white text-slate-900 shadow-xs"
+                : "text-slate-600 hover:text-slate-900"
             }`}
           >
             Under Review ({statusCounts.review})
@@ -645,10 +532,10 @@ export function VerificationQueue({
           <button
             type="button"
             onClick={() => handleTabChange("REJECTED")}
-            className={`px-4 py-1.5 rounded-full transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer text-xs font-semibold ${
               activeStatusTab === "REJECTED"
-                ? "bg-white text-[#171717] font-bold shadow-xs"
-                : "text-gray-500 hover:text-[#171717]"
+                ? "bg-white text-slate-900 shadow-xs"
+                : "text-slate-600 hover:text-slate-900"
             }`}
           >
             Rejected ({statusCounts.rejected})
@@ -656,29 +543,29 @@ export function VerificationQueue({
           <button
             type="button"
             onClick={() => handleTabChange("ALL")}
-            className={`px-4 py-1.5 rounded-full transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer text-xs font-semibold ${
               activeStatusTab === "ALL"
-                ? "bg-white text-[#171717] font-bold shadow-xs"
-                : "text-gray-500 hover:text-[#171717]"
+                ? "bg-white text-slate-900 shadow-xs"
+                : "text-slate-600 hover:text-slate-900"
             }`}
           >
             All Candidates ({statusCounts.total})
           </button>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap">
-          {/* Search Pill */}
-          <div className="flex items-center gap-2 bg-white border border-[rgba(234,234,236,0.85)] rounded-full px-3.5 py-2 w-64 shadow-2xs">
-            <Search className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Search Input */}
+          <div className="relative w-full sm:w-60">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
             <input
               type="text"
-              placeholder="Filter candidates…"
+              placeholder="Search candidate name or role…"
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
                 setListPage(0);
               }}
-              className="bg-transparent text-xs text-[#171717] outline-none w-full placeholder:text-gray-400"
+              className="h-9 w-full rounded-lg border border-slate-200 bg-white pl-8 pr-3 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
             />
           </div>
 
@@ -689,38 +576,30 @@ export function VerificationQueue({
               setIsRefreshing(false);
             }}
             disabled={isRefreshing}
-            className="inline-flex items-center gap-2 rounded-full border border-[rgba(234,234,236,0.85)] bg-white px-4 py-2 text-xs font-bold text-gray-700 shadow-2xs hover:bg-gray-50 cursor-pointer transition-colors"
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-700 shadow-xs hover:bg-slate-50 cursor-pointer transition-colors disabled:opacity-50"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin text-[#0F9F68]" : "text-gray-400"}`} />
-            Refresh
+            <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin text-emerald-600" : "text-slate-400"}`} />
+            <span>Refresh</span>
           </button>
         </div>
       </div>
 
       {/* Contextual Status Guidance Banner */}
-      <div className={`p-4 rounded-[28px] border flex items-center justify-between gap-4 transition-all ${
-        activeStatusTab === "PENDING"
-          ? "bg-[#DDF4EA]/50 border-[#BCE9D5] text-[#0F9F68]"
-          : activeStatusTab === "UNDER_REVIEW"
-          ? "bg-blue-50/70 border-blue-200 text-blue-800"
-          : activeStatusTab === "REJECTED"
-          ? "bg-rose-50/70 border-rose-200 text-rose-800"
-          : "bg-[#F4F4F6] border-gray-200 text-gray-700"
-      }`}>
-        <div className="flex items-center gap-3.5">
-          <span className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 shadow-2xs ${
+      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-xs font-semibold ${
             activeStatusTab === "PENDING"
-              ? "bg-[#0F9F68] text-white"
+              ? "bg-amber-50 text-amber-700 border border-amber-200/60"
               : activeStatusTab === "UNDER_REVIEW"
-              ? "bg-blue-600 text-white"
+              ? "bg-blue-50 text-blue-700 border border-blue-200/60"
               : activeStatusTab === "REJECTED"
-              ? "bg-rose-600 text-white"
-              : "bg-[#171717] text-white"
+              ? "bg-rose-50 text-rose-700 border border-rose-200/60"
+              : "bg-slate-100 text-slate-700 border border-slate-200"
           }`}>
             {activeStatusTab === "PENDING" ? (
               <Clock3 className="w-4 h-4" />
             ) : activeStatusTab === "UNDER_REVIEW" ? (
-              <Sparkles className="w-4 h-4" />
+              <UserRound className="w-4 h-4" />
             ) : activeStatusTab === "REJECTED" ? (
               <XCircle className="w-4 h-4" />
             ) : (
@@ -728,7 +607,7 @@ export function VerificationQueue({
             )}
           </span>
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider">
+            <h4 className="text-xs font-bold text-slate-900">
               {activeStatusTab === "PENDING"
                 ? "Pending Verification Queue"
                 : activeStatusTab === "UNDER_REVIEW"
@@ -737,7 +616,7 @@ export function VerificationQueue({
                 ? "Declined & Rejected Applications"
                 : "Complete Candidate Directory"}
             </h4>
-            <p className="text-xs opacity-85 font-medium mt-0.5">
+            <p className="text-xs text-slate-500 mt-0.5">
               {activeStatusTab === "PENDING"
                 ? "Newly submitted expert applications waiting for initial document authentication and review dispatch."
                 : activeStatusTab === "UNDER_REVIEW"
@@ -749,8 +628,8 @@ export function VerificationQueue({
           </div>
         </div>
 
-        <div className="hidden sm:flex items-center gap-2 shrink-0 text-xs font-bold">
-          <span className="px-3.5 py-1 rounded-full bg-white shadow-2xs border border-current/15">
+        <div className="hidden sm:flex items-center shrink-0">
+          <span className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-medium border border-slate-200">
             {filteredExperts.length} candidate{filteredExperts.length === 1 ? "" : "s"}
           </span>
         </div>
@@ -758,9 +637,9 @@ export function VerificationQueue({
 
       {/* ─── 3. WORKSPACE: Symmetrical Queue (Left) & Detailed Deck (Right) ─ */}
       {filteredExperts.length === 0 ? (
-        <div className="rounded-[28px] border border-[rgba(234,234,236,0.85)] bg-white py-20 text-center shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04)]">
-          <CheckCircle2 className="mx-auto h-12 w-12 text-[#0F9F68]" />
-          <h2 className="mt-4 text-base font-bold text-[#171717]">
+        <div className="rounded-xl border border-dashed border-slate-200 bg-white py-16 text-center shadow-xs">
+          <CheckCircle2 className="mx-auto h-10 w-10 text-emerald-600" />
+          <h2 className="mt-3 text-sm font-bold text-slate-900">
             {searchQuery
               ? "No matching candidates found"
               : activeStatusTab === "UNDER_REVIEW"
@@ -769,20 +648,20 @@ export function VerificationQueue({
               ? "No Rejected Candidates"
               : "Verification Queue Is Clear"}
           </h2>
-          <p className="mt-1 text-xs text-gray-400">
+          <p className="mt-1 text-xs text-slate-500">
             {searchQuery
               ? "Try adjusting your search query or selecting another status filter."
               : "Select another status tab to inspect candidate submissions."}
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 items-stretch gap-6 xl:grid-cols-[340px_minmax(0,1fr)]">
+        <div className="grid grid-cols-1 items-stretch gap-5 xl:grid-cols-[320px_minmax(0,1fr)]">
 
           {/* ─── LEFT COLUMN: APPLICATIONS LIST ────────────────────────────── */}
-          <aside className="rounded-[28px] border border-[rgba(234,234,236,0.85)] bg-white p-5 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04)] h-full flex flex-col justify-between space-y-4">
+          <aside className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs h-full flex flex-col justify-between space-y-4">
             <div>
-              <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                   {activeStatusTab === "UNDER_REVIEW"
                     ? "Under Review"
                     : activeStatusTab === "REJECTED"
@@ -791,7 +670,7 @@ export function VerificationQueue({
                     ? "All Applications"
                     : "Pending Applications"}
                 </h3>
-                <span className="rounded-full bg-[#F4F4F6] px-2.5 py-0.5 text-xs font-black text-gray-600">
+                <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
                   {visibleExperts.length} of {filteredExperts.length}
                 </span>
               </div>
@@ -808,29 +687,32 @@ export function VerificationQueue({
                         setApproveNotes("");
                         setReviewAction(null);
                       }}
-                      className={`w-full rounded-2xl border p-3.5 text-left transition-all cursor-pointer ${
+                      className={`w-full rounded-lg border p-3 text-left transition-colors cursor-pointer ${
                         isCur
-                          ? "border-[#BCE9D5] bg-[#DDF4EA]/40 shadow-xs ring-1 ring-[#0F9F68]/20"
-                          : "border-transparent bg-[#F4F4F6]/60 hover:bg-[#F4F4F6] hover:border-gray-200"
+                          ? "border-emerald-500 bg-emerald-50/50 shadow-xs ring-1 ring-emerald-500/20"
+                          : "border-slate-100 bg-slate-50/60 hover:bg-slate-100 hover:border-slate-200"
                       }`}
                     >
                       <div className="flex items-start gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#DDF4EA] text-xs font-black text-[#0F9F68] shadow-2xs">
-                          {displayName.charAt(0).toUpperCase()}
-                        </div>
+                        <UserAvatar
+                          src={expert.profileImage}
+                          name={displayName}
+                          size="sm"
+                          className="shrink-0"
+                        />
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-xs font-bold text-[#171717]">{displayName}</p>
-                          <p className="mt-0.5 truncate text-[11px] text-gray-500 font-medium">
+                          <p className="truncate text-xs font-semibold text-slate-900">{displayName}</p>
+                          <p className="mt-0.5 truncate text-[11px] text-slate-500 font-medium">
                             {expert.designation || "Agricultural Specialist"}
                           </p>
-                          <p className="mt-1 flex items-center gap-1 text-[10px] text-gray-400 font-medium">
-                            <Clock3 className="h-3 w-3 text-gray-400" /> {formatDate(expert.submittedAt)}
+                          <p className="mt-1 flex items-center gap-1 text-[10px] text-slate-400 font-medium">
+                            <Clock3 className="h-3 w-3 text-slate-400" /> {formatDate(expert.submittedAt)}
                           </p>
                         </div>
                       </div>
-                      <div className="mt-2.5 flex items-center justify-between gap-2 border-t border-gray-100/60 pt-2">
-                        <StatusBadge value={expert.verificationStatus || expert.applicationStatus} />
-                        <ArrowUpRight className={`h-3 w-3 ${isCur ? "text-[#0F9F68]" : "text-gray-300"}`} />
+                      <div className="mt-2.5 flex items-center justify-between gap-2 border-t border-slate-200/50 pt-2">
+                        <StatusBadge value={resolveExpertStatus(expert)} />
+                        <ArrowUpRight className={`h-3 w-3 ${isCur ? "text-emerald-600" : "text-slate-300"}`} />
                       </div>
                     </button>
                   );
@@ -839,8 +721,8 @@ export function VerificationQueue({
             </div>
 
             {totalPages > 1 && (
-              <div className="flex items-center justify-between border-t border-gray-100 pt-3">
-                <span className="text-xs text-gray-400 font-semibold">
+              <div className="flex items-center justify-between border-t border-slate-100 pt-3">
+                <span className="text-xs text-slate-500 font-medium">
                   Page {listPage + 1} of {totalPages}
                 </span>
                 <div className="flex gap-1.5">
@@ -848,17 +730,17 @@ export function VerificationQueue({
                     aria-label="Previous page"
                     onClick={() => setListPage((p) => Math.max(0, p - 1))}
                     disabled={listPage === 0}
-                    className="rounded-full border border-gray-200 p-1.5 hover:bg-[#F4F4F6] disabled:opacity-30 cursor-pointer shadow-2xs"
+                    className="rounded-lg border border-slate-200 p-1.5 hover:bg-slate-100 disabled:opacity-30 cursor-pointer shadow-2xs"
                   >
-                    <ChevronLeft className="h-3.5 w-3.5 text-gray-600" />
+                    <ChevronLeft className="h-3.5 w-3.5 text-slate-600" />
                   </button>
                   <button
                     aria-label="Next page"
                     onClick={() => setListPage((p) => Math.min(totalPages - 1, p + 1))}
                     disabled={listPage === totalPages - 1}
-                    className="rounded-full border border-gray-200 p-1.5 hover:bg-[#F4F4F6] disabled:opacity-30 cursor-pointer shadow-2xs"
+                    className="rounded-lg border border-slate-200 p-1.5 hover:bg-slate-100 disabled:opacity-30 cursor-pointer shadow-2xs"
                   >
-                    <ChevronRight className="h-3.5 w-3.5 text-gray-600" />
+                    <ChevronRight className="h-3.5 w-3.5 text-slate-600" />
                   </button>
                 </div>
               </div>
@@ -867,51 +749,54 @@ export function VerificationQueue({
 
           {/* ─── RIGHT COLUMN: DETAILED CANDIDATE DECK ──────────────────────── */}
           {selected && (
-            <main className="min-w-0 space-y-6">
+            <main className="min-w-0 space-y-5">
 
               {/* 1. Candidate Hero Header */}
-              <section className="rounded-[28px] border border-[rgba(234,234,236,0.85)] bg-white p-6 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04)]">
+              <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
                 <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div className="flex min-w-0 items-center gap-4">
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#0F9F68] text-xl font-black text-white shadow-xs">
-                      {formatFullName(selected.fullName).charAt(0).toUpperCase()}
-                    </div>
+                  <div className="flex min-w-0 items-center gap-3.5">
+                    <UserAvatar
+                      src={selected.profileImage}
+                      name={formatFullName(selected.fullName)}
+                      size="lg"
+                      className="shrink-0 ring-1 ring-slate-200"
+                    />
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h2 className="truncate text-lg sm:text-xl font-black text-[#171717]">
+                        <h2 className="truncate text-lg font-bold text-slate-900">
                           {formatFullName(selected.fullName)}
                         </h2>
                         <StatusBadge value={status} />
                       </div>
-                      <p className="mt-0.5 text-xs text-gray-500 font-medium">
+                      <p className="mt-0.5 text-xs text-slate-600 font-medium">
                         {selected.designation || "Agricultural Specialist"}
                         {selected.organization ? ` at ${selected.organization}` : ""}
                       </p>
-                      <p className="mt-1 text-[11px] text-gray-400 font-medium">
+                      <p className="mt-1 text-[11px] text-slate-400 font-medium">
                         Application #{selected.profileId} · Submitted {formatDate(selected.submittedAt)}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2 text-xs">
-                    <span className="rounded-full border border-gray-200 bg-[#F4F4F6] px-3.5 py-1 font-semibold text-gray-600">
-                      Applicant ID: <strong className="text-[#0F9F68]">#{selected.profileId}</strong>
+                    <span className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs text-slate-600 font-medium">
+                      Applicant ID: <strong className="text-slate-900">#{selected.profileId}</strong>
                     </span>
-                    <span className={`rounded-full border px-3.5 py-1 font-semibold ${statusTone(status)}`}>
-                      Status: <strong>{statusLabel(status)}</strong>
+                    <span className={`rounded-md border px-2.5 py-1 text-xs font-semibold ${statusTone(status)}`}>
+                      {statusLabel(status)}
                     </span>
                     <button
                       type="button"
                       onClick={() => setModalExpert(selected)}
-                      className="rounded-full border border-gray-200 bg-white hover:bg-[#F4F4F6] px-3.5 py-1 font-bold text-gray-700 shadow-2xs flex items-center gap-1.5 transition-all cursor-pointer"
+                      className="rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
                     >
-                      <Eye className="w-3.5 h-3.5 text-[#0F9F68]" />
+                      <Eye className="w-3.5 h-3.5 text-emerald-600" />
                       <span>Full Details Modal</span>
                     </button>
                   </div>
                 </div>
 
-                <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-gray-100 pt-4">
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-slate-100 pt-4">
                   <InfoItem icon={<Mail />} label="Email Address" value={selected.email} />
                   <InfoItem icon={<Phone />} label="Phone Number" value={selected.phone} />
                   <InfoItem icon={<MapPin />} label="Service Location" value={selected.locations?.join(", ")} />
@@ -919,19 +804,19 @@ export function VerificationQueue({
               </section>
 
               {/* 2. Equal 50/50 Dual Column Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
 
                 {/* Left Column (50%): Credentials, Expertise & Documents */}
-                <div className="space-y-6 flex flex-col justify-between">
+                <div className="space-y-5 flex flex-col justify-between">
                   <ReviewCard icon={<UserRound />} title="Professional Profile">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                       <Field label="Designation" value={selected.designation} />
                       <Field label="Organization" value={selected.organization || selected.institution} />
                       <Field label="Qualification" value={selected.qualification} />
                       <Field label="Experience" value={selected.yearsOfExperience != null ? `${selected.yearsOfExperience} Years` : undefined} />
                     </div>
                     {selected.bio && (
-                      <div className="mt-4 border-t border-gray-100 pt-3">
+                      <div className="mt-3.5 border-t border-slate-100 pt-3">
                         <Field label="Professional Bio" value={selected.bio} multiline />
                       </div>
                     )}
@@ -941,7 +826,7 @@ export function VerificationQueue({
                     {(selected.specializations ?? []).length > 0 && (
                       <div className="mb-3 flex flex-wrap gap-1.5">
                         {selected.specializations?.map((item) => (
-                          <span key={item} className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-[11px] font-bold text-blue-700">
+                          <span key={item} className="rounded-md border border-blue-200 bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">
                             {item}
                           </span>
                         ))}
@@ -952,23 +837,23 @@ export function VerificationQueue({
                     ) : (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                         {crops.map((crop, index) => (
-                          <div key={`${crop.id}-${index}`} className="rounded-2xl border border-gray-100 bg-[#F4F4F6]/50 p-3">
+                          <div key={`${crop.id}-${index}`} className="rounded-lg border border-slate-200 bg-slate-50/60 p-3">
                             <div className="flex items-start justify-between gap-2">
                               <div>
-                                <p className="text-xs font-bold text-[#171717]">
+                                <p className="text-xs font-semibold text-slate-900">
                                   {crop.cropEmoji ? `${crop.cropEmoji} ` : ""}{crop.cropName}
                                 </p>
-                                <p className="text-[10px] text-gray-400 font-medium">
+                                <p className="text-[10px] text-slate-500 font-medium">
                                   {crop.categoryName || "Crop Expertise"}
                                 </p>
                               </div>
-                              <span className="rounded-full bg-[#DDF4EA] px-2 py-0.5 text-[10px] font-black uppercase text-[#0F9F68]">
+                              <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 uppercase">
                                 {crop.expertiseType || "PRIMARY"}
                               </span>
                             </div>
                             {crop.verificationStatus && (
-                              <p className="mt-2 flex items-center gap-1 text-[10px] font-bold text-gray-500">
-                                <CheckCircle2 className="h-3 w-3 text-[#0F9F68]" /> {statusLabel(crop.verificationStatus)}
+                              <p className="mt-2 flex items-center gap-1 text-[10px] font-medium text-slate-500">
+                                <CheckCircle2 className="h-3 w-3 text-emerald-600" /> {statusLabel(crop.verificationStatus)}
                               </p>
                             )}
                           </div>
@@ -983,15 +868,15 @@ export function VerificationQueue({
                     ) : (
                       <div className="space-y-2">
                         {selected.documents.map((doc, index) => (
-                          <div key={doc.id || index} className="rounded-2xl border border-gray-100 bg-[#F4F4F6]/50 p-3">
+                          <div key={doc.id || index} className="rounded-lg border border-slate-200 bg-slate-50/60 p-3">
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-2.5 min-w-0">
-                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white text-gray-500 shadow-2xs">
-                                  <FileText className="h-4 w-4 text-[#0F9F68]" />
+                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-slate-500 border border-slate-200 shadow-2xs">
+                                  <FileText className="h-4 w-4 text-emerald-600" />
                                 </div>
                                 <div className="min-w-0">
-                                  <p className="truncate text-xs font-bold text-[#171717]">{doc.title || doc.fileName}</p>
-                                  <p className="truncate text-[10px] text-gray-400 font-medium">
+                                  <p className="truncate text-xs font-semibold text-slate-900">{doc.title || doc.fileName}</p>
+                                  <p className="truncate text-[10px] text-slate-500 font-medium">
                                     {doc.documentType || "Verification Document"} · {doc.fileSize || "Uploaded"}
                                   </p>
                                 </div>
@@ -999,7 +884,7 @@ export function VerificationQueue({
                               <button
                                 onClick={() => setViewingDoc(doc)}
                                 disabled={!doc.fileUrl}
-                                className="inline-flex items-center gap-1 text-xs font-bold text-[#0F9F68] hover:underline disabled:opacity-30 cursor-pointer"
+                                className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:underline disabled:opacity-30 cursor-pointer"
                               >
                                 <ExternalLink className="h-3.5 w-3.5" /> View
                               </button>
@@ -1012,43 +897,43 @@ export function VerificationQueue({
                 </div>
 
                 {/* Right Column (50%): Admin Action Panel & Review Timeline */}
-                <div className="space-y-6 flex flex-col justify-between">
-                  <section className="rounded-[28px] border border-[rgba(234,234,236,0.85)] bg-white p-6 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04)] h-full flex flex-col justify-between space-y-4">
+                <div className="space-y-5 flex flex-col justify-between">
+                  <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs h-full flex flex-col justify-between space-y-4">
                     <div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#DDF4EA] text-[#0F9F68]">
+                          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200/60">
                             <CheckCircle2 className="h-4 w-4" />
                           </span>
-                          <h3 className="text-sm font-bold text-[#171717]">Verification Assessment</h3>
+                          <h3 className="text-sm font-bold text-slate-900">Verification Assessment</h3>
                         </div>
-                        <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase ${statusTone(status)}`}>
+                        <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[10px] font-semibold uppercase ${statusTone(status)}`}>
                           {statusLabel(status)}
                         </span>
                       </div>
-                      <p className="mt-2 text-xs text-gray-500 font-medium leading-relaxed">
+                      <p className="mt-2 text-xs text-slate-500 font-medium leading-relaxed">
                         Assess submitted credentials, certificates, and crop specializations before recording an authoritative verification decision.
                       </p>
 
                       {isApproved ? (
-                        <div className="mt-4 rounded-[24px] border border-[#BCE9D5] bg-[#DDF4EA]/50 p-5 text-center space-y-2">
-                          <CheckCircle2 className="mx-auto h-7 w-7 text-[#0F9F68]" />
-                          <p className="text-sm font-bold text-[#0F9F68]">Verified Expert Account</p>
-                          <p className="text-xs text-gray-500">This expert is fully approved and active in the KrishiAI advisory network.</p>
+                        <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50/50 p-4 text-center space-y-2">
+                          <CheckCircle2 className="mx-auto h-6 w-6 text-emerald-600" />
+                          <p className="text-xs font-bold text-emerald-800">Verified Expert Account</p>
+                          <p className="text-xs text-slate-500">This expert is fully approved and active in the KrishiAI advisory network.</p>
                           <button
                             type="button"
                             onClick={() => setModalExpert(selected)}
-                            className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#0F9F68] bg-white text-[#0F9F68] hover:bg-[#DDF4EA] text-xs font-bold transition-all cursor-pointer shadow-2xs"
+                            className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-600 bg-white text-emerald-700 hover:bg-emerald-50 text-xs font-medium transition-colors cursor-pointer shadow-xs"
                           >
                             <Eye className="w-3.5 h-3.5" />
                             <span>View Full Profile Credentials</span>
                           </button>
                         </div>
                       ) : isRejected ? (
-                        <div className="mt-4 space-y-4">
-                          <div className="rounded-[24px] border border-rose-200 bg-rose-50/70 p-5 text-center space-y-2">
-                            <XCircle className="mx-auto h-7 w-7 text-rose-600" />
-                            <p className="text-sm font-bold text-rose-800">Application Currently Rejected</p>
+                        <div className="mt-4 space-y-3">
+                          <div className="rounded-lg border border-rose-200 bg-rose-50/60 p-4 text-center space-y-2">
+                            <XCircle className="mx-auto h-6 w-6 text-rose-600" />
+                            <p className="text-xs font-bold text-rose-800">Application Currently Rejected</p>
                             <p className="text-xs text-rose-700 leading-relaxed font-medium">
                               {selected.adminNotes ? `Reason: "${selected.adminNotes}"` : "This application was declined during admin assessment."}
                             </p>
@@ -1057,14 +942,14 @@ export function VerificationQueue({
                             <button
                               onClick={startReview}
                               disabled={processing}
-                              className="flex w-full items-center justify-center gap-2 rounded-full border border-blue-200 bg-blue-50 hover:bg-blue-100 px-4 py-2.5 text-xs font-bold text-blue-700 transition-colors cursor-pointer disabled:opacity-50"
+                              className="flex w-full items-center justify-center gap-2 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 px-4 py-2 text-xs font-medium text-blue-700 transition-colors cursor-pointer disabled:opacity-50"
                             >
                               <Clock3 className="h-4 w-4" /> Re-open Application for Review
                             </button>
                             <button
                               onClick={handleApprove}
                               disabled={processing}
-                              className="flex w-full items-center justify-center gap-2 rounded-full bg-[#0F9F68] hover:bg-[#0D8A5A] px-4 py-2.5 text-xs font-bold text-white shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                              className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 px-4 py-2 text-xs font-semibold text-white shadow-xs transition-colors cursor-pointer disabled:opacity-50"
                             >
                               {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                               Overturn Decision &amp; Approve
@@ -1073,88 +958,104 @@ export function VerificationQueue({
                         </div>
                       ) : (
                         <div className="mt-4 space-y-3">
-                          {status === "UNDER_REVIEW" ? (
-                            <div className="p-3 rounded-2xl bg-blue-50 border border-blue-200 text-blue-800 text-xs font-medium flex items-center gap-2">
-                              <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
+                          {isUnderReview ? (
+                            <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 text-xs font-medium flex items-center gap-2">
+                              <UserRound className="w-4 h-4 text-blue-600 shrink-0" />
                               <span>In-Depth Review Active: Inspect credentials on the left, then approve, reject, or request documents below.</span>
                             </div>
                           ) : (
-                            <div className="p-3 rounded-2xl bg-[#DDF4EA]/50 border border-[#BCE9D5] text-[#0F9F68] text-xs font-medium flex items-center gap-2">
-                              <Clock3 className="w-4 h-4 text-[#0F9F68] shrink-0" />
-                              <span>Pending Initial Assessment: Review the candidate overview or start in-depth review.</span>
+                            <div className="p-3 rounded-lg bg-emerald-50/60 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2">
+                              <Clock3 className="w-4 h-4 text-emerald-600 shrink-0" />
+                              <span>Pending Initial Assessment: Candidate profile is awaiting review before accreditation decisions can be made.</span>
                             </div>
                           )}
 
-                          <div>
-                            <label htmlFor="review-notes" className="block text-xs font-bold text-gray-700">
-                              Verification Notes <span className="text-gray-400 font-normal">(Optional context)</span>
-                            </label>
-                            <textarea
-                              id="review-notes"
-                              value={approveNotes}
-                              onChange={(e) => setApproveNotes(e.target.value)}
-                              rows={3}
-                              maxLength={500}
-                              placeholder="Add optional reviewer commentary for this verification approval..."
-                              className="mt-1.5 w-full resize-none rounded-2xl border border-gray-200 bg-[#F4F4F6]/50 px-3.5 py-2.5 text-xs text-[#171717] outline-none placeholder:text-gray-400 focus:border-[#0F9F68] focus:ring-3 focus:ring-[#0F9F68]/15 transition-all"
-                            />
-                          </div>
+                          {!isUnderReview ? (
+                            <div className="space-y-3 pt-1">
+                              <button
+                                onClick={startReview}
+                                disabled={processing}
+                                className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 px-4 py-2 text-xs font-semibold text-white shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                              >
+                                {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Clock3 className="h-4 w-4" />}
+                                Review the Expert
+                              </button>
 
-                          <div className="space-y-2 pt-1">
-                            {status === "PENDING" || status === "SUBMITTED" ? (
-                              <>
+                              <p className="text-center text-[11px] text-slate-500 font-medium px-1">
+                                Start candidate review to verify credentials, assess qualifications, and access official approval actions.
+                              </p>
+
+                              <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-100">
                                 <button
-                                  onClick={startReview}
+                                  onClick={() => setReviewAction("reject")}
                                   disabled={processing}
-                                  className="flex w-full items-center justify-center gap-2 rounded-full border border-blue-200 bg-blue-50 hover:bg-blue-100 px-4 py-2.5 text-xs font-bold text-blue-700 transition-colors cursor-pointer disabled:opacity-50"
+                                  className="rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 text-xs font-medium text-rose-700 transition-colors cursor-pointer disabled:opacity-50"
                                 >
-                                  <Clock3 className="h-4 w-4" /> Start In-Depth Review
+                                  Reject
                                 </button>
+                                <button
+                                  onClick={() => setReviewAction("info")}
+                                  disabled={processing}
+                                  className="rounded-lg border border-amber-200 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 text-xs font-medium text-amber-700 transition-colors cursor-pointer disabled:opacity-50"
+                                >
+                                  Request Info
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="space-y-3 pt-1">
+                              <div>
+                                <label htmlFor="review-notes" className="block text-xs font-semibold text-slate-700">
+                                  Verification Notes <span className="text-slate-400 font-normal">(Optional context)</span>
+                                </label>
+                                <textarea
+                                  id="review-notes"
+                                  value={approveNotes}
+                                  onChange={(e) => setApproveNotes(e.target.value)}
+                                  rows={3}
+                                  maxLength={500}
+                                  placeholder="Add optional reviewer commentary for this verification approval..."
+                                  className="mt-1.5 w-full resize-none rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 outline-none placeholder:text-slate-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+                                />
+                              </div>
+
+                              <div className="space-y-2 pt-1">
                                 <button
                                   onClick={handleApprove}
                                   disabled={processing}
-                                  className="flex w-full items-center justify-center gap-2 rounded-full bg-[#0F9F68] hover:bg-[#0D8A5A] px-4 py-2.5 text-xs font-bold text-white shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 px-4 py-2 text-xs font-semibold text-white shadow-xs transition-colors cursor-pointer disabled:opacity-50"
                                 >
                                   {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-                                  Fast-Track Approve
+                                  Approve Expert Application
                                 </button>
-                              </>
-                            ) : (
-                              <button
-                                onClick={handleApprove}
-                                disabled={processing}
-                                className="flex w-full items-center justify-center gap-2 rounded-full bg-[#0F9F68] hover:bg-[#0D8A5A] px-4 py-2.5 text-xs font-bold text-white shadow-xs transition-colors cursor-pointer disabled:opacity-50"
-                              >
-                                {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-                                Approve Expert Application
-                              </button>
-                            )}
 
-                            <div className="grid grid-cols-2 gap-2 pt-1">
-                              <button
-                                onClick={() => setReviewAction("reject")}
-                                disabled={processing}
-                                className="rounded-full border border-rose-200 bg-rose-50/50 hover:bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700 transition-colors cursor-pointer disabled:opacity-50"
-                              >
-                                Reject
-                              </button>
-                              <button
-                                onClick={() => setReviewAction("info")}
-                                disabled={processing}
-                                className="rounded-full border border-amber-200 bg-amber-50/50 hover:bg-amber-50 px-3 py-2 text-xs font-bold text-amber-700 transition-colors cursor-pointer disabled:opacity-50"
-                              >
-                                Request Info
-                              </button>
+                                <div className="grid grid-cols-2 gap-2 pt-1">
+                                  <button
+                                    onClick={() => setReviewAction("reject")}
+                                    disabled={processing}
+                                    className="rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 text-xs font-medium text-rose-700 transition-colors cursor-pointer disabled:opacity-50"
+                                  >
+                                    Reject
+                                  </button>
+                                  <button
+                                    onClick={() => setReviewAction("info")}
+                                    disabled={processing}
+                                    className="rounded-lg border border-amber-200 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 text-xs font-medium text-amber-700 transition-colors cursor-pointer disabled:opacity-50"
+                                  >
+                                    Request Info
+                                  </button>
+                                </div>
+                              </div>
                             </div>
-                          </div>
+                          )}
                         </div>
                       )}
                     </div>
                   </section>
 
-                  <section className="rounded-[28px] border border-[rgba(234,234,236,0.85)] bg-white p-6 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04)]">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">Application Milestones</h3>
-                    <div className="mt-4 space-y-3">
+                  <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">Application Milestones</h3>
+                    <div className="mt-3.5 space-y-3">
                       <TimelineItem label="Application Submitted" value={formatDate(selected.submittedAt)} />
                       <TimelineItem label="Current Evaluation Status" value={statusLabel(status)} />
                     </div>
@@ -1171,25 +1072,25 @@ export function VerificationQueue({
       {/* ─── MODAL: REJECT OR REQUEST INFO ─────────────────────────────────── */}
       {reviewAction && selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4" role="dialog" aria-modal="true">
-          <div className="w-full max-w-md rounded-[28px] bg-white p-6 shadow-2xl space-y-4">
+          <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-xl space-y-4">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-base font-black text-[#171717]">
+                <h3 className="text-sm font-bold text-slate-900">
                   {reviewAction === "reject" ? "Reject Application" : "Request Additional Information"}
                 </h3>
-                <p className="text-xs text-gray-500 font-medium mt-0.5">{formatFullName(selected.fullName)}</p>
+                <p className="text-xs text-slate-500 font-medium mt-0.5">{formatFullName(selected.fullName)}</p>
               </div>
               <button
                 aria-label="Close dialog"
                 onClick={() => setReviewAction(null)}
-                className="p-1 rounded-full text-gray-400 hover:text-gray-600 cursor-pointer"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
             <div>
-              <label htmlFor="modal-notes" className="block text-xs font-bold text-gray-700">
+              <label htmlFor="modal-notes" className="block text-xs font-semibold text-slate-700">
                 {reviewAction === "reject" ? "Reason for Rejection" : "Required Details / Questions"}{" "}
                 <span className="text-rose-500">*</span>
               </label>
@@ -1201,21 +1102,21 @@ export function VerificationQueue({
                 rows={4}
                 maxLength={1000}
                 placeholder="Provide clear, actionable feedback for the applicant..."
-                className="mt-1.5 w-full resize-none rounded-2xl border border-gray-200 bg-[#F4F4F6]/60 p-3 text-xs text-[#171717] outline-none placeholder:text-gray-400 focus:border-[#0F9F68] focus:ring-3 focus:ring-[#0F9F68]/15 transition-all"
+                className="mt-1.5 w-full resize-none rounded-lg border border-slate-200 bg-white p-3 text-xs text-slate-900 outline-none placeholder:text-slate-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
               />
             </div>
 
             <div className="flex items-center gap-2 pt-1">
               <button
                 onClick={() => setReviewAction(null)}
-                className="flex-1 rounded-full border border-gray-200 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors"
+                className="flex-1 rounded-lg border border-slate-200 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 cursor-pointer transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={submitReviewAction}
                 disabled={!reviewNotes.trim() || processing}
-                className={`flex-1 rounded-full py-2.5 text-xs font-bold text-white shadow-xs cursor-pointer transition-colors disabled:opacity-50 ${
+                className={`flex-1 rounded-lg py-2 text-xs font-semibold text-white shadow-xs cursor-pointer transition-colors disabled:opacity-50 ${
                   reviewAction === "reject" ? "bg-rose-600 hover:bg-rose-700" : "bg-amber-600 hover:bg-amber-700"
                 }`}
               >
@@ -1234,35 +1135,44 @@ export function VerificationQueue({
 
       {/* ─── MODAL: DOCUMENT VIEWER ────────────────────────────────────────── */}
       {viewingDoc && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4" role="dialog" aria-modal="true">
-          <div className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-[28px] bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4" role="dialog" aria-modal="true">
+          <div className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3.5">
               <div>
-                <h3 className="text-sm font-bold text-[#171717]">{viewingDoc.title || viewingDoc.fileName}</h3>
-                <p className="text-[11px] text-gray-400 font-medium">{viewingDoc.fileName}</p>
+                <h3 className="text-sm font-bold text-slate-900">{viewingDoc.title || viewingDoc.fileName}</h3>
+                <p className="text-[11px] text-slate-500 font-medium">{viewingDoc.fileName}</p>
               </div>
               <button
                 aria-label="Close document preview"
                 onClick={() => setViewingDoc(null)}
-                className="p-1 rounded-full text-gray-400 hover:text-gray-600 cursor-pointer"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <div className="min-h-[300px] flex-1 overflow-auto bg-[#F4F4F6] p-6">
+            <div className="min-h-[300px] flex-1 overflow-auto bg-slate-50 p-6">
               {viewingDoc.fileUrl?.startsWith("data:image") ? (
-                <img src={viewingDoc.fileUrl} alt={viewingDoc.title} className="mx-auto max-h-[65vh] object-contain rounded-xl" />
+                <div className="relative mx-auto h-[65vh] max-h-[65vh] w-full max-w-3xl rounded-lg border border-slate-200 bg-white shadow-xs">
+                  <Image
+                    src={viewingDoc.fileUrl}
+                    alt={viewingDoc.title}
+                    fill
+                    sizes="min(100vw, 768px)"
+                    className="object-contain p-2"
+                    unoptimized
+                  />
+                </div>
               ) : viewingDoc.fileUrl?.startsWith("data:application/pdf") ? (
-                <iframe src={viewingDoc.fileUrl} title={viewingDoc.title} className="h-[65vh] w-full rounded-2xl border bg-white" />
+                <iframe src={viewingDoc.fileUrl} title={viewingDoc.title} className="h-[65vh] w-full rounded-lg border border-slate-200 bg-white" />
               ) : (
-                <div className="flex h-60 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-gray-200 bg-white text-center">
-                  <FileText className="h-10 w-10 text-gray-400" />
-                  <p className="text-xs text-gray-500 font-medium">Document preview is available through direct link.</p>
+                <div className="flex h-60 flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-slate-300 bg-white text-center">
+                  <FileText className="h-10 w-10 text-slate-400" />
+                  <p className="text-xs text-slate-500 font-medium">Document preview is available through direct link.</p>
                   <a
                     href={viewingDoc.fileUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-full bg-[#0F9F68] px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-[#0D8A5A]"
+                    className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-emerald-700 transition-colors"
                   >
                     <Download className="h-3.5 w-3.5" /> Open Document
                   </a>
@@ -1303,14 +1213,14 @@ function ReviewCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-[28px] border border-[rgba(234,234,236,0.85)] bg-white p-6 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04)] space-y-4">
-      <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-700">
-          <span className="text-[#0F9F68] [&>svg]:h-4 [&>svg]:w-4">{icon}</span>
+    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs space-y-3.5">
+      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-600">
+          <span className="text-emerald-600 [&>svg]:h-4 [&>svg]:w-4">{icon}</span>
           {title}
         </div>
         {count !== undefined && (
-          <span className="rounded-full bg-[#F4F4F6] px-2.5 py-0.5 text-xs font-black text-gray-600">
+          <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
             {count}
           </span>
         )}
@@ -1323,10 +1233,10 @@ function ReviewCard({
 function InfoItem({ icon, label, value }: { icon: React.ReactNode; label: string; value?: string }) {
   return (
     <div className="flex items-start gap-2.5 min-w-0">
-      <span className="mt-0.5 text-[#0F9F68] [&>svg]:h-4 [&>svg]:w-4 shrink-0">{icon}</span>
+      <span className="mt-0.5 text-emerald-600 [&>svg]:h-4 [&>svg]:w-4 shrink-0">{icon}</span>
       <div className="min-w-0">
-        <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">{label}</p>
-        <p className="mt-0.5 truncate text-xs font-bold text-[#171717]">{value || "Not provided"}</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">{label}</p>
+        <p className="mt-0.5 truncate text-xs font-medium text-slate-900">{value || "Not provided"}</p>
       </div>
     </div>
   );
@@ -1335,8 +1245,8 @@ function InfoItem({ icon, label, value }: { icon: React.ReactNode; label: string
 function Field({ label, value, multiline = false }: { label: string; value?: string; multiline?: boolean }) {
   return (
     <div>
-      <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">{label}</p>
-      <p className={`mt-0.5 text-xs ${value ? "text-[#171717] font-semibold" : "text-gray-400 font-medium"} ${multiline ? "leading-relaxed" : ""}`}>
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">{label}</p>
+      <p className={`mt-0.5 text-xs ${value ? "text-slate-900 font-medium" : "text-slate-400 font-normal"} ${multiline ? "leading-relaxed" : ""}`}>
         {value || "Not provided"}
       </p>
     </div>
@@ -1346,12 +1256,12 @@ function Field({ label, value, multiline = false }: { label: string; value?: str
 function TimelineItem({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center gap-3">
-      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#DDF4EA] text-[#0F9F68]">
-        <span className="h-1.5 w-1.5 rounded-full bg-[#0F9F68]" />
+      <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200">
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
       </div>
       <div>
-        <p className="text-xs font-bold text-[#171717]">{label}</p>
-        <p className="text-[10px] text-gray-400 font-medium">{value}</p>
+        <p className="text-xs font-medium text-slate-900">{label}</p>
+        <p className="text-[10px] text-slate-500">{value}</p>
       </div>
     </div>
   );
@@ -1359,7 +1269,7 @@ function TimelineItem({ label, value }: { label: string; value: string }) {
 
 function EmptyState({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-dashed border-gray-200 bg-[#F4F4F6]/50 p-6 text-center text-xs text-gray-400 font-medium">
+    <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50/50 p-6 text-center text-xs text-slate-400 font-normal">
       {children}
     </div>
   );

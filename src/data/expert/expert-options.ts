@@ -63,21 +63,21 @@ export const CROPS_CATALOG: CropExpertiseItem[] = [
     id: "Apple",
     name: "Apple",
     nepaliName: "स्याउ",
-    image: "/images/crops/fruits.png",
+    image: "/images/crops/apple.png",
     category: "Fruits",
   },
   {
     id: "Mandarin Orange",
     name: "Mandarin Orange",
     nepaliName: "सुन्तला",
-    image: "/images/crops/fruits.png",
+    image: "/images/crops/orange.png",
     category: "Fruits",
   },
   {
     id: "Large Cardamom",
     name: "Large Cardamom",
     nepaliName: "अलैँची",
-    image: "/images/crops/tea.png",
+    image: "/images/crops/cardamom.png",
     category: "Cash Crops",
   },
   {
@@ -91,21 +91,21 @@ export const CROPS_CATALOG: CropExpertiseItem[] = [
     id: "Mustard",
     name: "Mustard",
     nepaliName: "तोरी",
-    image: "/images/crops/wheat.png",
+    image: "/images/crops/mustard.png",
     category: "Cash Crops",
   },
   {
     id: "Lentil",
     name: "Lentil",
     nepaliName: "मुसुरो",
-    image: "/images/crops/wheat.png",
+    image: "/images/crops/lentil.png",
     category: "Legumes",
   },
   {
     id: "Cauliflower",
     name: "Cauliflower",
     nepaliName: "काउली",
-    image: "/images/crops/tomato.png",
+    image: "/images/crops/cauliflower.png",
     category: "Vegetables",
   },
 ];
@@ -178,3 +178,64 @@ export const LOCATIONS_CATALOG = [
   { id: "sudurpashchim", name: "Sudurpashchim Province", nepaliName: "सुदूरपश्चिम प्रदेश", type: "PROVINCE" as const },
   { id: "Kailali", name: "Kailali", nepaliName: "कैलाली", type: "DISTRICT" as const },
 ];
+
+export interface ExpertiseAreaItem {
+  id: string;
+  name: string;
+  description: string;
+  iconName?: string;
+}
+
+export const EXPERTISE_AREAS_CATALOG: ExpertiseAreaItem[] = [
+  {
+    id: "CROP_PRODUCTION",
+    name: "Crop Production",
+    description: "Field crops, seed selection, planting schedules, and agronomic management.",
+  },
+  {
+    id: "PEST_MANAGEMENT",
+    name: "Pest Management",
+    description: "Integrated pest management (IPM), biological controls, and safe pesticide usage.",
+  },
+  {
+    id: "DISEASE_MANAGEMENT",
+    name: "Disease Management",
+    description: "Early diagnosis, fungicide programs, and pathogen containment in fields & greenhouses.",
+  },
+  {
+    id: "SOIL_MANAGEMENT",
+    name: "Soil Management",
+    description: "Soil fertility testing, pH correction, organic matter, and compost enrichment.",
+  },
+  {
+    id: "IRRIGATION",
+    name: "Irrigation",
+    description: "Drip, sprinkler, moisture conservation, and seasonal drainage systems.",
+  },
+  {
+    id: "HORTICULTURE",
+    name: "Horticulture",
+    description: "High-value fruits, vegetables, floriculture, grafting, and nursery cultivation.",
+  },
+  {
+    id: "ORGANIC_FARMING",
+    name: "Organic Farming",
+    description: "Bio-fertilizers, natural repellents, organic certification standards, and composting.",
+  },
+  {
+    id: "PLANT_NUTRITION",
+    name: "Plant Nutrition",
+    description: "NPK ratios, micronutrient deficiency correction, and foliar spray schedules.",
+  },
+  {
+    id: "PROTECTED_CULTIVATION",
+    name: "Protected Cultivation",
+    description: "Polyhouse design, greenhouse climate control, and tunnel farming techniques.",
+  },
+  {
+    id: "OTHER",
+    name: "Other",
+    description: "Customized or specialized agricultural disciplines.",
+  },
+];
+

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import {
   X,
   FileText,
@@ -31,6 +32,7 @@ import { useToast } from "@/providers/toast-provider";
 import { getApiErrorMessage } from "@/lib/toast-utils";
 import { Modal } from "@/components/ui/modal";
 import { formatFullName } from "@/lib/format-utils";
+import { UserAvatar } from "@/components/ui/avatar";
 
 export interface ExpertDoc {
   id?: number | string;
@@ -46,13 +48,21 @@ export interface ExpertDoc {
 
 export interface DetailedCropExpertise {
   id: number;
-  cropId: number;
-  cropName: string;
-  cropEmoji: string;
+  cropId?: number;
+  expertiseId?: number;
+  cropName?: string;
+  expertiseArea?: string;
+  cropEmoji?: string;
   categoryName?: string;
-  expertiseType: "PRIMARY" | "SECONDARY";
-  verificationStatus: "VERIFIED" | "PENDING" | "REJECTED";
+  expertiseType: "PRIMARY" | "SECONDARY" | "AREA";
+  verificationStatus: "VERIFIED" | "PENDING" | "REJECTED" | "SELF_DECLARED" | "EVIDENCE_SUBMITTED";
+  expertiseLevel?: string;
+  yearsOfExperience?: number;
+  description?: string;
+  evidenceDocumentFileName?: string;
+  evidenceDocumentTitle?: string;
   verifiedAt?: string;
+  rejectionReason?: string;
 }
 
 export interface DetailedExpert {
@@ -61,6 +71,7 @@ export interface DetailedExpert {
   fullName: string;
   email: string;
   phone?: string;
+  profileImage?: string;
   designation?: string;
   organization?: string;
   yearsOfExperience?: number;
@@ -95,7 +106,7 @@ interface Props {
 
 type ConfirmationAction =
   | { kind: "approve" }
-  | { kind: "verify-crop" | "reject-crop"; cropId: number };
+  | { kind: "verify-crop" | "reject-crop"; expertiseId: number };
 
 export function AdminExpertDetailsModal({
   isOpen,
@@ -120,9 +131,15 @@ export function AdminExpertDetailsModal({
   const [activeCrop, setActiveCrop] = useState<number | null>(null);
   const [cropNotes, setCropNotes] = useState<Record<number, string>>({});
   const [categoryFilter, setCategoryFilter] = useState<string>("ALL");
-  const [typeFilter, setTypeFilter] = useState<"ALL" | "PRIMARY" | "SECONDARY">("ALL");
+  const [typeFilter, setTypeFilter] = useState<"ALL" | "PRIMARY" | "SECONDARY" | "AREA">("ALL");
   const [cropProcessing, setCropProcessing] = useState<number | null>(null);
   const [confirmation, setConfirmation] = useState<ConfirmationAction | null>(null);
+
+  // Batch selection
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [showBatchRejectInput, setShowBatchRejectInput] = useState(false);
+  const [batchRejectReason, setBatchRejectReason] = useState("");
+  const [batchProcessing, setBatchProcessing] = useState(false);
 
   React.useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -131,9 +148,83 @@ export function AdminExpertDetailsModal({
       setCropNotes({});
       setCategoryFilter("ALL");
       setTypeFilter("ALL");
+      setSelectedIds(new Set());
+      setShowBatchRejectInput(false);
+      setBatchRejectReason("");
     }, 0);
     return () => window.clearTimeout(timer);
   }, [expert]);
+
+  const handleBatchVerify = async () => {
+    if (selectedIds.size === 0) return;
+    setBatchProcessing(true);
+    try {
+      await api.post("/v1/admin/expertise-verifications/batch", {
+        items: Array.from(selectedIds).map((expertiseId) => ({
+          expertiseId,
+          decision: "VERIFY",
+          verificationMethod: "ADMIN_REVIEW",
+        })),
+        notes: "Batch verified by admin.",
+      });
+      setCropsState((prev) =>
+        prev.map((c) =>
+          selectedIds.has(c.id)
+            ? { ...c, verificationStatus: "VERIFIED", verifiedAt: new Date().toISOString() }
+            : c
+        )
+      );
+      toast.success({ title: "Expertise verified", description: `${selectedIds.size} claim(s) verified.` });
+      setActionMessage({ text: `✓ ${selectedIds.size} claim(s) verified.`, success: true });
+      setSelectedIds(new Set());
+      if (onStatusChanged) onStatusChanged();
+      setTimeout(() => setActionMessage(null), 4000);
+    } catch (err: unknown) {
+      const msg = getApiErrorMessage(err, "Failed to batch verify.");
+      toast.error({ title: "Batch verify failed", description: msg });
+    } finally {
+      setBatchProcessing(false);
+    }
+  };
+
+  const handleBatchReject = async () => {
+    if (selectedIds.size === 0) return;
+    if (!batchRejectReason.trim()) {
+      toast.warning({ title: "Rejection reason required", description: "Please provide a reason." });
+      return;
+    }
+    setBatchProcessing(true);
+    try {
+      await api.post("/v1/admin/expertise-verifications/batch", {
+        items: Array.from(selectedIds).map((expertiseId) => ({
+          expertiseId,
+          decision: "REJECT",
+          reason: batchRejectReason.trim(),
+          verificationMethod: "ADMIN_REVIEW",
+        })),
+        notes: batchRejectReason.trim(),
+      });
+      setCropsState((prev) =>
+        prev.map((c) =>
+          selectedIds.has(c.id)
+            ? { ...c, verificationStatus: "REJECTED", rejectionReason: batchRejectReason.trim() }
+            : c
+        )
+      );
+      toast.warning({ title: "Claims rejected", description: `${selectedIds.size} claim(s) rejected.` });
+      setActionMessage({ text: `✕ ${selectedIds.size} claim(s) rejected.`, success: false });
+      setSelectedIds(new Set());
+      setShowBatchRejectInput(false);
+      setBatchRejectReason("");
+      if (onStatusChanged) onStatusChanged();
+      setTimeout(() => setActionMessage(null), 4000);
+    } catch (err: unknown) {
+      const msg = getApiErrorMessage(err, "Failed to batch reject.");
+      toast.error({ title: "Batch reject failed", description: msg });
+    } finally {
+      setBatchProcessing(false);
+    }
+  };
 
   if (!isOpen || !expert) return null;
 
@@ -327,13 +418,21 @@ export function AdminExpertDetailsModal({
     }
   };
 
-  const handleVerifyCrop = async (cropId: number) => {
-    setCropProcessing(cropId);
+  const handleVerifyCrop = async (expertiseId: number) => {
+    setCropProcessing(expertiseId);
     try {
-      await api.post(`/v1/admin/experts/${expert.profileId}/crops/${cropId}/verify`);
+      await api.post("/v1/admin/expertise-verifications/batch", {
+        items: [{
+          expertiseId,
+          decision: "VERIFY",
+          reason: cropNotes[expertiseId]?.trim() || undefined,
+          verificationMethod: "ADMIN_REVIEW",
+        }],
+        notes: cropNotes[expertiseId]?.trim() || "Verified by platform administrator",
+      });
       setCropsState((prev) =>
         prev.map((c) =>
-          c.cropId === cropId
+          c.id === expertiseId
             ? { ...c, verificationStatus: "VERIFIED", verifiedAt: new Date().toISOString() }
             : c
         )
@@ -352,13 +451,22 @@ export function AdminExpertDetailsModal({
     }
   };
 
-  const handleRejectCrop = async (cropId: number) => {
-    setCropProcessing(cropId);
+  const handleRejectCrop = async (expertiseId: number) => {
+    setCropProcessing(expertiseId);
     try {
-      await api.post(`/v1/admin/experts/${expert.profileId}/crops/${cropId}/reject`);
+      const reason = cropNotes[expertiseId]?.trim() || "Rejected by platform administrator";
+      await api.post("/v1/admin/expertise-verifications/batch", {
+        items: [{
+          expertiseId,
+          decision: "REJECT",
+          reason,
+          verificationMethod: "ADMIN_REVIEW",
+        }],
+        notes: reason,
+      });
       setCropsState((prev) =>
         prev.map((c) =>
-          c.cropId === cropId ? { ...c, verificationStatus: "REJECTED" } : c
+          c.id === expertiseId ? { ...c, verificationStatus: "REJECTED", rejectionReason: reason } : c
         )
       );
       toast.warning({ title: "Expertise rejected", description: "Crop expertise rejected." });
@@ -380,74 +488,77 @@ export function AdminExpertDetailsModal({
     setConfirmation(null);
     if (!action) return;
     if (action.kind === "approve") await handleApprove();
-    if (action.kind === "verify-crop") await handleVerifyCrop(action.cropId);
-    if (action.kind === "reject-crop") await handleRejectCrop(action.cropId);
+    if (action.kind === "verify-crop") await handleVerifyCrop(action.expertiseId);
+    if (action.kind === "reject-crop") await handleRejectCrop(action.expertiseId);
   };
 
   return (
     <>
-      <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
-        <div className="bg-white rounded-[32px] shadow-[0_24px_60px_-12px_rgba(0,0,0,0.18)] border border-[rgba(234,234,236,0.85)] w-full max-w-4xl overflow-hidden flex flex-col my-auto max-h-[92vh]">
+      <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-150">
+        <div className="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-4xl overflow-hidden flex flex-col my-auto max-h-[92vh]">
           
           {/* Header */}
-          <div className="px-6 py-5 border-b border-gray-100 flex items-start justify-between bg-gradient-to-r from-[#F4F4F6]/80 via-emerald-50/20 to-white">
-            <div className="flex items-start gap-4">
-              <div className="w-16 h-16 rounded-[22px] bg-gradient-to-br from-[#0F9F68] to-[#0A6B45] flex items-center justify-center text-white font-black text-2xl shrink-0 shadow-xs ring-4 ring-[#0F9F68]/10">
-                {formatFullName(expert.fullName).charAt(0).toUpperCase()}
-              </div>
+          <div className="px-6 py-4 border-b border-slate-200 flex items-start justify-between bg-slate-50/80">
+            <div className="flex items-start gap-3.5">
+              <UserAvatar
+                src={expert.profileImage}
+                name={formatFullName(expert.fullName)}
+                size="lg"
+                className="shrink-0 ring-1 ring-slate-200"
+              />
               <div className="space-y-1">
-                <div className="flex items-center gap-2.5 flex-wrap">
-                  <h3 className="text-xl sm:text-2xl font-black text-[#171717] tracking-tight">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
                     {formatFullName(expert.fullName)}
                   </h3>
                   {status === "VERIFIED" ? (
-                    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#0F9F68] bg-[#DDF4EA] border border-[#BCE9D5] px-3 py-1 rounded-full shadow-2xs">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#0F9F68]" />
+                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                       Verified Expert
                     </span>
                   ) : status === "UNDER_REVIEW" ? (
-                    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200 px-3 py-1 rounded-full shadow-2xs">
-                      <Clock className="w-3.5 h-3.5 text-blue-600" />
+                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-md">
+                      <Clock className="w-3 h-3 text-blue-600" />
                       Under Review
                     </span>
                   ) : status === "REJECTED" ? (
-                    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-rose-700 bg-rose-50 border border-rose-200 px-3 py-1 rounded-full shadow-2xs">
-                      <XCircle className="w-3.5 h-3.5 text-rose-600" />
+                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-md">
+                      <XCircle className="w-3 h-3 text-rose-600" />
                       Application Rejected
                     </span>
                   ) : status === "ADDITIONAL_INFORMATION_REQUIRED" ? (
-                    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-50 border border-amber-300 px-3 py-1 rounded-full shadow-2xs">
-                      <Clock className="w-3.5 h-3.5 text-amber-600" />
+                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-amber-800 bg-amber-50 border border-amber-300 px-2 py-0.5 rounded-md">
+                      <Clock className="w-3 h-3 text-amber-600" />
                       Action Required
                     </span>
                   ) : status === "DRAFT" ? (
-                    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-600 bg-gray-100 border border-gray-200 px-3 py-1 rounded-full shadow-2xs">
-                      <Clock className="w-3.5 h-3.5 text-gray-400" />
+                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md">
+                      <Clock className="w-3 h-3 text-slate-400" />
                       Draft Application
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full shadow-2xs">
-                      <Clock className="w-3.5 h-3.5 text-amber-600" />
+                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">
+                      <Clock className="w-3 h-3 text-amber-600" />
                       Pending Evaluation
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-gray-500 font-medium">
+                <p className="text-xs text-slate-500 font-medium">
                   {expert.designation || "Agricultural Consultant"}
                   {expert.organization ? ` · ${expert.organization}` : ""}
                 </p>
                 <div className="flex flex-wrap items-center gap-2 text-xs pt-1">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white border border-gray-200/80 px-3 py-0.5 text-gray-600 font-medium shadow-2xs">
-                    <Mail className="w-3.5 h-3.5 text-[#0F9F68]" />
+                  <span className="inline-flex items-center gap-1 rounded-md bg-white border border-slate-200 px-2.5 py-0.5 text-slate-600 font-medium shadow-2xs">
+                    <Mail className="w-3 h-3 text-emerald-600" />
                     {expert.email}
                   </span>
                   {expert.phone && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-white border border-gray-200/80 px-3 py-0.5 text-gray-600 font-medium shadow-2xs">
-                      <Phone className="w-3.5 h-3.5 text-[#0F9F68]" />
+                    <span className="inline-flex items-center gap-1 rounded-md bg-white border border-slate-200 px-2.5 py-0.5 text-slate-600 font-medium shadow-2xs">
+                      <Phone className="w-3 h-3 text-emerald-600" />
                       {expert.phone}
                     </span>
                   )}
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[#DDF4EA] px-3 py-0.5 text-[11px] font-black text-[#0F9F68] font-mono">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 font-mono">
                     ID: #{expert.profileId}
                   </span>
                 </div>
@@ -457,7 +568,7 @@ export function AdminExpertDetailsModal({
             <button
               type="button"
               onClick={onClose}
-              className="w-10 h-10 rounded-full bg-[#F4F4F6] hover:bg-gray-200 flex items-center justify-center text-gray-500 hover:text-gray-900 transition-colors cursor-pointer shadow-2xs"
+              className="w-8 h-8 rounded-lg bg-slate-200/60 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors cursor-pointer shadow-xs"
             >
               <X className="w-4 h-4" />
             </button>
@@ -466,16 +577,16 @@ export function AdminExpertDetailsModal({
           {/* Action notification */}
           {actionMessage && (
             <div
-              className={`mx-6 mt-4 p-3.5 rounded-2xl text-xs font-bold border flex items-center gap-2 ${
+              className={`mx-6 mt-4 p-3 rounded-lg text-xs font-semibold border flex items-center gap-2 ${
                 actionMessage.success
-                  ? "bg-[#DDF4EA] text-[#0F9F68] border-[#BCE9D5]"
+                  ? "bg-emerald-50 text-emerald-800 border-emerald-200"
                   : "bg-rose-50 text-rose-800 border-rose-200"
               }`}
             >
               {actionMessage.success ? (
-                <CheckCircle2 className="w-4 h-4" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
               ) : (
-                <AlertTriangle className="w-4 h-4" />
+                <AlertTriangle className="w-4 h-4 text-rose-600" />
               )}
               <span>{actionMessage.text}</span>
             </div>
@@ -483,63 +594,63 @@ export function AdminExpertDetailsModal({
 
           {/* Admin notes callout if rejected */}
           {expert.adminNotes && (
-            <div className="mx-6 mt-4 p-4 rounded-2xl bg-rose-50/80 border border-rose-200 text-rose-950 space-y-1">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-rose-600">
+            <div className="mx-6 mt-4 p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-950 space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-rose-700">
                 Current Admin Notes / Evaluation Feedback:
               </span>
-              <p className="text-xs font-semibold text-rose-900">&ldquo;{expert.adminNotes}&rdquo;</p>
+              <p className="text-xs font-medium text-rose-900">&ldquo;{expert.adminNotes}&rdquo;</p>
             </div>
           )}
 
-          {/* Segmented Pill Tab Bar (Quixotic style) */}
+          {/* Segmented Tab Bar */}
           <div className="px-6 pt-4 pb-2">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#F4F4F6] p-1.5 text-xs font-semibold text-gray-600 flex-wrap">
+            <div className="flex overflow-x-auto gap-1 bg-slate-100 p-1 rounded-lg no-scrollbar">
               <button
                 type="button"
                 onClick={() => setActiveTab("details")}
-                className={`px-4 py-2 rounded-full font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-md font-semibold transition-colors cursor-pointer flex items-center gap-1.5 ${
                   activeTab === "details"
-                    ? "bg-white text-[#171717] font-bold shadow-xs"
-                    : "text-gray-500 hover:text-[#171717] hover:bg-white/50"
+                    ? "bg-white text-slate-900 shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
                 }`}
               >
-                <GraduationCap className="w-4 h-4 text-[#0F9F68]" />
+                <GraduationCap className="w-3.5 h-3.5 text-emerald-600" />
                 <span>Overview &amp; Credentials</span>
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("documents")}
-                className={`px-4 py-2 rounded-full font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-md font-semibold transition-colors cursor-pointer flex items-center gap-1.5 ${
                   activeTab === "documents"
-                    ? "bg-white text-[#171717] font-bold shadow-xs"
-                    : "text-gray-500 hover:text-[#171717] hover:bg-white/50"
+                    ? "bg-white text-slate-900 shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
                 }`}
               >
-                <FileText className="w-4 h-4 text-[#0F9F68]" />
+                <FileText className="w-3.5 h-3.5 text-emerald-600" />
                 <span>Verification Documents</span>
-                <span className="text-[10px] px-2 py-0.2 rounded-full bg-[#DDF4EA] text-[#0F9F68] font-black">
+                <span className="text-[10px] px-1.5 py-0.2 rounded-md bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
                   {docsList.length}
                 </span>
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("crops")}
-                className={`px-4 py-2 rounded-full font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-md font-semibold transition-colors cursor-pointer flex items-center gap-1.5 ${
                   activeTab === "crops"
-                    ? "bg-white text-[#171717] font-bold shadow-xs"
-                    : "text-gray-500 hover:text-[#171717] hover:bg-white/50"
+                    ? "bg-white text-slate-900 shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
                 }`}
               >
-                <Sprout className="w-4 h-4 text-[#0F9F68]" />
+                <Sprout className="w-3.5 h-3.5 text-emerald-600" />
                 <span>Crops &amp; Domains</span>
                 {(() => {
                   const total = (expert.cropDetails || []).length;
                   const verified = (expert.cropDetails || []).filter(c => c.verificationStatus === "VERIFIED").length;
                   return total > 0 ? (
-                    <span className={`text-[10px] px-2 py-0.2 rounded-full font-black ${
+                    <span className={`text-[10px] px-1.5 py-0.2 rounded-md font-bold ${
                       verified === total
-                        ? "bg-[#DDF4EA] text-[#0F9F68]"
-                        : "bg-blue-50 text-blue-700"
+                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                        : "bg-blue-50 text-blue-700 border border-blue-200"
                     }`}>
                       {verified}/{total}
                     </span>
@@ -550,89 +661,89 @@ export function AdminExpertDetailsModal({
           </div>
 
           {/* Body Content */}
-          <div className="p-6 overflow-y-auto flex-1 space-y-5">
+          <div className="p-6 overflow-y-auto flex-1 space-y-4">
             
             {/* TAB 1: Details */}
             {activeTab === "details" && (
               <div className="space-y-4">
                 {/* Quick Summary Strip */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="p-3.5 rounded-[22px] bg-[#F4F4F6]/60 border border-gray-100 shadow-2xs">
-                    <p className="text-[10px] uppercase font-bold text-gray-400">Attached Docs</p>
-                    <p className="text-sm font-black text-[#171717] mt-0.5">{docsList.length} Files</p>
+                  <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 shadow-2xs">
+                    <p className="text-[10px] uppercase font-semibold text-slate-400">Attached Docs</p>
+                    <p className="text-sm font-bold text-slate-900 mt-0.5">{docsList.length} Files</p>
                   </div>
-                  <div className="p-3.5 rounded-[22px] bg-[#F4F4F6]/60 border border-gray-100 shadow-2xs">
-                    <p className="text-[10px] uppercase font-bold text-gray-400">Claimed Crops</p>
-                    <p className="text-sm font-black text-[#171717] mt-0.5">
+                  <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 shadow-2xs">
+                    <p className="text-[10px] uppercase font-semibold text-slate-400">Claimed Crops</p>
+                    <p className="text-sm font-bold text-slate-900 mt-0.5">
                       {(expert.cropDetails || []).length || (expert.primaryCrops || []).length || 0} Specializations
                     </p>
                   </div>
-                  <div className="p-3.5 rounded-[22px] bg-[#F4F4F6]/60 border border-gray-100 shadow-2xs">
-                    <p className="text-[10px] uppercase font-bold text-gray-400">Field Practice</p>
-                    <p className="text-sm font-black text-[#171717] mt-0.5">
+                  <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 shadow-2xs">
+                    <p className="text-[10px] uppercase font-semibold text-slate-400">Field Practice</p>
+                    <p className="text-sm font-bold text-slate-900 mt-0.5">
                       {expert.yearsOfExperience != null ? `${expert.yearsOfExperience} Years` : "Specialist"}
                     </p>
                   </div>
-                  <div className="p-3.5 rounded-[22px] bg-[#F4F4F6]/60 border border-gray-100 shadow-2xs">
-                    <p className="text-[10px] uppercase font-bold text-gray-400">Record ID</p>
-                    <p className="text-sm font-black text-[#0F9F68] font-mono mt-0.5">#{expert.profileId}</p>
+                  <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 shadow-2xs">
+                    <p className="text-[10px] uppercase font-semibold text-slate-400">Record ID</p>
+                    <p className="text-sm font-bold text-emerald-700 font-mono mt-0.5">#{expert.profileId}</p>
                   </div>
                 </div>
 
                 {/* Main 3 Credential Dossier Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                  <div className="p-4 rounded-[26px] bg-[#F4F4F6]/50 border border-gray-100 space-y-2">
+                  <div className="p-4 rounded-xl bg-slate-50/60 border border-slate-200 space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                      <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
                         Academic Degree
                       </span>
-                      <span className="w-7 h-7 rounded-full bg-[#DDF4EA] flex items-center justify-center text-[#0F9F68] shadow-2xs">
+                      <span className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shadow-2xs">
                         <GraduationCap className="w-3.5 h-3.5" />
                       </span>
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-[#171717]">
+                      <p className="text-sm font-bold text-slate-900">
                         {expert.qualification || "B.Sc. Agriculture"}
                       </p>
-                      <p className="text-xs text-gray-500 font-medium mt-0.5">
+                      <p className="text-xs text-slate-500 font-medium mt-0.5">
                         {expert.institution || "Tribhuvan University / NARC"}
                       </p>
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-[26px] bg-[#F4F4F6]/50 border border-gray-100 space-y-2">
+                  <div className="p-4 rounded-xl bg-slate-50/60 border border-slate-200 space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                      <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
                         Experience
                       </span>
-                      <span className="w-7 h-7 rounded-full bg-[#DDF4EA] flex items-center justify-center text-[#0F9F68] shadow-2xs">
+                      <span className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shadow-2xs">
                         <Briefcase className="w-3.5 h-3.5" />
                       </span>
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-[#171717]">
+                      <p className="text-sm font-bold text-slate-900">
                         {expert.yearsOfExperience != null ? `${expert.yearsOfExperience} Years Field Advisory` : "Experienced Specialist"}
                       </p>
-                      <p className="text-xs text-gray-500 font-medium mt-0.5">
+                      <p className="text-xs text-slate-500 font-medium mt-0.5">
                         Agricultural Extension &amp; Advisory
                       </p>
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-[26px] bg-[#F4F4F6]/50 border border-gray-100 space-y-2">
+                  <div className="p-4 rounded-xl bg-slate-50/60 border border-slate-200 space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                      <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
                         Employer / Affiliation
                       </span>
-                      <span className="w-7 h-7 rounded-full bg-[#DDF4EA] flex items-center justify-center text-[#0F9F68] shadow-2xs">
+                      <span className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shadow-2xs">
                         <Building2 className="w-3.5 h-3.5" />
                       </span>
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-[#171717] truncate">
+                      <p className="text-sm font-bold text-slate-900 truncate">
                         {expert.organization || "Not specified"}
                       </p>
-                      <p className="text-xs text-gray-500 font-medium truncate mt-0.5">
+                      <p className="text-xs text-slate-500 font-medium truncate mt-0.5">
                         {expert.designation || "Not specified"}
                       </p>
                     </div>
@@ -655,26 +766,26 @@ export function AdminExpertDetailsModal({
                 )}
 
                 {/* Professional Biography & Field Scope */}
-                <div className="rounded-[28px] border border-gray-100 bg-[#F4F4F6]/50 p-5 space-y-2.5">
+                <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-[#0F9F68]" />
+                    <p className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-emerald-600" />
                       Professional Biography &amp; Field Experience
                     </p>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                       Applicant Dossier
                     </span>
                   </div>
                   {expert.bio ? (
-                    <p className="text-xs sm:text-sm text-[#171717] leading-relaxed bg-white p-4 rounded-2xl border border-gray-100/80 shadow-2xs font-medium">
+                    <p className="text-xs sm:text-sm text-slate-800 leading-relaxed bg-white p-3.5 rounded-lg border border-slate-200 shadow-2xs font-medium">
                       &ldquo;{expert.bio}&rdquo;
                     </p>
                   ) : (
-                    <div className="p-5 rounded-2xl bg-white border border-dashed border-gray-200 text-center space-y-1">
-                      <p className="text-xs text-gray-500 font-semibold">
+                    <div className="p-5 rounded-lg bg-white border border-dashed border-slate-200 text-center space-y-1">
+                      <p className="text-xs text-slate-500 font-semibold">
                         No extended biography statement was provided by this applicant.
                       </p>
-                      <p className="text-[11px] text-gray-400">
+                      <p className="text-[11px] text-slate-400">
                         Review uploaded credentials, degrees, and certificates in the Verification Documents tab.
                       </p>
                     </div>
@@ -688,61 +799,84 @@ export function AdminExpertDetailsModal({
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="text-sm font-bold text-[#171717]">
+                    <h4 className="text-sm font-bold text-slate-900">
                       Uploaded Verification Credentials
                     </h4>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-slate-500">
                       Inspect uploaded certificates, degrees, government licenses, and verification credentials.
                     </p>
                   </div>
-                  <span className="text-[11px] font-bold text-[#0F9F68] bg-[#DDF4EA] border border-[#BCE9D5] px-3 py-1 rounded-full flex items-center gap-1.5 shadow-2xs">
-                    <ShieldCheck className="w-3.5 h-3.5 text-[#0F9F68]" />
+                  <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-md flex items-center gap-1.5 shadow-2xs">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                     <span>{docsList.length} Attached</span>
                   </span>
                 </div>
 
                 {docsList.length === 0 ? (
-                  <div className="p-8 text-center bg-[#F4F4F6]/60 border border-gray-100 rounded-[28px] space-y-1">
-                    <FileText className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                    <p className="text-xs font-bold text-[#171717]">No verification documents uploaded</p>
-                    <p className="text-[11px] text-gray-400">This applicant has not uploaded any credentials or certificates yet.</p>
+                  <div className="p-8 text-center bg-slate-50 border border-slate-200 rounded-xl space-y-1">
+                    <FileText className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                    <p className="text-xs font-bold text-slate-900">No verification documents uploaded</p>
+                    <p className="text-[11px] text-slate-400">This applicant has not uploaded any credentials or certificates yet.</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {docsList.map((doc, idx) => (
                       <div
                         key={doc.id || idx}
-                        className="p-4 rounded-[24px] border border-gray-100 bg-[#F4F4F6]/50 hover:bg-white hover:border-gray-200 hover:shadow-xs transition-all space-y-3 flex flex-col justify-between"
+                        className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-slate-300 hover:shadow-xs transition-all space-y-2.5 flex flex-col justify-between"
                       >
                         <div className="space-y-1.5">
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white text-gray-600 border border-gray-100 shadow-2xs">
+                            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-white text-slate-600 border border-slate-200 shadow-2xs">
                               {doc.documentType || "CREDENTIAL"}
                             </span>
-                            <span className="text-[10px] font-bold text-[#0F9F68] bg-[#DDF4EA] border border-[#BCE9D5] px-2.5 py-0.5 rounded-full">
+                            <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
                               Uploaded
                             </span>
                           </div>
-                          <h5 className="font-bold text-xs sm:text-sm text-[#171717]">
+                          <h5 className="font-bold text-xs sm:text-sm text-slate-900">
                             {doc.title}
                           </h5>
-                          <div className="flex items-center gap-2 text-xs text-gray-400 font-mono">
-                            <FileText className="w-3.5 h-3.5 text-[#0F9F68]" />
+                          <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
+                            <FileText className="w-3.5 h-3.5 text-emerald-600" />
                             <span className="truncate">{doc.fileName}</span>
                             {doc.fileSize && (
-                              <span className="text-gray-400 shrink-0">({doc.fileSize})</span>
+                              <span className="text-slate-400 shrink-0">({doc.fileSize})</span>
                             )}
                           </div>
                         </div>
 
-                        <div className="pt-2 border-t border-gray-100 flex items-center gap-2">
+                        <div className="pt-2 border-t border-slate-200/60 flex items-center gap-2">
                           <button
                             type="button"
                             onClick={() => setViewingDoc(doc)}
-                            className="flex-1 py-2 px-3 rounded-full bg-[#0F9F68] hover:bg-[#0D8A5A] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                            className="flex-1 py-1.5 px-3 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
                           >
                             <Eye className="w-3.5 h-3.5" />
                             <span>View Document</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              if (!doc.id) return;
+                              try {
+                                await adminService.approveDocument(Number(doc.id));
+                                toast.success({
+                                  title: "Document Approved",
+                                  description: `"${doc.title || doc.fileName}" has been verified.`,
+                                });
+                                if (onStatusChanged) onStatusChanged();
+                              } catch {
+                                toast.error({
+                                  title: "Action Failed",
+                                  description: "Could not approve document.",
+                                });
+                              }
+                            }}
+                            className="py-1.5 px-2.5 rounded-lg bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
+                            title="Approve Credential"
+                          >
+                            <Check className="w-3.5 h-3.5" />
                           </button>
                           <button
                             type="button"
@@ -752,7 +886,7 @@ export function AdminExpertDetailsModal({
                                 description: `Document "${doc.fileName}" is ready in verified storage.`,
                               })
                             }
-                            className="py-2 px-3 rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
+                            className="py-1.5 px-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
                             title="Download Copy"
                           >
                             <Download className="w-3.5 h-3.5" />
@@ -793,10 +927,10 @@ export function AdminExpertDetailsModal({
                       <div className="flex items-center justify-between mb-2">
                         <div>
                           <p className="text-xs font-extrabold text-emerald-900 uppercase tracking-wider">
-                            Crop Expertise Verification Progress
+                            Expertise Verification Progress
                           </p>
                           <p className="text-[11px] text-emerald-700 mt-0.5">
-                            Only VERIFIED crops appear in farmer matching &amp; consultations.
+                            Only VERIFIED claims appear in farmer matching &amp; consultations.
                           </p>
                         </div>
                         <div className="text-right shrink-0">
@@ -816,7 +950,8 @@ export function AdminExpertDetailsModal({
                         <span className="text-emerald-700">{progressPct}% complete</span>
                         <div className="flex items-center gap-3">
                           <span className="text-emerald-700">{verifiedCount} verified</span>
-                          <span className="text-amber-700">{cropsState.filter(c => c.verificationStatus === "PENDING").length} pending</span>
+                          <span className="text-amber-700">{cropsState.filter(c => c.verificationStatus === "EVIDENCE_SUBMITTED").length} evidence</span>
+                          <span className="text-slate-500">{cropsState.filter(c => c.verificationStatus === "SELF_DECLARED" || c.verificationStatus === "PENDING").length} self-declared</span>
                           <span className="text-rose-700">{cropsState.filter(c => c.verificationStatus === "REJECTED").length} rejected</span>
                         </div>
                       </div>
@@ -845,7 +980,7 @@ export function AdminExpertDetailsModal({
                       </div>
                       <div className="w-px h-5 bg-gray-200 hidden sm:block" />
                       {/* Type filter */}
-                      {(["ALL", "PRIMARY", "SECONDARY"] as const).map(t => (
+                      {(["ALL", "PRIMARY", "SECONDARY", "AREA"] as const).map(t => (
                         <button
                           key={t}
                           type="button"
@@ -856,13 +991,91 @@ export function AdminExpertDetailsModal({
                                 ? "bg-[#0F9F68] text-white border-[#0F9F68] shadow-2xs"
                                 : t === "SECONDARY"
                                 ? "bg-blue-600 text-white border-blue-600 shadow-2xs"
+                                : t === "AREA"
+                                ? "bg-purple-600 text-white border-purple-600 shadow-2xs"
                                 : "bg-[#171717] text-white border-[#171717] shadow-2xs"
                               : "bg-white text-gray-600 border-gray-200 hover:border-gray-300"
                           }`}
                         >
-                          {t === "ALL" ? "All Types" : t === "PRIMARY" ? "🌟 Primary" : "Secondary"}
+                          {t === "ALL" ? "All Types" : t === "PRIMARY" ? "🌟 Primary" : t === "SECONDARY" ? "Secondary" : "🎯 Domain"}
                         </button>
                       ))}
+                    </div>
+                  )}
+
+                  {/* ── Batch Action Toolbar ─────────────────────────── */}
+                  {filteredCrops.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-2 p-3 rounded-xl border border-slate-200 bg-slate-50">
+                      <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={filteredCrops.every(c => selectedIds.has(c.id))}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedIds(new Set(filteredCrops.map(c => c.id)));
+                            } else {
+                              setSelectedIds(new Set());
+                            }
+                          }}
+                          className="h-3.5 w-3.5 rounded accent-emerald-600"
+                        />
+                        Select All ({filteredCrops.length})
+                      </label>
+                      {selectedIds.size > 0 && (
+                        <>
+                          <span className="text-[10px] font-bold text-slate-500">{selectedIds.size} selected</span>
+                          <button
+                            type="button"
+                            onClick={() => void handleBatchVerify()}
+                            disabled={batchProcessing}
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-emerald-800 disabled:opacity-50 transition-colors"
+                          >
+                            {batchProcessing ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+                            Verify Selected
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setShowBatchRejectInput(true)}
+                            disabled={batchProcessing}
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-100 disabled:opacity-50 transition-colors"
+                          >
+                            <X className="h-3 w-3" />
+                            Reject Selected
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Batch reject reason input */}
+                  {showBatchRejectInput && (
+                    <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 space-y-2">
+                      <p className="text-xs font-bold text-rose-900">Rejection reason (required for all {selectedIds.size} selected)</p>
+                      <textarea
+                        rows={2}
+                        value={batchRejectReason}
+                        onChange={(e) => setBatchRejectReason(e.target.value)}
+                        placeholder="Enter reason for rejection..."
+                        className="w-full text-xs rounded-lg border border-rose-200 bg-white px-3 py-2 resize-none outline-none focus:ring-1 focus:ring-rose-400"
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => void handleBatchReject()}
+                          disabled={batchProcessing || !batchRejectReason.trim()}
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-rose-700 disabled:opacity-50 transition-colors"
+                        >
+                          {batchProcessing ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
+                          Confirm Reject
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setShowBatchRejectInput(false); setBatchRejectReason(""); }}
+                          className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                        >
+                          Cancel
+                        </button>
+                      </div>
                     </div>
                   )}
 
@@ -899,62 +1112,85 @@ export function AdminExpertDetailsModal({
                       {filteredCrops.map((c) => {
                         const isCropVerified = c.verificationStatus === "VERIFIED";
                         const isCropRejected = c.verificationStatus === "REJECTED";
-                        const isExpanded = activeCrop === c.cropId;
-                        const isThisCropProcessing = cropProcessing === c.cropId;
-                        const note = cropNotes[c.cropId] || "";
+                        const isEvidenceSubmitted = c.verificationStatus === "EVIDENCE_SUBMITTED";
+                        const isExpanded = activeCrop === c.id;
+                        const isThisCropProcessing = cropProcessing === c.id;
+                        const note = cropNotes[c.id] || "";
+                        const displayName = c.cropName ?? c.expertiseArea ?? "Domain";
+                        const displayEmoji = c.cropEmoji ?? (c.expertiseType === "AREA" ? "🎯" : "🌱");
+                        const isSelected = selectedIds.has(c.id);
 
                         return (
                           <div
-                            key={c.id || c.cropId}
+                            key={c.id}
                             className={`rounded-[24px] border transition-all duration-200 overflow-hidden ${
-                              isExpanded
+                              isSelected
+                                ? "border-emerald-300 ring-1 ring-emerald-200"
+                                : isExpanded
                                 ? "border-[#BCE9D5] shadow-md ring-1 ring-[#0F9F68]/20"
                                 : "border-gray-100 bg-[#F4F4F6]/40 hover:bg-white hover:border-gray-200 shadow-2xs"
                             } bg-white`}
                           >
-                            {/* Card Header — always visible, click to expand */}
-                            <button
-                              type="button"
-                              onClick={() => setActiveCrop(isExpanded ? null : c.cropId)}
-                              className="w-full flex items-center justify-between p-4 cursor-pointer text-left"
-                            >
-                              <div className="flex items-center gap-3">
-                                <span className="text-2xl shrink-0">{c.cropEmoji || "🌱"}</span>
-                                <div>
-                                  <div className="flex items-center gap-2">
-                                    <h5 className="font-bold text-sm text-[#171717]">{c.cropName}</h5>
-                                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${
-                                      c.expertiseType === "PRIMARY"
-                                        ? "bg-[#DDF4EA] text-[#0F9F68] border-[#BCE9D5]"
-                                        : "bg-blue-50 text-blue-800 border-blue-200"
-                                    }`}>
-                                      {c.expertiseType === "PRIMARY" ? "🌟 PRIMARY" : "SECONDARY"}
+                            {/* Card Header */}
+                            <div className="flex items-center gap-2 px-3 pt-2 pb-0">
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={(e) => {
+                                  const next = new Set(selectedIds);
+                                  if (e.target.checked) next.add(c.id); else next.delete(c.id);
+                                  setSelectedIds(next);
+                                }}
+                                className="h-3.5 w-3.5 rounded accent-emerald-600 shrink-0 mt-3"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setActiveCrop(isExpanded ? null : c.id)}
+                                className="flex-1 flex items-center justify-between p-3 cursor-pointer text-left"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <span className="text-2xl shrink-0">{displayEmoji}</span>
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <h5 className="font-bold text-sm text-[#171717]">{displayName}</h5>
+                                      <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${
+                                        c.expertiseType === "PRIMARY"
+                                          ? "bg-[#DDF4EA] text-[#0F9F68] border-[#BCE9D5]"
+                                          : c.expertiseType === "AREA"
+                                          ? "bg-purple-50 text-purple-800 border-purple-200"
+                                          : "bg-blue-50 text-blue-800 border-blue-200"
+                                      }`}>
+                                        {c.expertiseType === "PRIMARY" ? "🌟 PRIMARY" : c.expertiseType === "AREA" ? "🎯 DOMAIN" : "SECONDARY"}
+                                      </span>
+                                    </div>
+                                    <span className="text-[11px] text-gray-400 font-medium">
+                                      {c.categoryName || (c.expertiseType === "AREA" ? "Agricultural Domain" : "General")}{c.verifiedAt ? ` • Verified ${new Date(c.verifiedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}` : ""}
                                     </span>
                                   </div>
-                                  <span className="text-[11px] text-gray-400 font-medium">
-                                    {c.categoryName || "General"}{c.verifiedAt ? ` • Verified ${new Date(c.verifiedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}` : ""}
-                                  </span>
                                 </div>
-                              </div>
 
-                              <div className="flex items-center gap-2 shrink-0">
-                                <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
-                                  isCropVerified
-                                    ? "bg-[#DDF4EA] text-[#0F9F68] border-[#BCE9D5]"
-                                    : isCropRejected
-                                    ? "bg-rose-50 text-rose-800 border-rose-200"
-                                    : "bg-amber-50 text-amber-800 border-amber-200"
-                                }`}>
-                                  {isCropVerified ? "✓ Verified" : isCropRejected ? "✕ Rejected" : "⏱ Pending"}
-                                </span>
-                                <svg
-                                  className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
-                                  fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-                                >
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                                </svg>
-                              </div>
-                            </button>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+                                    isCropVerified
+                                      ? "bg-[#DDF4EA] text-[#0F9F68] border-[#BCE9D5]"
+                                      : isCropRejected
+                                      ? "bg-rose-50 text-rose-800 border-rose-200"
+                                      : isEvidenceSubmitted
+                                      ? "bg-amber-50 text-amber-800 border-amber-200"
+                                      : "bg-slate-100 text-slate-600 border-slate-200"
+                                  }`}>
+                                    {isCropVerified ? "✓ Verified" : isCropRejected ? "✕ Rejected" : isEvidenceSubmitted ? "📎 Evidence" : "Self-declared"}
+                                  </span>
+                                  <svg
+                                    className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
+                                    fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+                                  >
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </div>
+                              </button>
+                            </div>
 
                             {/* Expanded Review Panel */}
                             {isExpanded && (
@@ -987,7 +1223,7 @@ export function AdminExpertDetailsModal({
                                   <textarea
                                     rows={2}
                                     value={note}
-                                    onChange={(e) => setCropNotes(prev => ({ ...prev, [c.cropId]: e.target.value }))}
+                                    onChange={(e) => setCropNotes(prev => ({ ...prev, [c.id]: e.target.value }))}
                                     placeholder={`e.g. Verified ${c.cropName} expertise via submitted degree and field experience certificate...`}
                                     className="w-full text-xs text-[#171717] bg-[#F4F4F6]/50 border border-gray-200 rounded-2xl px-3.5 py-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-[#0F9F68]/20 focus:border-[#0F9F68] placeholder:text-gray-400"
                                   />
@@ -1000,7 +1236,7 @@ export function AdminExpertDetailsModal({
                                     <button
                                       type="button"
                                       disabled={isThisCropProcessing}
-                                      onClick={() => setConfirmation({ kind: "verify-crop", cropId: c.cropId })}
+                                      onClick={() => setConfirmation({ kind: "verify-crop", expertiseId: c.id })}
                                       className="flex-1 flex items-center justify-center gap-1.5 py-2 px-4 rounded-full bg-[#0F9F68] hover:bg-[#0D8A5A] text-white text-xs font-bold transition-colors disabled:opacity-50 cursor-pointer shadow-2xs"
                                     >
                                       {isThisCropProcessing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
@@ -1013,7 +1249,7 @@ export function AdminExpertDetailsModal({
                                     <button
                                       type="button"
                                       disabled={isThisCropProcessing}
-                                      onClick={() => setConfirmation({ kind: "reject-crop", cropId: c.cropId })}
+                                      onClick={() => setConfirmation({ kind: "reject-crop", expertiseId: c.id })}
                                       className="flex-1 flex items-center justify-center gap-1.5 py-2 px-4 rounded-full border border-rose-200 bg-white hover:bg-rose-50 text-rose-700 text-xs font-bold transition-colors disabled:opacity-50 cursor-pointer shadow-2xs"
                                     >
                                       {isThisCropProcessing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <X className="w-3.5 h-3.5" />}
@@ -1026,7 +1262,7 @@ export function AdminExpertDetailsModal({
                                     <button
                                       type="button"
                                       disabled={isThisCropProcessing}
-                                      onClick={() => setConfirmation({ kind: "reject-crop", cropId: c.cropId })}
+                                      onClick={() => setConfirmation({ kind: "reject-crop", expertiseId: c.id })}
                                       className="flex items-center gap-1.5 py-2 px-4 rounded-full border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-semibold transition-colors disabled:opacity-50 cursor-pointer shadow-2xs"
                                     >
                                       {isThisCropProcessing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Clock className="w-3.5 h-3.5" />}
@@ -1039,7 +1275,7 @@ export function AdminExpertDetailsModal({
                                     <button
                                       type="button"
                                       disabled={isThisCropProcessing}
-                                      onClick={() => setConfirmation({ kind: "verify-crop", cropId: c.cropId })}
+                                      onClick={() => setConfirmation({ kind: "verify-crop", expertiseId: c.id })}
                                       className="flex items-center gap-1.5 py-2 px-4 rounded-full border border-sky-200 bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-semibold transition-colors disabled:opacity-50 cursor-pointer shadow-2xs"
                                     >
                                       {isThisCropProcessing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
@@ -1175,12 +1411,12 @@ export function AdminExpertDetailsModal({
           </div>
 
           {/* Footer with Approve / Reject / Review & Close actions */}
-          <div className="px-6 py-4 border-t border-gray-100 bg-[#F4F4F6]/50 flex items-center justify-between gap-3 flex-wrap">
+          <div className="px-6 py-4 border-t border-slate-200 bg-slate-50/70 flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-5 py-2.5 rounded-full border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                className="px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
               >
                 Close
               </button>
@@ -1191,7 +1427,7 @@ export function AdminExpertDetailsModal({
                     type="button"
                     onClick={handleBlockExpertAccount}
                     disabled={isProcessing}
-                    className="px-3.5 py-2.5 rounded-full border border-rose-200 bg-white hover:bg-rose-50 text-rose-700 text-xs font-bold inline-flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+                    className="px-3 py-2 rounded-lg border border-rose-200 bg-white hover:bg-rose-50 text-rose-700 text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
                     title="Block expert account and revoke active refresh tokens"
                   >
                     <Lock className="w-3.5 h-3.5 text-rose-600" />
@@ -1201,10 +1437,10 @@ export function AdminExpertDetailsModal({
                     type="button"
                     onClick={handleUnblockExpertAccount}
                     disabled={isProcessing}
-                    className="px-3.5 py-2.5 rounded-full border border-emerald-200 bg-white hover:bg-emerald-50 text-[#0F9F68] text-xs font-bold inline-flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+                    className="px-3 py-2 rounded-lg border border-emerald-200 bg-white hover:bg-emerald-50 text-emerald-700 text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
                     title="Unblock and restore expert account"
                   >
-                    <Unlock className="w-3.5 h-3.5 text-[#0F9F68]" />
+                    <Unlock className="w-3.5 h-3.5 text-emerald-600" />
                     <span>Unblock</span>
                   </button>
                 </>
@@ -1218,7 +1454,7 @@ export function AdminExpertDetailsModal({
                     type="button"
                     onClick={handleStartReview}
                     disabled={isProcessing}
-                    className="px-4 py-2.5 rounded-full border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+                    className="px-3.5 py-2 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
                   >
                     <Clock className="w-3.5 h-3.5 text-blue-600" />
                     <span>Re-open for Review</span>
@@ -1227,7 +1463,7 @@ export function AdminExpertDetailsModal({
                     type="button"
                     onClick={() => setConfirmation({ kind: "approve" })}
                     disabled={isProcessing}
-                    className="px-5 py-2.5 rounded-full bg-[#0F9F68] hover:bg-[#0D8A5A] text-white text-xs font-bold flex items-center gap-1.5 shadow-xs hover:shadow transition-all cursor-pointer disabled:opacity-50"
+                    className="px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer disabled:opacity-50"
                   >
                     {isProcessing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
                     <span>Overturn &amp; Approve</span>
@@ -1242,7 +1478,7 @@ export function AdminExpertDetailsModal({
                       setShowRejectInput(false);
                     }}
                     disabled={isProcessing}
-                    className="px-4 py-2.5 rounded-full border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+                    className="px-3.5 py-2 rounded-lg border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
                   >
                     <Clock className="w-3.5 h-3.5 text-amber-600" />
                     <span>Request Info</span>
@@ -1254,7 +1490,7 @@ export function AdminExpertDetailsModal({
                       setShowInfoInput(false);
                     }}
                     disabled={isProcessing}
-                    className="px-4 py-2.5 rounded-full border border-rose-200 bg-white hover:bg-rose-50 text-rose-600 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+                    className="px-3.5 py-2 rounded-lg border border-rose-200 bg-white hover:bg-rose-50 text-rose-600 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
                   >
                     <X className="w-3.5 h-3.5" />
                     <span>Reject Application</span>
@@ -1263,14 +1499,14 @@ export function AdminExpertDetailsModal({
                     type="button"
                     onClick={() => setConfirmation({ kind: "approve" })}
                     disabled={isProcessing}
-                    className="px-5 py-2.5 rounded-full bg-[#0F9F68] hover:bg-[#0D8A5A] text-white text-xs font-bold flex items-center gap-1.5 shadow-xs hover:shadow transition-all cursor-pointer disabled:opacity-50"
+                    className="px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer disabled:opacity-50"
                   >
                     {isProcessing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
                     <span>Approve as Verified Expert</span>
                   </button>
                 </>
               ) : status === "VERIFIED" || expert.verifiedExpert ? (
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0F9F68] bg-[#DDF4EA] border border-[#BCE9D5] px-4 py-2 rounded-full">
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg">
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Verified Expert Active</span>
                 </span>
@@ -1280,10 +1516,10 @@ export function AdminExpertDetailsModal({
                     type="button"
                     onClick={handleStartReview}
                     disabled={isProcessing}
-                    className="px-4 py-2.5 rounded-full border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+                    className="px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer disabled:opacity-50"
                   >
-                    <Clock className="w-3.5 h-3.5 text-blue-600" />
-                    <span>Start Review</span>
+                    {isProcessing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Clock className="w-3.5 h-3.5" />}
+                    <span>Review the Expert</span>
                   </button>
                   <button
                     type="button"
@@ -1292,7 +1528,7 @@ export function AdminExpertDetailsModal({
                       setShowRejectInput(false);
                     }}
                     disabled={isProcessing}
-                    className="px-4 py-2.5 rounded-full border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+                    className="px-3 py-2 rounded-lg border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
                   >
                     <Clock className="w-3.5 h-3.5 text-amber-600" />
                     <span>Request Info</span>
@@ -1304,19 +1540,10 @@ export function AdminExpertDetailsModal({
                       setShowInfoInput(false);
                     }}
                     disabled={isProcessing}
-                    className="px-4 py-2.5 rounded-full border border-rose-200 bg-white hover:bg-rose-50 text-rose-600 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+                    className="px-3 py-2 rounded-lg border border-rose-200 bg-white hover:bg-rose-50 text-rose-600 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
                   >
                     <X className="w-3.5 h-3.5" />
-                    <span>Reject Application</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setConfirmation({ kind: "approve" })}
-                    disabled={isProcessing}
-                    className="px-5 py-2.5 rounded-full bg-[#0F9F68] hover:bg-[#0D8A5A] text-white text-xs font-bold flex items-center gap-1.5 shadow-xs hover:shadow transition-all cursor-pointer disabled:opacity-50"
-                  >
-                    {isProcessing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
-                    <span>Approve as Verified Expert</span>
+                    <span>Reject</span>
                   </button>
                 </>
               )}
@@ -1348,16 +1575,16 @@ export function AdminExpertDetailsModal({
 
       {/* Embedded Document Preview Modal */}
       {viewingDoc && expert && (
-        <div className="fixed inset-0 z-60 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 z-60 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
+          <div className="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
             {/* Header */}
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-100 border border-emerald-200 flex items-center justify-center text-emerald-800 shrink-0">
-                  <FileText className="w-5 h-5" />
+                <div className="w-9 h-9 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shrink-0">
+                  <FileText className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-base font-black text-slate-900 leading-tight">
+                  <h4 className="text-sm font-bold text-slate-900 leading-tight">
                     {viewingDoc.title}
                   </h4>
                   <p className="text-xs text-slate-500 mt-0.5">
@@ -1368,36 +1595,39 @@ export function AdminExpertDetailsModal({
               <button
                 type="button"
                 onClick={() => setViewingDoc(null)}
-                className="w-8 h-8 rounded-full bg-slate-200/60 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors"
+                className="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 flex items-center justify-center transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Content view */}
-            <div className="p-6 overflow-y-auto flex-1 bg-slate-100/60">
+            <div className="p-6 overflow-y-auto flex-1 bg-slate-50">
               {viewingDoc.fileUrl && viewingDoc.fileUrl.startsWith("data:image") ? (
-                <div className="flex justify-center bg-white p-4 rounded-2xl border border-slate-200">
-                  <img
+                <div className="relative h-[500px] max-h-[65vh] w-full rounded-xl border border-slate-200 bg-white">
+                  <Image
                     src={viewingDoc.fileUrl}
                     alt={viewingDoc.title}
-                    className="max-h-[500px] w-auto rounded-xl object-contain"
+                    fill
+                    sizes="min(100vw, 768px)"
+                    className="object-contain p-4"
+                    unoptimized
                   />
                 </div>
               ) : viewingDoc.fileUrl && viewingDoc.fileUrl.startsWith("data:application/pdf") ? (
                 <iframe
                   src={viewingDoc.fileUrl}
                   title={viewingDoc.title}
-                  className="w-full h-[500px] rounded-2xl border border-slate-200 bg-white"
+                  className="w-full h-[500px] rounded-xl border border-slate-200 bg-white"
                 />
               ) : (
-                <div className="bg-white rounded-2xl border-2 border-emerald-600/30 p-8 shadow-md relative overflow-hidden space-y-6">
-                  <div className="text-center space-y-1 border-b border-slate-100 pb-5">
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-black uppercase tracking-wider mb-2">
+                <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs relative overflow-hidden space-y-5">
+                  <div className="text-center space-y-1 border-b border-slate-100 pb-4">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-semibold uppercase tracking-wider mb-2">
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                       <span>KrishiAI Verification Record • ID: KAI-DOC-{expert.profileId}-{viewingDoc.documentType || "01"}</span>
                     </div>
-                    <h5 className="text-xl font-black text-slate-900 tracking-tight">
+                    <h5 className="text-lg font-bold text-slate-900 tracking-tight">
                       {viewingDoc.title}
                     </h5>
                     <p className="text-xs text-slate-500">
@@ -1405,37 +1635,37 @@ export function AdminExpertDetailsModal({
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 text-xs bg-slate-50 p-4 rounded-xl border border-slate-200/80">
+                  <div className="grid grid-cols-2 gap-3 text-xs bg-slate-50 p-4 rounded-lg border border-slate-200">
                     <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Candidate Name</p>
-                      <p className="font-bold text-slate-900 mt-0.5 text-sm">{formatFullName(expert.fullName)}</p>
+                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Candidate Name</p>
+                      <p className="font-semibold text-slate-900 mt-0.5 text-sm">{formatFullName(expert.fullName)}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email Address</p>
-                      <p className="font-semibold text-slate-800 mt-0.5">{expert.email}</p>
+                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Email Address</p>
+                      <p className="font-medium text-slate-800 mt-0.5">{expert.email}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Qualification / Title</p>
-                      <p className="font-semibold text-slate-800 mt-0.5">{expert.qualification || expert.designation || "Agricultural Consultant"}</p>
+                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Qualification / Title</p>
+                      <p className="font-medium text-slate-800 mt-0.5">{expert.qualification || expert.designation || "Agricultural Consultant"}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Organization / University</p>
-                      <p className="font-semibold text-slate-800 mt-0.5">{expert.institution || expert.organization || "Tribhuvan University / NARC"}</p>
+                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Organization / University</p>
+                      <p className="font-medium text-slate-800 mt-0.5">{expert.institution || expert.organization || "Tribhuvan University / NARC"}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">File Details</p>
+                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">File Details</p>
                       <p className="font-mono text-[11px] text-slate-700 mt-0.5">{viewingDoc.fileName} • {viewingDoc.fileSize || "1.8 MB"}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Submission Date</p>
-                      <p className="font-semibold text-slate-800 mt-0.5">{expert.submittedAt || "September 2026"}</p>
+                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Submission Date</p>
+                      <p className="font-medium text-slate-800 mt-0.5">{expert.submittedAt || "September 2026"}</p>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between pt-2 border-t border-slate-100">
                     <div className="flex items-center gap-2 text-emerald-800 text-xs font-semibold">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                      <span>Cryptographically Validated for Administrator Review</span>
+                      <span>Validated for Administrator Review</span>
                     </div>
                     <div className="text-right">
                       <span className="text-[10px] text-slate-400 font-mono">STATUS: {status}</span>
@@ -1454,7 +1684,7 @@ export function AdminExpertDetailsModal({
               <button
                 type="button"
                 onClick={() => setViewingDoc(null)}
-                className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-colors cursor-pointer"
+                className="px-4 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-colors cursor-pointer"
               >
                 Close Preview
               </button>
