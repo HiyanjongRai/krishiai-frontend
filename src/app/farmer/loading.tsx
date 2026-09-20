@@ -35,7 +35,7 @@ export default function FarmerLoading() {
           <Skeleton className="h-32 rounded-3xl" />
 
           {/* Major Section (Crop Health / Diagnostics) */}
-          <div className="bg-white rounded-3xl border border-slate-200/80 p-6 space-y-4 shadow-xs">
+          <div className="bg-white rounded-3xl border border-[#E5E7EB] p-6 space-y-4 shadow-xs">
             <div className="flex items-center justify-between">
               <Skeleton className="h-6 w-48 rounded-lg" />
               <Skeleton className="h-6 w-24 rounded-full" />

@@ -41,12 +41,12 @@ export function getDefaultAvatar(name?: string | null): string {
 
 // ─── Gradient pool for initials fallback ──────────────────────────────────────
 const GRADIENTS = [
-  "from-[#0F9F68] to-[#0A6B45]",
-  "from-teal-600 to-teal-800",
-  "from-emerald-500 to-emerald-700",
-  "from-blue-600 to-blue-800",
-  "from-indigo-500 to-indigo-700",
-  "from-cyan-600 to-cyan-800",
+  "from-[#2E7D32] to-[#1B5E20]",
+  "from-[#E8F5E9] to-[#E8F5E9]",
+  "from-[#E8F5E9]0 to-[#E8F5E9]",
+  "from-[#DBEAFE] to-[#DBEAFE]",
+  "from-[#4F46E5] to-[#4338CA]",
+  "from-[#E8F5E9] to-[#E8F5E9]",
 ];
 
 function pickGradient(name?: string | null): string {
@@ -131,7 +131,7 @@ export function UserAvatar({
   // Priority 3: generic user icon
   return (
     <div
-      className={`${base} bg-gradient-to-br from-gray-300 to-gray-400 text-white`}
+      className={`${base} bg-gradient-to-br from-[#F3F4F6] to-[#F3F4F6] text-white`}
       aria-label={altText}
       role="img"
     >

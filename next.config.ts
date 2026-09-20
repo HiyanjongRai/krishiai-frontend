@@ -41,6 +41,11 @@ const nextConfig: NextConfig = {
         hostname: "w7.pngwing.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "w1.pngwing.com",
+        pathname: "/**",
+      },
     ],
   },
 };

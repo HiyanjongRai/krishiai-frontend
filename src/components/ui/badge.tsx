@@ -14,25 +14,25 @@ export function Badge({
   ...props
 }: BadgeProps) {
   const variants = {
-    success: "bg-[#DDF4EA] text-[#0F9F68] border-[#BCE9D5]",
-    warning: "bg-amber-50 text-amber-700 border-amber-200",
-    danger: "bg-rose-50 text-rose-700 border-rose-200",
-    info: "bg-blue-50 text-blue-700 border-blue-200",
-    neutral: "bg-gray-100 text-gray-700 border-gray-200",
+    success: "bg-[#E8F5E9] text-[#2E7D32] border-[#A5D6A7]",
+    warning: "bg-[#FEF3C7] text-[#F59E0B] border-[#FCD34D]",
+    danger: "bg-[#FEE2E2] text-[#DC2626] border-[#FCA5A5]",
+    info: "bg-[#DBEAFE] text-[#2563EB] border-[#93C5FD]",
+    neutral: "bg-[#F3F4F6] text-[#6B7280] border-[#E5E7EB]",
   };
 
   const dotColors = {
-    success: "bg-[#0F9F68]",
-    warning: "bg-amber-500",
-    danger: "bg-rose-500",
-    info: "bg-blue-500",
-    neutral: "bg-gray-400",
+    success: "bg-[#2E7D32]",
+    warning: "bg-[#F59E0B]",
+    danger: "bg-[#DC2626]",
+    info: "bg-[#2563EB]",
+    neutral: "bg-[#6B7280]",
   };
 
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold tracking-tight",
+        "inline-flex items-center gap-1.5 rounded-md border px-2.5 py-0.5 text-[11px] font-semibold tracking-tight",
         variants[variant],
         className
       )}

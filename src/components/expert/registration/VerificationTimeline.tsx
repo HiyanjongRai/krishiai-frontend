@@ -92,22 +92,22 @@ export function VerificationTimeline({
 
   return (
     <div className={`space-y-6 ${className}`}>
-      <div className="relative pl-6 sm:pl-8 space-y-8 before:absolute before:left-3 sm:before:left-3.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-slate-200">
+      <div className="relative pl-6 sm:pl-8 space-y-8 before:absolute before:left-3 sm:before:left-3.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-[#E5E7EB]">
         {milestones.map((step) => {
           const Icon = step.icon;
 
-          let iconBg = "bg-slate-100 text-slate-400 border-slate-300";
+          let iconBg = "bg-[#F1F5F2] text-[#9CA3AF] border-[#D1D5DB]";
           let circleRing = "";
           if (step.state === "done") {
-            iconBg = "bg-[#166534] text-white border-[#166534]";
+            iconBg = "bg-[#1B5E20] text-white border-[#1B5E20]";
           } else if (step.state === "current") {
-            iconBg = "bg-amber-500 text-white border-amber-500";
-            circleRing = "ring-4 ring-amber-100 animate-pulse";
+            iconBg = "bg-[#F59E0B] text-white border-[#FCD34D]0";
+            circleRing = "ring-4 ring-[#FEF3C7] animate-pulse";
           } else if (step.state === "warning") {
-            iconBg = "bg-orange-500 text-white border-orange-500";
-            circleRing = "ring-4 ring-orange-100";
+            iconBg = "bg-[#FEF3C7]0 text-white border-[#FCD34D]0";
+            circleRing = "ring-4 ring-[#FEF3C7]";
           } else if (step.state === "error") {
-            iconBg = "bg-rose-500 text-white border-rose-500";
+            iconBg = "bg-[#DC2626] text-white border-rose-500";
             circleRing = "ring-4 ring-rose-100";
           }
 
@@ -134,12 +134,12 @@ export function VerificationTimeline({
                   <h4
                     className={`text-sm sm:text-base font-bold ${
                       step.state === "current"
-                        ? "text-slate-900"
+                        ? "text-[#1F2937]"
                         : step.state === "warning"
-                        ? "text-orange-950 font-extrabold"
+                        ? "text-[#F59E0B] font-extrabold"
                         : step.state === "done"
-                        ? "text-slate-900"
-                        : "text-slate-500"
+                        ? "text-[#1F2937]"
+                        : "text-[#6B7280]"
                     }`}
                   >
                     {step.title}
@@ -147,39 +147,39 @@ export function VerificationTimeline({
                   <span
                     className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
                       step.state === "done"
-                        ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                        ? "bg-[#E8F5E9] text-[#1B5E20] border border-[#A5D6A7]"
                         : step.state === "warning"
-                        ? "bg-orange-50 text-orange-800 border border-orange-200"
+                        ? "bg-[#FEF3C7] text-[#F59E0B] border border-[#FCD34D]"
                         : step.state === "error"
-                        ? "bg-rose-50 text-rose-800 border border-rose-200"
+                        ? "bg-[#FEE2E2] text-[#DC2626] border border-[#FCA5A5]"
                         : step.state === "current"
-                        ? "bg-amber-50 text-amber-800 border border-amber-200"
-                        : "bg-slate-50 text-slate-400"
+                        ? "bg-[#FEF3C7] text-[#F59E0B] border border-[#FCD34D]"
+                        : "bg-[#F8FAF8] text-[#9CA3AF]"
                     }`}
                   >
                     {step.date}
                   </span>
                 </div>
 
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                <p className="text-xs sm:text-sm text-[#4B5563] leading-relaxed">
                   {step.description}
                 </p>
 
                 {/* Inline Warning Callout for Action Required */}
                 {step.id === "docs" && isActionRequired && actionRequiredNotes && (
-                  <div className="mt-3 p-3.5 rounded-xl bg-orange-50 border border-orange-200 text-orange-900 space-y-2">
+                  <div className="mt-3 p-3.5 rounded-xl bg-[#FEF3C7] border border-[#FCD34D] text-[#F59E0B] space-y-2">
                     <div className="flex items-start gap-2">
-                      <AlertCircle className="w-4 h-4 text-orange-600 shrink-0 mt-0.5" />
+                      <AlertCircle className="w-4 h-4 text-[#F59E0B] shrink-0 mt-0.5" />
                       <div className="text-xs sm:text-sm">
-                        <p className="font-bold text-orange-950">Clarification Needed</p>
-                        <p className="text-orange-800 mt-0.5">{actionRequiredNotes}</p>
+                        <p className="font-bold text-[#F59E0B]">Clarification Needed</p>
+                        <p className="text-[#F59E0B] mt-0.5">{actionRequiredNotes}</p>
                       </div>
                     </div>
                     {onUpdateAction && (
                       <button
                         type="button"
                         onClick={onUpdateAction}
-                        className="mt-1 px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer inline-flex items-center gap-1.5"
+                        className="mt-1 px-3 py-1.5 bg-[#FEF3C7] hover:bg-[#FEF3C7] text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer inline-flex items-center gap-1.5"
                       >
                         <span>Update Document</span>
                         <span>→</span>
@@ -190,19 +190,19 @@ export function VerificationTimeline({
 
                 {/* Inline Rejection Details */}
                 {step.id === "activation" && isRejected && rejectionReason && (
-                  <div className="mt-3 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 space-y-2">
+                  <div className="mt-3 p-3.5 rounded-xl bg-[#FEE2E2] border border-[#FCA5A5] text-[#DC2626] space-y-2">
                     <div className="flex items-start gap-2">
-                      <XCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                      <XCircle className="w-4 h-4 text-[#DC2626] shrink-0 mt-0.5" />
                       <div className="text-xs sm:text-sm">
-                        <p className="font-bold text-rose-950">Review Feedback</p>
-                        <p className="text-rose-800 mt-0.5">{rejectionReason}</p>
+                        <p className="font-bold text-[#DC2626]">Review Feedback</p>
+                        <p className="text-[#DC2626] mt-0.5">{rejectionReason}</p>
                       </div>
                     </div>
                     {onUpdateAction && (
                       <button
                         type="button"
                         onClick={onUpdateAction}
-                        className="mt-1 px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer inline-flex items-center gap-1.5"
+                        className="mt-1 px-3.5 py-1.5 bg-[#1F2937] hover:bg-[#1F2937] text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer inline-flex items-center gap-1.5"
                       >
                         <span>Revise & Resubmit Application</span>
                         <span>→</span>

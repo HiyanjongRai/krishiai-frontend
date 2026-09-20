@@ -26,21 +26,21 @@ export function ResumeApplicationCard({ onDismiss, className = "" }: ResumeAppli
 
   return (
     <div
-      className={`rounded-[20px] border border-[#BCE9D5] bg-[#DDF4EA]/40 p-3.5 shadow-[0_4px_16px_-2px_rgba(15,159,104,0.1)] relative overflow-hidden transition-all ${className}`}
+      className={`rounded-[20px] border border-[#C8E6C9] bg-[#E8F5E9]/40 p-3.5 shadow-[0_4px_16px_-2px_#E5E7EB] relative overflow-hidden transition-all ${className}`}
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
         <div className="space-y-0.5">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white border border-[#BCE9D5] text-[#0F9F68] text-[10px] font-black">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white border border-[#C8E6C9] text-[#2E7D32] text-[10px] font-black">
               <Clock className="w-2.5 h-2.5" />
               <span>Draft ({percentage}%)</span>
             </span>
-            <span className="text-xs font-bold text-[#171717]">
+            <span className="text-xs font-bold text-[#1F2937]">
               Welcome back{application.account.fullName ? `, ${application.account.fullName.split(" ")[0]}` : ""} 👋
             </span>
           </div>
-          <p className="text-[11px] text-gray-500">
-            Unfinished application. Next: <strong className="text-[#171717]">{nextStepItem.title}</strong>
+          <p className="text-[11px] text-[#6B7280]">
+            Unfinished application. Next: <strong className="text-[#1F2937]">{nextStepItem.title}</strong>
           </p>
         </div>
 
@@ -48,7 +48,7 @@ export function ResumeApplicationCard({ onDismiss, className = "" }: ResumeAppli
           <button
             type="button"
             onClick={resumeDraft}
-            className="inline-flex items-center gap-1.5 py-1.5 px-3.5 bg-[#0F9F68] hover:bg-[#0D8A5A] text-white font-bold text-[11px] rounded-full transition-all shadow-[0_2px_8px_rgba(15,159,104,0.25)] cursor-pointer"
+            className="inline-flex items-center gap-1.5 py-1.5 px-3.5 bg-[#2E7D32] hover:bg-[#256B2A] text-white font-bold text-[11px] rounded-full transition-all shadow-[0_2px_8px_#E5E7EB] cursor-pointer"
           >
             <span>Resume</span>
             <ArrowRight className="w-3 h-3" />
@@ -58,7 +58,7 @@ export function ResumeApplicationCard({ onDismiss, className = "" }: ResumeAppli
             type="button"
             onClick={resetDraft}
             title="Start fresh"
-            className="p-1.5 rounded-full border border-[rgba(234,234,236,0.85)] text-gray-400 hover:text-[#171717] hover:bg-white text-xs transition-colors cursor-pointer"
+            className="p-1.5 rounded-full border border-[#E5E7EB] text-[#9CA3AF] hover:text-[#1F2937] hover:bg-white text-xs transition-colors cursor-pointer"
           >
             <RotateCcw className="w-3 h-3" />
           </button>
@@ -68,7 +68,7 @@ export function ResumeApplicationCard({ onDismiss, className = "" }: ResumeAppli
               type="button"
               onClick={onDismiss}
               title="Dismiss"
-              className="p-1.5 rounded-full text-gray-400 hover:text-gray-600 hover:bg-white/60 transition-colors cursor-pointer"
+              className="p-1.5 rounded-full text-[#9CA3AF] hover:text-[#4B5563] hover:bg-white/60 transition-colors cursor-pointer"
             >
               <X className="w-3 h-3" />
             </button>

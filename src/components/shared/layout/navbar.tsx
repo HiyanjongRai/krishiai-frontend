@@ -17,7 +17,6 @@ import {
   KeyRound,
   BookOpen,
   HelpCircle,
-  Sparkles,
   Users,
   Compass,
   MessageSquareText,
@@ -37,6 +36,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ChangePasswordModal } from "@/components/auth/ChangePasswordModal";
 import { UserAvatar } from "@/components/ui/avatar";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -47,6 +47,7 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
 
   // Prevent body scrolling when mobile drawer is open
   useEffect(() => {
@@ -116,10 +117,10 @@ export function Navbar() {
       case "ROLE_EXPERT":
         return [
           { label: "Dashboard", href: "/expert/dashboard", icon: LayoutDashboard },
-          { label: "Farmer Inquiries", href: "/expert/consultations", icon: MessageSquareText, badge: "5", badgeColor: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+          { label: "Farmer Inquiries", href: "/expert/consultations", icon: MessageSquareText, badge: "5", badgeColor: "bg-[#E8F5E9] text-[#2E7D32] border-[#A5D6A7]" },
           { label: "Crop Expertise", href: "/expert/expertise", icon: Sprout },
           { label: "Documents", href: "/expert/documents", icon: FileText },
-          { label: "AI Reviews", href: "/expert/ai-reviews", icon: Bot, badge: "AI", badgeColor: "bg-blue-50 text-blue-700 border-blue-200" },
+          { label: "AI Reviews", href: "/expert/ai-reviews", icon: Bot, badge: "AI", badgeColor: "bg-[#DBEAFE] text-[#2563EB] border-[#93C5FD]" },
           { label: "Availability", href: "/expert/availability", icon: CalendarCheck },
           { label: "Application Status", href: "/expert/application", icon: ShieldCheck },
           { label: "Profile", href: "/expert/profile", icon: Award },
@@ -130,9 +131,9 @@ export function Navbar() {
           { label: "Dashboard", href: "/farmer/dashboard", icon: LayoutDashboard },
           { label: "My Crops", href: "/farmer/crops", icon: Sprout },
           { label: "AI Diagnostics", href: "/farmer/analysis", icon: Scan },
-          { label: "AI Advisor", href: "/farmer/ai-advisor", icon: Bot, badge: "AI", badgeColor: "bg-teal-50 text-teal-700 border-teal-200" },
+          { label: "AI Advisor", href: "/farmer/ai-advisor", icon: Bot, badge: "AI", badgeColor: "bg-[#E8F5E9] text-[#2E7D32] border-[#C8E6C9]" },
           { label: "Consultations", href: "/farmer/consultations", icon: Users },
-          { label: "Weather", href: "/farmer/dashboard#weather", icon: Compass },
+          { label: "Weather", href: "/farmer/weather", icon: Compass },
         ];
     }
   };
@@ -164,21 +165,17 @@ export function Navbar() {
     }
   };
 
-  const getUserInitials = () => {
-    if (!user?.fullName) return "KA";
-    return user.fullName
-      .split(" ")
-      .map((n) => n[0])
-      .slice(0, 2)
-      .join("")
-      .toUpperCase();
-  };
-
-  const handleLogout = () => {
+  const requestLogout = () => {
     if (isLoggingOut) return; // prevent duplicate
     setUserDropdownOpen(false);
     setMobileMenuOpen(false);
-    logout();
+    setLogoutConfirmOpen(true);
+  };
+
+  const handleLogout = async () => {
+    if (isLoggingOut) return;
+    setLogoutConfirmOpen(false);
+    await logout();
     toast.success({
       title: "Signed out successfully.",
       description: "You have been safely logged out.",
@@ -188,25 +185,25 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 w-full bg-transparent px-3 pt-3 sm:px-6 lg:px-8">
-      <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between rounded-[24px] border border-[rgba(234,234,236,0.85)] bg-white px-4 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.02)] sm:px-6">
+      <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between rounded-[24px] border border-[#E5E7EB] bg-white px-4 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] sm:px-6">
         
         {/* ── Brand Logo ──────────────────────────────────────────────────────── */}
         <Link href="/" className="flex items-center gap-3 group shrink-0">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0F9F68] text-white shadow-sm transition-transform group-hover:scale-105">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#2E7D32] text-white shadow-sm transition-transform group-hover:scale-105">
             <FontAwesomeIcon icon={faLeaf} className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-lg font-bold tracking-tight text-[#171717]">
-              Krishi<span className="text-[#166534]">AI</span>
+            <span className="text-lg font-bold tracking-tight text-[#1F2937]">
+              Krishi<span className="text-[#1B5E20]">AI</span>
             </span>
-            <span className="ml-2 hidden text-[10px] font-medium text-slate-400 sm:inline-block">
+            <span className="ml-2 hidden text-[10px] font-medium text-[#9CA3AF] sm:inline-block">
               Platform workspace
             </span>
           </div>
         </Link>
 
         {/* ── Center Segmented Pill Navigation Bar (Switches by Route & Role) ───── */}
-        <nav className="hidden items-center gap-1 rounded-full bg-[#F4F4F6] p-1 text-xs font-semibold text-gray-600 lg:flex">
+        <nav className="hidden items-center gap-1 rounded-full bg-[#F1F5F2] p-1 text-xs font-semibold text-[#4B5563] lg:flex">
           {!isDashboard ? (
             /* Public / Homepage Links */
             publicLinks.map((item) => {
@@ -221,8 +218,8 @@ export function Navbar() {
                   href={item.href}
                   className={`px-4 py-2 rounded-full font-semibold transition-colors duration-150 ${
                     isActive
-                      ? "bg-white text-[#171717] shadow-xs"
-                      : "text-gray-500 hover:text-[#171717] hover:bg-white/60"
+                      ? "bg-white text-[#1F2937] shadow-xs"
+                      : "text-[#6B7280] hover:text-[#1F2937] hover:bg-white/60"
                   }`}
                 >
                   {item.label}
@@ -239,8 +236,8 @@ export function Navbar() {
                   href={item.href}
                   className={`px-4 py-2 rounded-full font-semibold transition-colors duration-150 ${
                     isActive
-                      ? "bg-white text-[#171717] shadow-xs"
-                      : "text-gray-500 hover:text-[#171717] hover:bg-white/60"
+                      ? "bg-white text-[#1F2937] shadow-xs"
+                      : "text-[#6B7280] hover:text-[#1F2937] hover:bg-white/60"
                   }`}
                 >
                   {item.label}
@@ -257,7 +254,7 @@ export function Navbar() {
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-[#F4F4F6] text-gray-600 transition-colors hover:bg-[#DDF4EA] hover:text-[#0F9F68]"
+                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-[#F1F5F2] text-[#4B5563] transition-colors hover:bg-[#E8F5E9] hover:text-[#2E7D32]"
                 title="Search"
               >
                 <Search className="w-4 h-4" />
@@ -265,11 +262,11 @@ export function Navbar() {
 
               <button
                 type="button"
-                className="relative flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-[#F4F4F6] text-gray-600 transition-colors hover:bg-[#DDF4EA] hover:text-[#0F9F68]"
+                className="relative flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-[#F1F5F2] text-[#4B5563] transition-colors hover:bg-[#E8F5E9] hover:text-[#2E7D32]"
                 title="Notifications"
               >
                 <Bell className="w-4 h-4" />
-                <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-[#0F9F68]" aria-label="Notifications available" />
+                <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-[#2E7D32]" aria-label="Notifications available" />
               </button>
 
               {/* User Profile Dropdown Pill */}
@@ -283,71 +280,71 @@ export function Navbar() {
                     src={user?.profileImage}
                     name={user?.fullName}
                     size="sm"
-                    className="rounded-full ring-2 ring-gray-200 group-hover:ring-[#0F9F68] transition-all shadow-xs"
+                    className="rounded-full ring-2 ring-[#E5E7EB] group-hover:ring-[#2E7D32] transition-all shadow-xs"
                   />
                   <div className="text-left min-w-0 max-w-[130px]">
-                    <p className="text-xs font-bold text-[#171717] leading-tight truncate">
+                    <p className="text-xs font-bold text-[#1F2937] leading-tight truncate">
                       {user?.fullName || "User"}
                     </p>
-                    <p className="text-[10px] text-gray-400 font-medium truncate">
+                    <p className="text-[10px] text-[#9CA3AF] font-medium truncate">
                       {getRoleLabel(user?.role)}
                     </p>
                   </div>
-                  <ChevronDown className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                  <ChevronDown className="w-3.5 h-3.5 text-[#9CA3AF] shrink-0" />
                 </button>
 
                 {/* Dropdown Menu */}
                 {userDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
-                    <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-3">
+                  <div className="absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-xl border border-[#EEF0EE] py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                    <div className="px-4 py-3 border-b border-[#EEF0EE] flex items-center gap-3">
                       <UserAvatar
                         src={user?.profileImage}
                         name={user?.fullName}
                         size="sm"
-                        className="rounded-full ring-2 ring-emerald-500/20"
+                        className="rounded-full ring-2 ring-[#E8F5E9]"
                       />
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold text-[#17201A] truncate">{user?.fullName || "User"}</p>
-                        <p className="text-[10px] text-emerald-700 font-semibold">{getRoleLabel(user?.role)}</p>
-                        <p className="text-[10px] text-slate-400 truncate mt-0.5">{user?.email}</p>
+                        <p className="text-xs font-bold text-[#1F2937] truncate">{user?.fullName || "User"}</p>
+                        <p className="text-[10px] text-[#2E7D32] font-semibold">{getRoleLabel(user?.role)}</p>
+                        <p className="text-[10px] text-[#9CA3AF] truncate mt-0.5">{user?.email}</p>
                       </div>
                     </div>
 
                     <Link
                       href="/"
                       onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-[#166534] transition-colors"
+                      className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-[#4B5563] hover:bg-[#F8FAF8] hover:text-[#1B5E20] transition-colors"
                     >
-                      <Sprout className="w-4 h-4 text-emerald-600" />
+                      <Sprout className="w-4 h-4 text-[#2E7D32]" />
                       <span>Back to Homepage</span>
                     </Link>
 
                     <Link
                       href={dashboardRoute}
                       onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-[#166534] transition-colors"
+                      className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-[#4B5563] hover:bg-[#F8FAF8] hover:text-[#1B5E20] transition-colors"
                     >
-                      <LayoutDashboard className="w-4 h-4 text-emerald-600" />
+                      <LayoutDashboard className="w-4 h-4 text-[#2E7D32]" />
                       <span>My Dashboard</span>
                     </Link>
 
                     <Link
                       href={getProfileLink()}
                       onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-[#166534] transition-colors"
+                      className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-[#4B5563] hover:bg-[#F8FAF8] hover:text-[#1B5E20] transition-colors"
                     >
-                      <User className="w-4 h-4 text-slate-400" />
+                      <User className="w-4 h-4 text-[#9CA3AF]" />
                       <span>Profile & Settings</span>
                     </Link>
 
-                    <div className="pt-1 border-t border-slate-100">
+                    <div className="pt-1 border-t border-[#EEF0EE]">
                       <button
-                        onClick={handleLogout}
+                        onClick={requestLogout}
                         disabled={isLoggingOut}
-                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-[#DC2626] hover:bg-[#FEE2E2] transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         {isLoggingOut ? (
-                          <LoadingSpinner size="xs" color="current" className="text-rose-500" />
+                          <LoadingSpinner size="xs" color="current" className="text-[#DC2626]" />
                         ) : (
                           <LogOut className="w-4 h-4" />
                         )}
@@ -368,7 +365,7 @@ export function Navbar() {
                 <div className="flex items-center gap-3">
                   <Link
                     href={dashboardRoute}
-                    className="flex items-center gap-1.5 bg-[#166534] hover:bg-[#15803d] text-white px-4 py-2 rounded-full text-xs font-bold shadow-xs transition-all active:scale-95"
+                    className="flex items-center gap-1.5 bg-[#1B5E20] hover:bg-[#256B2A] text-white px-4 py-2 rounded-full text-xs font-bold shadow-xs transition-all active:scale-95"
                   >
                     <LayoutDashboard className="w-3.5 h-3.5" />
                     <span>Dashboard</span>
@@ -384,42 +381,42 @@ export function Navbar() {
                         src={user.profileImage}
                         name={user.fullName}
                         size="sm"
-                        className="rounded-full ring-2 ring-slate-200 group-hover:ring-emerald-600 transition-all shadow-2xs"
+                        className="rounded-full ring-2 ring-[#E5E7EB] group-hover:ring-[#2E7D32] transition-all shadow-2xs"
                       />
-                      <ChevronDown className="w-3 h-3 text-slate-400" />
+                      <ChevronDown className="w-3 h-3 text-[#9CA3AF]" />
                     </button>
 
                     {userDropdownOpen && (
-                      <div className="absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
-                        <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-3">
+                      <div className="absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-xl border border-[#EEF0EE] py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                        <div className="px-4 py-3 border-b border-[#EEF0EE] flex items-center gap-3">
                           <UserAvatar
                             src={user.profileImage}
                             name={user.fullName}
                             size="sm"
-                            className="rounded-full ring-2 ring-emerald-500/20"
+                            className="rounded-full ring-2 ring-[#E8F5E9]"
                           />
                           <div className="min-w-0 flex-1">
-                            <p className="text-xs font-bold text-[#17201A] truncate">{user.fullName || "User"}</p>
-                            <p className="text-[10px] text-emerald-700 font-semibold">{getRoleLabel(user.role)}</p>
-                            <p className="text-[10px] text-slate-400 truncate mt-0.5">{user.email}</p>
+                            <p className="text-xs font-bold text-[#1F2937] truncate">{user.fullName || "User"}</p>
+                            <p className="text-[10px] text-[#2E7D32] font-semibold">{getRoleLabel(user.role)}</p>
+                            <p className="text-[10px] text-[#9CA3AF] truncate mt-0.5">{user.email}</p>
                           </div>
                         </div>
 
                         <Link
                           href={dashboardRoute}
                           onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-emerald-700"
+                          className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-[#4B5563] hover:bg-[#F8FAF8] hover:text-[#2E7D32]"
                         >
-                          <LayoutDashboard className="w-4 h-4 text-emerald-600" />
+                          <LayoutDashboard className="w-4 h-4 text-[#2E7D32]" />
                           <span>My Dashboard</span>
                         </Link>
 
                         <Link
                           href={getProfileLink()}
                           onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-emerald-700"
+                          className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-[#4B5563] hover:bg-[#F8FAF8] hover:text-[#2E7D32]"
                         >
-                          <User className="w-4 h-4 text-slate-400" />
+                          <User className="w-4 h-4 text-[#9CA3AF]" />
                           <span>Profile & Settings</span>
                         </Link>
 
@@ -429,20 +426,20 @@ export function Navbar() {
                             setUserDropdownOpen(false);
                             setChangePasswordOpen(true);
                           }}
-                          className="w-full flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-emerald-700 cursor-pointer text-left"
+                          className="w-full flex items-center gap-2 px-4 py-2 text-xs font-semibold text-[#4B5563] hover:bg-[#F8FAF8] hover:text-[#2E7D32] cursor-pointer text-left"
                         >
-                          <KeyRound className="w-4 h-4 text-slate-400" />
+                          <KeyRound className="w-4 h-4 text-[#9CA3AF]" />
                           <span>Change Password</span>
                         </button>
 
-                        <div className="pt-1 border-t border-slate-100">
+                        <div className="pt-1 border-t border-[#EEF0EE]">
                           <button
-                            onClick={handleLogout}
+                            onClick={requestLogout}
                             disabled={isLoggingOut}
-                            className="w-full flex items-center gap-2 px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                            className="w-full flex items-center gap-2 px-4 py-2 text-xs font-semibold text-[#DC2626] hover:bg-[#FEE2E2] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                           >
                             {isLoggingOut ? (
-                              <LoadingSpinner size="xs" color="current" className="text-rose-500" />
+                              <LoadingSpinner size="xs" color="current" className="text-[#DC2626]" />
                             ) : (
                               <LogOut className="w-4 h-4" />
                             )}
@@ -459,7 +456,7 @@ export function Navbar() {
                   <button
                     type="button"
                     onClick={openLogin}
-                    className="px-4 py-2 text-xs font-bold text-slate-700 hover:text-[#166534] hover:bg-[#F0F3EE] rounded-full transition-colors cursor-pointer"
+                    className="px-4 py-2 text-xs font-bold text-[#4B5563] hover:text-[#1B5E20] hover:bg-[#F1F5F2] rounded-full transition-colors cursor-pointer"
                   >
                     Sign In
                   </button>
@@ -467,7 +464,7 @@ export function Navbar() {
                   <button
                     type="button"
                     onClick={openRegister}
-                    className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-[#166534] hover:bg-[#15803d] text-white rounded-full shadow-xs transition-all active:scale-95 cursor-pointer"
+                    className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-[#1B5E20] hover:bg-[#256B2A] text-white rounded-full shadow-xs transition-all active:scale-95 cursor-pointer"
                   >
                     <span>Get Started</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -483,7 +480,7 @@ export function Navbar() {
           {isAuthenticated && user ? (
             <Link
               href={dashboardRoute}
-              className="flex items-center gap-1.5 p-1 rounded-full ring-1 ring-slate-200 hover:ring-emerald-500 transition-all cursor-pointer"
+              className="flex items-center gap-1.5 p-1 rounded-full ring-1 ring-[#E5E7EB] hover:ring-[#2E7D32] transition-all cursor-pointer"
               title="Dashboard"
             >
               <UserAvatar
@@ -497,7 +494,7 @@ export function Navbar() {
             <button
               type="button"
               onClick={openLogin}
-              className="px-3 py-1.5 text-xs font-bold text-slate-700 hover:text-[#166534] rounded-full transition-colors cursor-pointer"
+              className="px-3 py-1.5 text-xs font-bold text-[#4B5563] hover:text-[#1B5E20] rounded-full transition-colors cursor-pointer"
             >
               Sign In
             </button>
@@ -507,7 +504,7 @@ export function Navbar() {
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
-            className="w-10 h-10 rounded-full bg-[#F0F3EE] hover:bg-[#e4eae0] flex items-center justify-center text-slate-700 cursor-pointer active:scale-95 transition-all"
+            className="w-10 h-10 rounded-full bg-[#F1F5F2] hover:bg-[#E8F5E9] flex items-center justify-center text-[#4B5563] cursor-pointer active:scale-95 transition-all"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -530,20 +527,20 @@ export function Navbar() {
             
             {/* Drawer Top Header */}
             <div>
-              <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+              <div className="p-4 sm:p-5 border-b border-[#EEF0EE] flex items-center justify-between bg-[#F8FAF8]">
                 <Link
                   href="/"
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center gap-2.5 group cursor-pointer"
                 >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#0F9F68] text-white shadow-xs">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#2E7D32] text-white shadow-xs">
                     <FontAwesomeIcon icon={faLeaf} className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="text-base font-bold tracking-tight text-[#171717]">
-                      Krishi<span className="text-[#166534]">AI</span>
+                    <span className="text-base font-bold tracking-tight text-[#1F2937]">
+                      Krishi<span className="text-[#1B5E20]">AI</span>
                     </span>
-                    <span className="block text-[10px] font-medium text-slate-400">
+                    <span className="block text-[10px] font-medium text-[#9CA3AF]">
                       Farm Intelligence
                     </span>
                   </div>
@@ -553,7 +550,7 @@ export function Navbar() {
                   type="button"
                   onClick={() => setMobileMenuOpen(false)}
                   aria-label="Close navigation"
-                  className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 cursor-pointer transition-colors"
+                  className="w-9 h-9 rounded-full bg-[#F1F5F2] hover:bg-[#E5E7EB] flex items-center justify-center text-[#4B5563] cursor-pointer transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -561,27 +558,27 @@ export function Navbar() {
 
               {/* User Identity / Quick Status Banner */}
               {isAuthenticated && user && (
-                <div className="p-4 mx-4 mt-4 rounded-2xl bg-gradient-to-br from-emerald-50 to-slate-50 border border-emerald-100/80 space-y-2.5">
+                <div className="p-4 mx-4 mt-4 rounded-2xl bg-gradient-to-br from-[#E8F5E9] to-[#F1F5F2] border border-[#C8E6C9] space-y-2.5">
                   <div className="flex items-center gap-3">
                     <UserAvatar
                       src={user.profileImage}
                       name={user.fullName}
                       size="sm"
-                      className="w-10 h-10 rounded-full ring-2 ring-emerald-500/30"
+                      className="w-10 h-10 rounded-full ring-2 ring-[#C8E6C9]"
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs font-bold text-slate-900 truncate">{user.fullName}</p>
-                      <span className="inline-block text-[10px] font-semibold text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-full mt-0.5">
+                      <p className="text-xs font-bold text-[#1F2937] truncate">{user.fullName}</p>
+                      <span className="inline-block text-[10px] font-semibold text-[#1B5E20] bg-[#E8F5E9] px-2 py-0.5 rounded-full mt-0.5">
                         {getRoleLabel(user.role)}
                       </span>
-                      <p className="text-[10px] text-slate-400 truncate mt-0.5">{user.email}</p>
+                      <p className="text-[10px] text-[#9CA3AF] truncate mt-0.5">{user.email}</p>
                     </div>
                   </div>
 
                   <Link
                     href={dashboardRoute}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[#166534] hover:bg-[#15803d] text-white text-xs font-bold shadow-xs transition-all text-center"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[#1B5E20] hover:bg-[#256B2A] text-white text-xs font-bold shadow-xs transition-all text-center"
                   >
                     <LayoutDashboard className="w-3.5 h-3.5" />
                     <span>Go to Dashboard</span>
@@ -593,7 +590,7 @@ export function Navbar() {
               <div className="px-4 py-4 space-y-6">
                 {/* Primary Destination Links */}
                 <div className="space-y-1">
-                  <p className="px-3 text-[10px] font-black uppercase tracking-[0.14em] text-slate-400 mb-2">
+                  <p className="px-3 text-[10px] font-black uppercase tracking-[0.14em] text-[#9CA3AF] mb-2">
                     {isDashboard ? "Workspace Links" : "Navigation"}
                   </p>
                   {!isDashboard ? (
@@ -609,12 +606,12 @@ export function Navbar() {
                           onClick={() => setMobileMenuOpen(false)}
                           className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all min-h-[44px] ${
                             isActive
-                              ? "bg-[#DDF4EA] text-[#0F9F68]"
-                              : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+                              ? "bg-[#E8F5E9] text-[#2E7D32]"
+                              : "text-[#4B5563] hover:bg-[#F1F5F2] hover:text-[#1F2937]"
                           }`}
                         >
                           <span>{link.label}</span>
-                          {isActive && <div className="w-1.5 h-1.5 rounded-full bg-[#0F9F68]" />}
+                          {isActive && <div className="w-1.5 h-1.5 rounded-full bg-[#2E7D32]" />}
                         </Link>
                       );
                     })
@@ -629,21 +626,21 @@ export function Navbar() {
                           onClick={() => setMobileMenuOpen(false)}
                           className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all min-h-[44px] ${
                             isActive
-                              ? "bg-[#DDF4EA] text-[#0F9F68]"
-                              : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+                              ? "bg-[#E8F5E9] text-[#2E7D32]"
+                              : "text-[#4B5563] hover:bg-[#F1F5F2] hover:text-[#1F2937]"
                           }`}
                         >
                           <div className="flex items-center gap-2.5 min-w-0">
-                            <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-[#0F9F68]" : "text-slate-400"}`} />
+                            <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-[#2E7D32]" : "text-[#9CA3AF]"}`} />
                             <span className="truncate">{link.label}</span>
                           </div>
                           <div className="flex items-center gap-1.5 shrink-0">
                             {link.badge && (
-                              <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold border ${link.badgeColor || "bg-slate-100 text-slate-700 border-slate-200"}`}>
+                              <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold border ${link.badgeColor || "bg-[#F1F5F2] text-[#4B5563] border-[#E5E7EB]"}`}>
                                 {link.badge}
                               </span>
                             )}
-                            {isActive && <div className="w-1.5 h-1.5 rounded-full bg-[#0F9F68]" />}
+                            {isActive && <div className="w-1.5 h-1.5 rounded-full bg-[#2E7D32]" />}
                           </div>
                         </Link>
                       );
@@ -653,24 +650,24 @@ export function Navbar() {
 
                 {/* Secondary / Resources Links */}
                 {!isDashboard && (
-                  <div className="space-y-1 pt-3 border-t border-slate-100">
-                    <p className="px-3 text-[10px] font-black uppercase tracking-[0.14em] text-slate-400 mb-2">
+                  <div className="space-y-1 pt-3 border-t border-[#EEF0EE]">
+                    <p className="px-3 text-[10px] font-black uppercase tracking-[0.14em] text-[#9CA3AF] mb-2">
                       Resources & Support
                     </p>
                     <Link
                       href="/knowledge"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors min-h-[40px]"
+                      className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-[#4B5563] hover:bg-[#F8FAF8] hover:text-[#1F2937] transition-colors min-h-[40px]"
                     >
-                      <BookOpen className="w-4 h-4 text-emerald-600" />
+                      <BookOpen className="w-4 h-4 text-[#2E7D32]" />
                       <span>Agricultural Knowledge</span>
                     </Link>
                     <Link
                       href="/contact"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors min-h-[40px]"
+                      className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-[#4B5563] hover:bg-[#F8FAF8] hover:text-[#1F2937] transition-colors min-h-[40px]"
                     >
-                      <HelpCircle className="w-4 h-4 text-slate-500" />
+                      <HelpCircle className="w-4 h-4 text-[#6B7280]" />
                       <span>Help Center & FAQ</span>
                     </Link>
                   </div>
@@ -678,16 +675,16 @@ export function Navbar() {
 
                 {/* Account & Profile Actions */}
                 {isAuthenticated && (
-                  <div className="space-y-1 pt-3 border-t border-slate-100">
-                    <p className="px-3 text-[10px] font-black uppercase tracking-[0.14em] text-slate-400 mb-2">
+                  <div className="space-y-1 pt-3 border-t border-[#EEF0EE]">
+                    <p className="px-3 text-[10px] font-black uppercase tracking-[0.14em] text-[#9CA3AF] mb-2">
                       Account & Settings
                     </p>
                     <Link
                       href={getProfileLink()}
                       onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors min-h-[40px]"
+                      className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-[#4B5563] hover:bg-[#F8FAF8] hover:text-[#1F2937] transition-colors min-h-[40px]"
                     >
-                      <User className="w-4 h-4 text-slate-500" />
+                      <User className="w-4 h-4 text-[#6B7280]" />
                       <span>Profile & Settings</span>
                     </Link>
                     <button
@@ -696,9 +693,9 @@ export function Navbar() {
                         setMobileMenuOpen(false);
                         setChangePasswordOpen(true);
                       }}
-                      className="w-full flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors min-h-[40px] text-left cursor-pointer"
+                      className="w-full flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-medium text-[#4B5563] hover:bg-[#F8FAF8] hover:text-[#1F2937] transition-colors min-h-[40px] text-left cursor-pointer"
                     >
-                      <KeyRound className="w-4 h-4 text-slate-500" />
+                      <KeyRound className="w-4 h-4 text-[#6B7280]" />
                       <span>Change Password</span>
                     </button>
                   </div>
@@ -707,16 +704,16 @@ export function Navbar() {
             </div>
 
             {/* Drawer Bottom Actions */}
-            <div className="p-4 border-t border-slate-100 bg-slate-50/50 space-y-2">
+            <div className="p-4 border-t border-[#EEF0EE] bg-[#F8FAF8] space-y-2">
               {isAuthenticated ? (
                 <button
                   type="button"
-                  onClick={handleLogout}
+                  onClick={requestLogout}
                   disabled={isLoggingOut}
-                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-bold text-center transition-colors min-h-[44px] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#FEE2E2] text-[#DC2626] hover:bg-[#FEE2E2] text-xs font-bold text-center transition-colors min-h-[44px] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {isLoggingOut ? (
-                    <LoadingSpinner size="xs" color="current" className="text-rose-500" />
+                    <LoadingSpinner size="xs" color="current" className="text-[#DC2626]" />
                   ) : (
                     <LogOut className="w-4 h-4" />
                   )}
@@ -730,7 +727,7 @@ export function Navbar() {
                       setMobileMenuOpen(false);
                       openLogin();
                     }}
-                    className="w-full py-3 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-800 hover:bg-slate-50 transition-colors min-h-[44px] cursor-pointer"
+                    className="w-full py-3 rounded-xl border border-[#E5E7EB] bg-white text-xs font-bold text-[#1F2937] hover:bg-[#F8FAF8] transition-colors min-h-[44px] cursor-pointer"
                   >
                     Sign In
                   </button>
@@ -740,14 +737,14 @@ export function Navbar() {
                       setMobileMenuOpen(false);
                       openRegister();
                     }}
-                    className="w-full py-3 rounded-xl bg-[#166534] hover:bg-[#14532d] text-white text-xs font-bold shadow-xs transition-colors min-h-[44px] cursor-pointer"
+                    className="w-full py-3 rounded-xl bg-[#1B5E20] hover:bg-[#1B5E20] text-white text-xs font-bold shadow-xs transition-colors min-h-[44px] cursor-pointer"
                   >
                     Create Free Account
                   </button>
                 </div>
               )}
 
-              <p className="text-center text-[10px] text-slate-400 pt-1">
+              <p className="text-center text-[10px] text-[#9CA3AF] pt-1">
                 KrishiAI Platform • Smarter Farming Decisions
               </p>
             </div>
@@ -759,6 +756,16 @@ export function Navbar() {
       <ChangePasswordModal
         isOpen={changePasswordOpen}
         onClose={() => setChangePasswordOpen(false)}
+      />
+      <ConfirmDialog
+        open={logoutConfirmOpen}
+        title="Log out?"
+        description="Are you sure you want to log out of your KrishiAI workspace?"
+        confirmLabel="Log Out"
+        variant="danger"
+        isLoading={isLoggingOut}
+        onCancel={() => setLogoutConfirmOpen(false)}
+        onConfirm={() => void handleLogout()}
       />
     </header>
   );

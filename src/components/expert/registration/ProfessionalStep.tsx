@@ -48,26 +48,26 @@ export function ProfessionalStep() {
   const MAX_BIO = 500;
   const currentBioLength = prof.bio?.length || 0;
 
-  const inputBase = "w-full py-2.5 rounded-[14px] border text-sm text-[#171717] placeholder-gray-400 bg-[#F4F4F6] focus:bg-white focus:outline-none transition-all";
-  const inputNormal = "border-[rgba(234,234,236,0.85)] focus:border-[#0F9F68] focus:ring-2 focus:ring-[#DDF4EA]";
-  const inputError = "border-rose-400 ring-2 ring-rose-100";
+  const inputBase = "w-full py-2.5 rounded-[14px] border text-sm text-[#1F2937] placeholder-[#9CA3AF] bg-[#F1F5F2] focus:bg-white focus:outline-none transition-all";
+  const inputNormal = "border-[#E5E7EB] focus:border-[#2E7D32] focus:ring-2 focus:ring-[#E8F5E9]";
+  const inputError = "border-[#DC2626] ring-2 ring-rose-100";
 
   // suppress unused variable warning
   void customTitle;
   void setCustomTitle;
 
   return (
-    <div className="rounded-[28px] border border-[rgba(234,234,236,0.85)] bg-white p-6 sm:p-8 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.02)] space-y-6 animate-in fade-in duration-200">
+    <div className="rounded-[28px] border border-[#E5E7EB] bg-white p-6 sm:p-8 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] space-y-6 animate-in fade-in duration-200">
       {/* Step Header */}
       <div className="space-y-1.5">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#DDF4EA] border border-[#BCE9D5] text-[#0F9F68] text-[10px] font-black tracking-[0.12em] uppercase">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E8F5E9] border border-[#C8E6C9] text-[#2E7D32] text-[10px] font-black tracking-[0.12em] uppercase">
           <Briefcase className="w-3 h-3" />
           <span>Step 2 of 5 — Professional Background</span>
         </div>
-        <h2 className="text-xl sm:text-2xl font-black text-[#171717] tracking-tight">
+        <h2 className="text-xl sm:text-2xl font-black text-[#1F2937] tracking-tight">
           Professional Background &amp; Credentials
         </h2>
-        <p className="text-sm text-gray-400 leading-relaxed">
+        <p className="text-sm text-[#9CA3AF] leading-relaxed">
           This information helps farmers understand your experience and helps KrishiAI verify your expertise.
         </p>
       </div>
@@ -76,8 +76,8 @@ export function ProfessionalStep() {
         {/* Title & Organization */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <label className="block text-[11px] font-black text-[#171717] uppercase tracking-[0.12em]">
-              Professional Title <span className="text-rose-500">*</span>
+            <label className="block text-[11px] font-black text-[#1F2937] uppercase tracking-[0.12em]">
+              Professional Title <span className="text-[#DC2626]">*</span>
             </label>
             <select
               value={prof.title}
@@ -90,18 +90,18 @@ export function ProfessionalStep() {
               ))}
             </select>
             {touched.title && errors.title && (
-              <p className="text-[11px] font-medium text-rose-600 flex items-center gap-1">
+              <p className="text-[11px] font-medium text-[#DC2626] flex items-center gap-1">
                 <X className="w-3 h-3" /><span>{errors.title}</span>
               </p>
             )}
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-[11px] font-black text-[#171717] uppercase tracking-[0.12em]">
-              Organization / Institution <span className="text-rose-500">*</span>
+            <label className="block text-[11px] font-black text-[#1F2937] uppercase tracking-[0.12em]">
+              Organization / Institution <span className="text-[#DC2626]">*</span>
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#9CA3AF]">
                 <Building2 className="w-3.5 h-3.5" />
               </div>
               <input
@@ -114,7 +114,7 @@ export function ProfessionalStep() {
               />
             </div>
             {touched.organization && errors.organization && (
-              <p className="text-[11px] font-medium text-rose-600 flex items-center gap-1">
+              <p className="text-[11px] font-medium text-[#DC2626] flex items-center gap-1">
                 <X className="w-3 h-3" /><span>{errors.organization}</span>
               </p>
             )}
@@ -124,8 +124,8 @@ export function ProfessionalStep() {
         {/* Years of Exp & Highest Qualification */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <label className="block text-[11px] font-black text-[#171717] uppercase tracking-[0.12em]">
-              Years of Experience <span className="text-rose-500">*</span>
+            <label className="block text-[11px] font-black text-[#1F2937] uppercase tracking-[0.12em]">
+              Years of Experience <span className="text-[#DC2626]">*</span>
             </label>
             <select
               value={prof.yearsOfExperience}
@@ -141,8 +141,8 @@ export function ProfessionalStep() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-[11px] font-black text-[#171717] uppercase tracking-[0.12em]">
-              Highest Qualification <span className="text-rose-500">*</span>
+            <label className="block text-[11px] font-black text-[#1F2937] uppercase tracking-[0.12em]">
+              Highest Qualification <span className="text-[#DC2626]">*</span>
             </label>
             <select
               value={prof.highestQualification}
@@ -155,7 +155,7 @@ export function ProfessionalStep() {
               ))}
             </select>
             {touched.highestQualification && errors.highestQualification && (
-              <p className="text-[11px] font-medium text-rose-600 flex items-center gap-1">
+              <p className="text-[11px] font-medium text-[#DC2626] flex items-center gap-1">
                 <X className="w-3 h-3" /><span>{errors.highestQualification}</span>
               </p>
             )}
@@ -165,11 +165,11 @@ export function ProfessionalStep() {
         {/* Institution & Graduation Year */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="sm:col-span-2 space-y-1.5">
-            <label className="block text-[11px] font-black text-[#171717] uppercase tracking-[0.12em]">
-              Graduating Institution / University <span className="text-rose-500">*</span>
+            <label className="block text-[11px] font-black text-[#1F2937] uppercase tracking-[0.12em]">
+              Graduating Institution / University <span className="text-[#DC2626]">*</span>
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#9CA3AF]">
                 <GraduationCap className="w-3.5 h-3.5" />
               </div>
               <input
@@ -182,18 +182,18 @@ export function ProfessionalStep() {
               />
             </div>
             {touched.institution && errors.institution && (
-              <p className="text-[11px] font-medium text-rose-600 flex items-center gap-1">
+              <p className="text-[11px] font-medium text-[#DC2626] flex items-center gap-1">
                 <X className="w-3 h-3" /><span>{errors.institution}</span>
               </p>
             )}
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-[11px] font-black text-[#171717] uppercase tracking-[0.12em]">
+            <label className="block text-[11px] font-black text-[#1F2937] uppercase tracking-[0.12em]">
               Graduation Year
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#9CA3AF]">
                 <Calendar className="w-3.5 h-3.5" />
               </div>
               <input
@@ -210,15 +210,15 @@ export function ProfessionalStep() {
         {/* Registration Number (Optional) */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <label className="block text-[11px] font-black text-[#171717] uppercase tracking-[0.12em]">
+            <label className="block text-[11px] font-black text-[#1F2937] uppercase tracking-[0.12em]">
               License / Reg Number
             </label>
-            <span className="text-[10px] font-bold text-gray-400 bg-[#F4F4F6] px-2 py-0.5 rounded-full border border-[rgba(234,234,236,0.85)]">
+            <span className="text-[10px] font-bold text-[#9CA3AF] bg-[#F1F5F2] px-2 py-0.5 rounded-full border border-[#E5E7EB]">
               Optional
             </span>
           </div>
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#9CA3AF]">
               <Award className="w-3.5 h-3.5" />
             </div>
             <input
@@ -229,7 +229,7 @@ export function ProfessionalStep() {
               className={`${inputBase} pl-9 pr-3.5 ${inputNormal}`}
             />
           </div>
-          <p className="text-[10px] text-gray-400">
+          <p className="text-[10px] text-[#9CA3AF]">
             Provide if registered with Nepal Engineering Council, NARC, or relevant agro authority.
           </p>
         </div>
@@ -237,10 +237,10 @@ export function ProfessionalStep() {
         {/* Professional Bio */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <label className="block text-[11px] font-black text-[#171717] uppercase tracking-[0.12em]">
-              Professional Bio <span className="text-rose-500">*</span>
+            <label className="block text-[11px] font-black text-[#1F2937] uppercase tracking-[0.12em]">
+              Professional Bio <span className="text-[#DC2626]">*</span>
             </label>
-            <span className={`text-[10px] font-bold ${currentBioLength > MAX_BIO ? "text-rose-600" : "text-gray-400"}`}>
+            <span className={`text-[10px] font-bold ${currentBioLength > MAX_BIO ? "text-[#DC2626]" : "text-[#9CA3AF]"}`}>
               {currentBioLength} / {MAX_BIO}
             </span>
           </div>
@@ -252,23 +252,23 @@ export function ProfessionalStep() {
             }}
             onBlur={() => handleBlur("bio")}
             placeholder="Briefly describe your field experience, major advisory achievements, crop specialities, and how you assist farmers..."
-            className={`w-full p-3.5 rounded-[14px] border text-sm text-[#171717] placeholder-gray-400 bg-[#F4F4F6] focus:bg-white focus:outline-none transition-all resize-none leading-relaxed ${
+            className={`w-full p-3.5 rounded-[14px] border text-sm text-[#1F2937] placeholder-[#9CA3AF] bg-[#F1F5F2] focus:bg-white focus:outline-none transition-all resize-none leading-relaxed ${
               touched.bio && errors.bio ? inputError : inputNormal
             }`}
           />
           {touched.bio && errors.bio && (
-            <p className="text-[11px] font-medium text-rose-600 flex items-center gap-1">
+            <p className="text-[11px] font-medium text-[#DC2626] flex items-center gap-1">
               <X className="w-3 h-3" /><span>{errors.bio}</span>
             </p>
           )}
         </div>
 
         {/* Actions */}
-        <div className="pt-4 border-t border-[rgba(234,234,236,0.85)] flex items-center justify-between gap-3">
+        <div className="pt-4 border-t border-[#E5E7EB] flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={prevStep}
-            className="px-4 py-2.5 border border-[rgba(234,234,236,0.85)] hover:bg-[#F4F4F6] text-[#171717] font-bold text-sm rounded-full transition-all flex items-center gap-1.5 cursor-pointer"
+            className="px-4 py-2.5 border border-[#E5E7EB] hover:bg-[#F1F5F2] text-[#1F2937] font-bold text-sm rounded-full transition-all flex items-center gap-1.5 cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back</span>
@@ -276,7 +276,7 @@ export function ProfessionalStep() {
 
           <button
             type="submit"
-            className="px-6 py-2.5 bg-[#0F9F68] hover:bg-[#0D8A5A] text-white font-bold text-sm rounded-full transition-all shadow-[0_4px_12px_rgba(15,159,104,0.3)] flex items-center gap-2 cursor-pointer group"
+            className="px-6 py-2.5 bg-[#2E7D32] hover:bg-[#256B2A] text-white font-bold text-sm rounded-full transition-all shadow-[0_4px_12px_#E5E7EB] flex items-center gap-2 cursor-pointer group"
           >
             <span>Continue to Expertise Selection</span>
             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />

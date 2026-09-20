@@ -26,53 +26,53 @@ export default function AgricultureLoader({
       <div className="absolute inset-0 backdrop-blur-xl bg-white/30" />
 
       {/* Glass card sits above the blurred backdrop */}
-      <div className="relative z-10 flex flex-col items-center gap-8 bg-white/60 backdrop-blur-2xl border border-white/50 rounded-3xl shadow-2xl shadow-black/10 px-10 sm:px-16 py-12 sm:py-14 max-w-md mx-4">
+      <div className="relative z-10 flex flex-col items-center gap-8 bg-white/60 backdrop-blur-2xl border border-white/50 rounded-3xl shadow-2xl shadow-[#E5E7EB]/10 px-10 sm:px-16 py-12 sm:py-14 max-w-md mx-4">
         {/* Rotating circle loader */}
         <div className="relative w-32 h-32 flex items-center justify-center">
           {/* soft glow behind ring */}
-          <div className="absolute inset-0 rounded-full bg-emerald-400/20 blur-xl" />
+          <div className="absolute inset-0 rounded-full bg-[#388E3C]/20 blur-xl" />
 
           {/* outer track */}
-          <div className="absolute inset-0 rounded-full border-[6px] border-emerald-100/60" />
+          <div className="absolute inset-0 rounded-full border-[6px] border-[#C8E6C9]/60" />
 
           {/* spinning arc */}
           <div
-            className="absolute inset-0 rounded-full border-[6px] border-transparent border-t-emerald-500 border-r-lime-400"
+            className="absolute inset-0 rounded-full border-[6px] border-transparent border-t-[#2E7D32] border-r-[#C8E6C9]"
             style={{ animation: "spin 1.4s linear infinite" }}
           />
 
           {/* inner pulsing glow */}
-          <div className="absolute inset-3 rounded-full bg-emerald-300/20 animate-ping opacity-50" />
+          <div className="absolute inset-3 rounded-full bg-[#A5D6A7]/20 animate-ping opacity-50" />
 
           {/* center icon */}
-          <div className="relative z-10 w-14 h-14 rounded-full bg-gradient-to-br from-emerald-400 to-green-600 flex items-center justify-center shadow-lg shadow-emerald-500/40 ring-4 ring-white/30">
+          <div className="relative z-10 w-14 h-14 rounded-full bg-gradient-to-br from-[#E8F5E9] to-[#2E7D32] flex items-center justify-center shadow-lg shadow-[#2E7D32]/40 ring-4 ring-white/30">
             <Leaf className="w-7 h-7 text-white" strokeWidth={2.2} />
           </div>
 
           {/* orbiting small icons */}
           <div className="absolute inset-0" style={{ animation: "spin 3s linear infinite" }}>
             <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-white/90 backdrop-blur flex items-center justify-center shadow-md">
-              <Sprout className="w-4 h-4 text-emerald-600" />
+              <Sprout className="w-4 h-4 text-[#2E7D32]" />
             </div>
           </div>
           <div className="absolute inset-0" style={{ animation: "spin 3s linear infinite reverse" }}>
             <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-white/90 backdrop-blur flex items-center justify-center shadow-md">
-              <Wheat className="w-4 h-4 text-lime-600" />
+              <Wheat className="w-4 h-4 text-[#2E7D32]" />
             </div>
           </div>
           <div className="absolute inset-0" style={{ animation: "spin 5s linear infinite" }}>
             <div className="absolute top-1/2 -right-2 -translate-y-1/2 w-6 h-6 rounded-full bg-white/90 backdrop-blur flex items-center justify-center shadow-md">
-              <CloudSun className="w-3.5 h-3.5 text-teal-500" />
+              <CloudSun className="w-3.5 h-3.5 text-[#2E7D32]" />
             </div>
           </div>
         </div>
 
         {/* text */}
         <div className="text-center">
-          <h2 className="text-[#17201A] font-semibold text-xl tracking-wide">
+          <h2 className="text-[#1F2937] font-semibold text-xl tracking-wide">
             {title}
           </h2>
-          <p className="text-slate-500 text-sm mt-1.5 leading-relaxed">
+          <p className="text-[#6B7280] text-sm mt-1.5 leading-relaxed">
             {subtitle}
           </p>
         </div>
@@ -82,7 +82,7 @@ export default function AgricultureLoader({
           {[0, 1, 2].map((i) => (
             <span
               key={i}
-              className="w-2 h-2 rounded-full bg-emerald-500"
+              className="w-2 h-2 rounded-full bg-[#2E7D32]"
               style={{
                 animation: "bounce 1.2s ease-in-out infinite",
                 animationDelay: `${i * 0.2}s`,

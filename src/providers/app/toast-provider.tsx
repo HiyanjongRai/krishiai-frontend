@@ -5,6 +5,7 @@ import React, {
   useContext,
   useState,
   useCallback,
+  useMemo,
   useRef,
   ReactNode,
 } from "react";
@@ -186,18 +187,23 @@ export function KrishiToastProvider({ children }: { children: ReactNode }) {
     [addToast, updateToast]
   );
 
-  const toastMethods = {
-    success: (input: ToastInput) => addToast("success", input),
-    error: (input: ToastInput) => addToast("error", input),
-    warning: (input: ToastInput) => addToast("warning", input),
-    info: (input: ToastInput) => addToast("info", input),
-    loading: (input: ToastInput) => addToast("loading", input),
-    promise,
-    dismiss,
-  };
+  const toastMethods = useMemo(
+    () => ({
+      success: (input: ToastInput) => addToast("success", input),
+      error: (input: ToastInput) => addToast("error", input),
+      warning: (input: ToastInput) => addToast("warning", input),
+      info: (input: ToastInput) => addToast("info", input),
+      loading: (input: ToastInput) => addToast("loading", input),
+      promise,
+      dismiss,
+    }),
+    [addToast, promise, dismiss]
+  );
+
+  const contextValue = useMemo(() => ({ toast: toastMethods }), [toastMethods]);
 
   return (
-    <ToastContext.Provider value={{ toast: toastMethods }}>
+    <ToastContext.Provider value={contextValue}>
       {children}
       <ToastViewport toasts={toasts} onDismiss={dismiss} />
     </ToastContext.Provider>

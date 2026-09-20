@@ -19,22 +19,22 @@ export function Footer() {
   };
 
   return (
-    <footer className="bg-[#081d13] text-slate-300 border-t border-emerald-950 pt-12 sm:pt-16 pb-10 sm:pb-12">
+    <footer className="bg-[#144718] text-white/80 border-t border-[#2E7D32]/40 pt-12 sm:pt-16 pb-10 sm:pb-12">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-12 gap-6 sm:gap-8 pb-10 sm:pb-12 border-b border-emerald-900/60">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-12 gap-6 sm:gap-8 pb-10 sm:pb-12 border-b border-white/15">
           
           {/* Brand Col */}
           <div className="col-span-2 sm:col-span-3 lg:col-span-3 space-y-4">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400">
+              <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center text-[#81C784]">
                 <Sprout className="w-5 h-5" />
               </div>
               <span className="text-xl font-black tracking-tight text-white">
-                Krishi<span className="text-emerald-400">AI</span>
+                Krishi<span className="text-[#81C784]">AI</span>
               </span>
             </Link>
 
-            <div className="text-xs sm:text-sm text-emerald-100/70 space-y-0.5 leading-relaxed font-medium">
+            <div className="text-xs sm:text-sm text-white/80 space-y-0.5 leading-relaxed font-medium">
               <p>Smarter Farming.</p>
               <p>Healthier Crops.</p>
               <p>Better Decisions.</p>
@@ -42,19 +42,19 @@ export function Footer() {
 
             {/* Social Icons with min 40px touch targets */}
             <div className="flex items-center gap-2.5 pt-1">
-              <a href="#" aria-label="Facebook" className="w-10 h-10 rounded-xl bg-white/5 hover:bg-emerald-600/30 border border-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-colors">
+              <a href="#" aria-label="Facebook" className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-white/80 hover:text-white transition-colors">
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                   <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z" />
                 </svg>
               </a>
-              <a href="#" aria-label="Instagram" className="w-10 h-10 rounded-xl bg-white/5 hover:bg-emerald-600/30 border border-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-colors">
+              <a href="#" aria-label="Instagram" className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-white/80 hover:text-white transition-colors">
                 <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
                   <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
                   <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
                   <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
                 </svg>
               </a>
-              <a href="#" aria-label="YouTube" className="w-10 h-10 rounded-xl bg-white/5 hover:bg-emerald-600/30 border border-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-colors">
+              <a href="#" aria-label="YouTube" className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-white/80 hover:text-white transition-colors">
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                   <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                 </svg>
@@ -65,7 +65,7 @@ export function Footer() {
           {/* Links: Product */}
           <div className="col-span-1 sm:col-span-1 lg:col-span-2 space-y-3">
             <h4 className="text-xs font-bold text-white uppercase tracking-wider">Product</h4>
-            <ul className="space-y-2 text-xs font-medium text-emerald-100/70">
+            <ul className="space-y-2 text-xs font-medium text-white/75">
               <li><Link href="/#ai-analysis" className="hover:text-white transition-colors block py-1">AI Crop Analysis</Link></li>
               <li><Link href="/#features" className="hover:text-white transition-colors block py-1">AI Advisor</Link></li>
               <li><Link href="/#features" className="hover:text-white transition-colors block py-1">Weather</Link></li>
@@ -76,7 +76,7 @@ export function Footer() {
           {/* Links: Resources */}
           <div className="col-span-1 sm:col-span-1 lg:col-span-2 space-y-3">
             <h4 className="text-xs font-bold text-white uppercase tracking-wider">Resources</h4>
-            <ul className="space-y-2 text-xs font-medium text-emerald-100/70">
+            <ul className="space-y-2 text-xs font-medium text-white/75">
               <li><Link href="/#how-it-works" className="hover:text-white transition-colors block py-1">How It Works</Link></li>
               <li><Link href="/knowledge" className="hover:text-white transition-colors block py-1">Knowledge</Link></li>
               <li><Link href="/contact" className="hover:text-white transition-colors block py-1">Help Center</Link></li>
@@ -87,7 +87,7 @@ export function Footer() {
           {/* Links: Company */}
           <div className="col-span-1 sm:col-span-1 lg:col-span-2 space-y-3">
             <h4 className="text-xs font-bold text-white uppercase tracking-wider">Company</h4>
-            <ul className="space-y-2 text-xs font-medium text-emerald-100/70">
+            <ul className="space-y-2 text-xs font-medium text-white/75">
               <li><Link href="/about" className="hover:text-white transition-colors block py-1">About</Link></li>
               <li><Link href="/contact" className="hover:text-white transition-colors block py-1">Contact</Link></li>
               <li><Link href="/privacy" className="hover:text-white transition-colors block py-1">Privacy</Link></li>
@@ -98,7 +98,7 @@ export function Footer() {
           {/* Links: Account */}
           <div className="col-span-1 sm:col-span-1 lg:col-span-1 space-y-3">
             <h4 className="text-xs font-bold text-white uppercase tracking-wider">Account</h4>
-            <ul className="space-y-2 text-xs font-medium text-emerald-100/70">
+            <ul className="space-y-2 text-xs font-medium text-white/75">
               <li>
                 <button
                   type="button"
@@ -131,12 +131,12 @@ export function Footer() {
           {/* Stay Updated */}
           <div className="col-span-2 sm:col-span-2 lg:col-span-2 space-y-3">
             <h4 className="text-xs font-bold text-white uppercase tracking-wider">Stay Updated</h4>
-            <p className="text-xs text-emerald-100/70 leading-relaxed">
+            <p className="text-xs text-white/80 leading-relaxed">
               Get the latest agricultural insights and updates.
             </p>
 
             {subscribed ? (
-              <p className="text-xs text-emerald-400 font-semibold py-2">✓ Thank you for subscribing!</p>
+              <p className="text-xs text-[#81C784] font-semibold py-2">✓ Thank you for subscribing!</p>
             ) : (
               <form onSubmit={handleSubmit} className="relative flex items-center pt-1">
                 <input
@@ -145,12 +145,12 @@ export function Footer() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
                   required
-                  className="w-full py-2.5 pl-3.5 pr-11 text-xs bg-white/5 border border-white/15 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-1 focus:ring-emerald-400 transition-all min-h-[42px]"
+                  className="w-full py-2.5 pl-3.5 pr-11 text-xs bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-1 focus:ring-[#81C784] transition-all min-h-[42px]"
                 />
                 <button
                   type="submit"
                   aria-label="Subscribe"
-                  className="absolute right-1.5 p-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-colors cursor-pointer min-h-[32px] min-w-[32px] flex items-center justify-center"
+                  className="absolute right-1.5 p-2 rounded-lg bg-[#2E7D32] hover:bg-[#388E3C] text-white transition-colors cursor-pointer min-h-[32px] min-w-[32px] flex items-center justify-center"
                 >
                   <Send className="w-3.5 h-3.5" />
                 </button>
@@ -159,10 +159,10 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-emerald-100/50 gap-4">
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-white/60 gap-4">
           <p>© 2026 KrishiAI. All rights reserved.</p>
-          <p className="flex items-center gap-1 text-emerald-100/70">
-            Built for smarter agriculture. <span className="text-emerald-400">🌱</span>
+          <p className="flex items-center gap-1.5 text-white/80">
+            Built for smarter agriculture. <span className="text-[#81C784]">🌱</span>
           </p>
         </div>
       </div>

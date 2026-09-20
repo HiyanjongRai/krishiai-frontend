@@ -3,7 +3,6 @@ import type {
   AdminDashboardStats,
   FarmerSummary,
   PageResponse,
-  UpdateUserRoleRequest,
   UpdateUserStatusRequest,
   UserStatusResponse,
 } from "@/types/admin";
@@ -74,16 +73,6 @@ export const adminService = {
    */
   getUserById: async (userId: number): Promise<UserResponse> => {
     return api.get<UserResponse>(`/v1/admin/users/${userId}`);
-  },
-
-  /**
-   * PATCH /api/v1/admin/users/{userId}/role
-   */
-  updateUserRole: async (
-    userId: number,
-    request: UpdateUserRoleRequest
-  ): Promise<UserResponse> => {
-    return api.patch<UserResponse>(`/v1/admin/users/${userId}/role`, request);
   },
 
   /**
@@ -273,23 +262,6 @@ export const adminService = {
    * DELETE /api/v1/admin/crop-categories/{id}
    */
   deleteCropCategory: async (id: number): Promise<void> => {
-    return api.delete<void>(`/v1/admin/crop-categories/${id}`);
-  },
-
-  adminCreateCategory: async (
-    data: CreateCropCategoryRequest
-  ): Promise<CropCategoryResponse> => {
-    return api.post<CropCategoryResponse>("/v1/admin/crop-categories", data);
-  },
-
-  adminUpdateCategory: async (
-    id: number,
-    data: UpdateCropCategoryRequest
-  ): Promise<CropCategoryResponse> => {
-    return api.put<CropCategoryResponse>(`/v1/admin/crop-categories/${id}`, data);
-  },
-
-  adminDeleteCategory: async (id: number): Promise<void> => {
     return api.delete<void>(`/v1/admin/crop-categories/${id}`);
   },
 

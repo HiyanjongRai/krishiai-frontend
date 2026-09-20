@@ -28,47 +28,47 @@ export function RegistrationProgress() {
   const percentage = application.percentage;
 
   return (
-    <div className="rounded-[24px] border border-[rgba(234,234,236,0.85)] bg-white shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.02)] p-4 transition-all">
+    <div className="rounded-[24px] border border-[#E5E7EB] bg-white shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] p-4 transition-all">
       {/* Header */}
       <div className="flex items-center justify-between gap-2 mb-3">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#0F9F68]">
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#2E7D32]">
             Registration
           </p>
-          <span className="text-xs font-bold text-[#171717]">
+          <span className="text-xs font-bold text-[#1F2937]">
             Step {current} of 5
           </span>
         </div>
 
         <div className="flex items-center gap-2 text-xs">
           {saveStatus === "saving" && (
-            <span className="inline-flex items-center gap-1 text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 text-[10px] animate-pulse">
+            <span className="inline-flex items-center gap-1 text-[#F59E0B] bg-[#FEF3C7] px-2 py-0.5 rounded-full border border-[#FCD34D] text-[10px] animate-pulse">
               <Loader2 className="w-2.5 h-2.5 animate-spin" />
               <span>Saving</span>
             </span>
           )}
           {saveStatus === "saved" && (
-            <span className="inline-flex items-center gap-1 text-[#0F9F68] bg-[#DDF4EA] px-2 py-0.5 rounded-full border border-[#BCE9D5] font-bold text-[10px]">
+            <span className="inline-flex items-center gap-1 text-[#2E7D32] bg-[#E8F5E9] px-2 py-0.5 rounded-full border border-[#C8E6C9] font-bold text-[10px]">
               <CheckCircle2 className="w-3 h-3" />
               <span>Saved</span>
             </span>
           )}
           {saveStatus === "idle" && (
-            <span className="inline-flex items-center gap-1 text-gray-400 text-[10px]">
+            <span className="inline-flex items-center gap-1 text-[#9CA3AF] text-[10px]">
               <Cloud className="w-3 h-3" />
               <span className="hidden sm:inline">Auto-saved</span>
             </span>
           )}
-          <div className="text-[12px] font-black text-[#0F9F68]">
+          <div className="text-[12px] font-black text-[#2E7D32]">
             {percentage}%
           </div>
         </div>
       </div>
 
       {/* Progress Bar */}
-      <div className="w-full bg-[#F4F4F6] h-1.5 rounded-full overflow-hidden mb-4">
+      <div className="w-full bg-[#F1F5F2] h-1.5 rounded-full overflow-hidden mb-4">
         <div
-          className="bg-[#0F9F68] h-full rounded-full transition-all duration-500 ease-out"
+          className="bg-[#2E7D32] h-full rounded-full transition-all duration-500 ease-out"
           style={{ width: `${Math.max(percentage, (current / 5) * 100)}%` }}
         />
       </div>
@@ -88,22 +88,22 @@ export function RegistrationProgress() {
               onClick={() => isClickable && goToStep(s.step)}
               className={`relative flex items-center gap-3 w-full p-2.5 rounded-[16px] transition-all text-left focus:outline-none ${
                 isCurrent
-                  ? "bg-[#DDF4EA] text-[#0F9F68]"
+                  ? "bg-[#E8F5E9] text-[#2E7D32]"
                   : isDone
-                  ? "text-[#171717] hover:bg-[#F4F4F6]"
-                  : "text-gray-400 hover:text-gray-500"
+                  ? "text-[#1F2937] hover:bg-[#F1F5F2]"
+                  : "text-[#9CA3AF] hover:text-[#6B7280]"
               } ${isClickable ? "cursor-pointer" : "cursor-default"}`}
             >
               {s.step < 5 && (
-                <span className="absolute left-[22px] top-9 h-4 w-px bg-[rgba(234,234,236,0.85)]" aria-hidden="true" />
+                <span className="absolute left-[22px] top-9 h-4 w-px bg-[#E5E7EB]" aria-hidden="true" />
               )}
               <div
                 className={`w-7 h-7 rounded-full flex items-center justify-center font-black text-[10px] shrink-0 transition-all ${
                   isDone
-                    ? "bg-[#0F9F68] text-white"
+                    ? "bg-[#2E7D32] text-white"
                     : isCurrent
-                    ? "bg-[#0F9F68] text-white ring-4 ring-[#DDF4EA]"
-                    : "bg-[#F4F4F6] text-gray-400 border border-[rgba(234,234,236,0.85)]"
+                    ? "bg-[#2E7D32] text-white ring-4 ring-[#E8F5E9]"
+                    : "bg-[#F1F5F2] text-[#9CA3AF] border border-[#E5E7EB]"
                 }`}
               >
                 {isDone ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : s.step}
@@ -112,10 +112,10 @@ export function RegistrationProgress() {
               <span className="min-w-0">
                 <span
                   className={`block text-xs truncate ${
-                    isCurrent ? "font-bold text-[#0F9F68]" : isDone ? "font-bold text-[#171717]" : "font-medium text-gray-400"
+                    isCurrent ? "font-bold text-[#2E7D32]" : isDone ? "font-bold text-[#1F2937]" : "font-medium text-[#9CA3AF]"
                   }`}
                 >{s.label}</span>
-                <span className="block text-[10px] text-gray-400 truncate mt-0.5">{s.description}</span>
+                <span className="block text-[10px] text-[#9CA3AF] truncate mt-0.5">{s.description}</span>
               </span>
             </button>
           );

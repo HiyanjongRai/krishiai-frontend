@@ -1,5 +1,10 @@
 import { tokenStore, ApiError } from "@/lib/api";
 import type { UserResponse } from "@/types/auth";
+import {
+  extractBackendErrors,
+  extractBackendFieldErrors,
+  extractBackendMessage,
+} from "@/utils/api-response";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080/api";
 
@@ -74,7 +79,12 @@ export async function uploadProfileImage(file: File): Promise<UserResponse> {
   }
 
   if (!res.ok) {
-    throw new ApiError(res.status, body.message ?? "Failed to upload profile image.", body.errors);
+    throw new ApiError(
+      res.status,
+      extractBackendMessage(body) ?? body.message ?? "Failed to upload profile image.",
+      extractBackendErrors(body).length > 0 ? extractBackendErrors(body) : body.errors,
+      extractBackendFieldErrors(body)
+    );
   }
 
   return body.data;
@@ -119,7 +129,12 @@ export async function removeProfileImage(): Promise<UserResponse> {
   }
 
   if (!res.ok) {
-    throw new ApiError(res.status, body.message ?? "Failed to remove profile image.", body.errors);
+    throw new ApiError(
+      res.status,
+      extractBackendMessage(body) ?? body.message ?? "Failed to remove profile image.",
+      extractBackendErrors(body).length > 0 ? extractBackendErrors(body) : body.errors,
+      extractBackendFieldErrors(body)
+    );
   }
 
   return body.data;

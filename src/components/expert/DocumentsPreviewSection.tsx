@@ -18,14 +18,14 @@ function getStatusIcon(status: DocumentStatus) {
   switch (status) {
     case "APPROVED":
     case "VERIFIED":
-      return <CheckCircle2 className="w-4 h-4 text-emerald-600" />;
+      return <CheckCircle2 className="w-4 h-4 text-[#2E7D32]" />;
     case "REJECTED":
-      return <AlertCircle className="w-4 h-4 text-red-600" />;
+      return <AlertCircle className="w-4 h-4 text-[#DC2626]" />;
     case "ADDITIONAL_INFO_REQUIRED":
-      return <AlertCircle className="w-4 h-4 text-blue-600" />;
+      return <AlertCircle className="w-4 h-4 text-[#2563EB]" />;
     case "PENDING":
     default:
-      return <Clock className="w-4 h-4 text-amber-600" />;
+      return <Clock className="w-4 h-4 text-[#F59E0B]" />;
   }
 }
 
@@ -35,14 +35,14 @@ function getStatusColor(
   switch (status) {
     case "APPROVED":
     case "VERIFIED":
-      return { bg: "bg-emerald-50", text: "text-emerald-700" };
+      return { bg: "bg-[#E8F5E9]", text: "text-[#2E7D32]" };
     case "REJECTED":
-      return { bg: "bg-red-50", text: "text-red-700" };
+      return { bg: "bg-[#FEE2E2]", text: "text-[#DC2626]" };
     case "ADDITIONAL_INFO_REQUIRED":
-      return { bg: "bg-blue-50", text: "text-blue-700" };
+      return { bg: "bg-[#DBEAFE]", text: "text-[#2563EB]" };
     case "PENDING":
     default:
-      return { bg: "bg-amber-50", text: "text-amber-700" };
+      return { bg: "bg-[#FEF3C7]", text: "text-[#F59E0B]" };
   }
 }
 
@@ -57,13 +57,13 @@ export function DocumentsPreviewSection({
 
   if (documents.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200 p-6">
-        <h3 className="text-lg font-bold text-slate-900 mb-4">Documents</h3>
+      <div className="bg-white rounded-2xl border border-[#E5E7EB] p-6">
+        <h3 className="text-lg font-bold text-[#1F2937] mb-4">Documents</h3>
         <div className="text-center py-6">
-          <p className="text-sm text-slate-600 mb-3">No documents uploaded yet</p>
+          <p className="text-sm text-[#4B5563] mb-3">No documents uploaded yet</p>
           <Link
             href="/expert/documents"
-            className="text-sm font-semibold text-emerald-600 hover:text-emerald-700"
+            className="text-sm font-semibold text-[#2E7D32] hover:text-[#2E7D32]"
           >
             Upload Documents →
           </Link>
@@ -73,30 +73,30 @@ export function DocumentsPreviewSection({
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6">
+    <div className="bg-white rounded-2xl border border-[#E5E7EB] p-6">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="text-lg font-bold text-slate-900 mb-2">Documents</h3>
+          <h3 className="text-lg font-bold text-[#1F2937] mb-2">Documents</h3>
           <div className="flex gap-3 text-xs">
             <div className="flex items-center gap-1">
-              <span className="font-semibold text-emerald-700">{verifiedCount}</span>
-              <span className="text-slate-600">Verified</span>
+              <span className="font-semibold text-[#2E7D32]">{verifiedCount}</span>
+              <span className="text-[#4B5563]">Verified</span>
             </div>
             <div className="flex items-center gap-1">
-              <span className="font-semibold text-amber-700">{pendingCount}</span>
-              <span className="text-slate-600">Pending</span>
+              <span className="font-semibold text-[#F59E0B]">{pendingCount}</span>
+              <span className="text-[#4B5563]">Pending</span>
             </div>
             {rejectedCount > 0 && (
               <div className="flex items-center gap-1">
-                <span className="font-semibold text-red-700">{rejectedCount}</span>
-                <span className="text-slate-600">Rejected</span>
+                <span className="font-semibold text-[#DC2626]">{rejectedCount}</span>
+                <span className="text-[#4B5563]">Rejected</span>
               </div>
             )}
           </div>
         </div>
         <Link
           href="/expert/documents"
-          className="text-sm font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 group"
+          className="text-sm font-semibold text-[#2E7D32] hover:text-[#2E7D32] flex items-center gap-1 group"
         >
           View All
           <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -118,17 +118,17 @@ export function DocumentsPreviewSection({
           return (
             <div
               key={doc.id}
-              className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors"
+              className="flex items-center justify-between p-3 rounded-lg border border-[#E5E7EB] hover:bg-[#F8FAF8] transition-colors"
             >
               <div className="flex items-start gap-3 flex-1 min-w-0">
-                <div className="text-slate-400 mt-0.5 flex-shrink-0">
+                <div className="text-[#9CA3AF] mt-0.5 flex-shrink-0">
                   {getDocumentIcon(doc.type)}
                 </div>
                 <div className="min-w-0">
-                  <div className="font-medium text-sm text-slate-900">
+                  <div className="font-medium text-sm text-[#1F2937]">
                     {doc.name}
                   </div>
-                  <div className="text-xs text-slate-500 mt-0.5">
+                  <div className="text-xs text-[#6B7280] mt-0.5">
                     {new Date(doc.submittedAt).toLocaleDateString()}
                   </div>
                 </div>
@@ -143,10 +143,10 @@ export function DocumentsPreviewSection({
       </div>
 
       {documents.length > maxDisplay && (
-        <div className="mt-4 pt-4 border-t border-slate-200">
+        <div className="mt-4 pt-4 border-t border-[#E5E7EB]">
           <Link
             href="/expert/documents"
-            className="text-sm font-semibold text-emerald-600 hover:text-emerald-700"
+            className="text-sm font-semibold text-[#2E7D32] hover:text-[#2E7D32]"
           >
             View all {documents.length} documents →
           </Link>

@@ -10,19 +10,19 @@ export function Input({ className, label, error, ...props }: InputProps) {
   return (
     <div className="w-full space-y-1.5">
       {label && (
-        <label className="block text-xs font-semibold text-[#171717]">
+        <label className="block text-xs font-semibold text-[#1F2937]">
           {label}
         </label>
       )}
       <input
         className={cn(
-          "w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-[#171717] placeholder:text-[#A3A3A3] focus:border-[#0F9F68] focus:outline-none focus:ring-3 focus:ring-[#0F9F68]/15 transition-all shadow-2xs",
-          error && "border-rose-400 focus:border-rose-500 focus:ring-rose-500/15",
+          "w-full rounded-xl border border-[#D1D5DB] bg-white px-4 py-2.5 text-sm text-[#1F2937] placeholder:text-[#9CA3AF] transition-all focus:border-[#2E7D32] focus:outline-none focus:ring-3 focus:ring-[#E8F5E9] disabled:bg-[#F3F4F6] disabled:text-[#9CA3AF]",
+          error && "border-[#DC2626] bg-[#FEF2F2] focus:border-[#DC2626] focus:ring-[#FEE2E2]",
           className
         )}
         {...props}
       />
-      {error && <p className="text-xs text-rose-500 font-medium">{error}</p>}
+      {error && <p className="text-xs text-[#DC2626] font-medium">{error}</p>}
     </div>
   );
 }

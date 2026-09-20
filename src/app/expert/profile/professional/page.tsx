@@ -8,7 +8,9 @@
 import React, { useState } from "react";
 import { ChevronLeft, Edit2, Save, X } from "lucide-react";
 import Link from "next/link";
-import { useAuth } from "@/providers/auth-provider";
+import { useToast } from "@/providers/toast-provider";
+import { Button } from "@/components/ui/button";
+import { FieldError } from "@/components/ui/field-error";
 
 interface ProfessionalFormData {
   qualification: string;
@@ -19,7 +21,7 @@ interface ProfessionalFormData {
 }
 
 export default function ExpertProfessionalPage() {
-  const { user } = useAuth();
+  const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -63,8 +65,10 @@ export default function ExpertProfessionalPage() {
 
     try {
       setIsSaving(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setIsEditing(false);
+      toast.warning({
+        title: "Profile save unavailable",
+        description: "This page is not connected to the expert profile update API yet.",
+      });
     } finally {
       setIsSaving(false);
     }
@@ -74,12 +78,12 @@ export default function ExpertProfessionalPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-start gap-4">
-        <Link href="/expert/profile" className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-          <ChevronLeft className="w-5 h-5 text-slate-600" />
+        <Link href="/expert/profile" className="p-2 hover:bg-[#F1F5F2] rounded-lg transition-colors">
+          <ChevronLeft className="w-5 h-5 text-[#4B5563]" />
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Professional Qualification</h1>
-          <p className="text-slate-600 mt-1">
+          <h1 className="text-3xl font-bold text-[#1F2937]">Professional Qualification</h1>
+          <p className="text-[#4B5563] mt-1">
             Manage your qualifications and professional background
           </p>
         </div>
@@ -100,8 +104,8 @@ export default function ExpertProfessionalPage() {
           }}
           className={`ml-auto px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition-all whitespace-nowrap ${
             isEditing
-              ? "bg-slate-200 hover:bg-slate-300 text-slate-900"
-              : "bg-emerald-600 hover:bg-emerald-700 text-white"
+              ? "bg-[#E5E7EB] hover:bg-[#D1D5DB] text-[#1F2937]"
+              : "bg-[#2E7D32] hover:bg-[#2E7D32] text-white"
           }`}
         >
           {isEditing ? (
@@ -121,14 +125,14 @@ export default function ExpertProfessionalPage() {
       {/* Form */}
       <div className="space-y-6">
         {/* Qualification Section */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h2 className="text-xl font-bold text-slate-900 mb-6">Education & Qualification</h2>
+        <div className="bg-white rounded-2xl border border-[#E5E7EB] p-6">
+          <h2 className="text-xl font-bold text-[#1F2937] mb-6">Education & Qualification</h2>
 
           <div className="space-y-6">
             {/* Qualification */}
             <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-2">
-                Qualification <span className="text-red-600">*</span>
+              <label className="block text-sm font-semibold text-[#1F2937] mb-2">
+                Qualification <span className="text-[#DC2626]">*</span>
               </label>
               <select
                 value={formData.qualification}
@@ -136,9 +140,9 @@ export default function ExpertProfessionalPage() {
                 disabled={!isEditing}
                 className={`w-full px-4 py-2.5 rounded-lg border transition-colors ${
                   errors.qualification
-                    ? "border-red-500 bg-red-50"
-                    : "border-slate-300 bg-slate-50"
-                } ${!isEditing ? "text-slate-600 cursor-not-allowed" : "text-slate-900"}`}
+                    ? "border-[#FCA5A5]0 bg-[#FEE2E2]"
+                    : "border-[#D1D5DB] bg-[#F8FAF8]"
+                } ${!isEditing ? "text-[#4B5563] cursor-not-allowed" : "text-[#1F2937]"}`}
               >
                 <option value="">Select qualification</option>
                 <option value="JTA">JTA</option>
@@ -147,16 +151,14 @@ export default function ExpertProfessionalPage() {
                 <option value="Agronomist">Agronomist</option>
                 <option value="Other">Other</option>
               </select>
-              {errors.qualification && (
-                <div className="text-sm text-red-600 mt-1">{errors.qualification}</div>
-              )}
+              <FieldError>{errors.qualification}</FieldError>
             </div>
 
             {/* Institution & Graduation Year - Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">
-                  Institution <span className="text-red-600">*</span>
+                <label className="block text-sm font-semibold text-[#1F2937] mb-2">
+                  Institution <span className="text-[#DC2626]">*</span>
                 </label>
                 <input
                   type="text"
@@ -166,17 +168,15 @@ export default function ExpertProfessionalPage() {
                   disabled={!isEditing}
                   className={`w-full px-4 py-2.5 rounded-lg border transition-colors ${
                     errors.institution
-                      ? "border-red-500 bg-red-50"
-                      : "border-slate-300 bg-slate-50"
-                  } ${!isEditing ? "text-slate-600 cursor-not-allowed" : "text-slate-900"}`}
+                      ? "border-[#FCA5A5]0 bg-[#FEE2E2]"
+                      : "border-[#D1D5DB] bg-[#F8FAF8]"
+                  } ${!isEditing ? "text-[#4B5563] cursor-not-allowed" : "text-[#1F2937]"}`}
                 />
-                {errors.institution && (
-                  <div className="text-sm text-red-600 mt-1">{errors.institution}</div>
-                )}
+                <FieldError>{errors.institution}</FieldError>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">
+                <label className="block text-sm font-semibold text-[#1F2937] mb-2">
                   Graduation Year
                 </label>
                 <input
@@ -186,14 +186,14 @@ export default function ExpertProfessionalPage() {
                     handleInputChange("graduationYear", parseInt(e.target.value))
                   }
                   disabled={!isEditing}
-                  className="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-slate-50 disabled:text-slate-600 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-2.5 rounded-lg border border-[#D1D5DB] bg-[#F8FAF8] disabled:text-[#4B5563] disabled:cursor-not-allowed"
                 />
               </div>
             </div>
 
             {/* Specialization */}
             <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-2">
+              <label className="block text-sm font-semibold text-[#1F2937] mb-2">
                 Specialization
               </label>
               <input
@@ -202,13 +202,13 @@ export default function ExpertProfessionalPage() {
                 onChange={(e) => handleInputChange("specialization", e.target.value)}
                 placeholder="E.g., Crop Specialist"
                 disabled={!isEditing}
-                className="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-slate-50 disabled:text-slate-600 disabled:cursor-not-allowed"
+                className="w-full px-4 py-2.5 rounded-lg border border-[#D1D5DB] bg-[#F8FAF8] disabled:text-[#4B5563] disabled:cursor-not-allowed"
               />
             </div>
 
             {/* Professional Bio */}
             <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-2">
+              <label className="block text-sm font-semibold text-[#1F2937] mb-2">
                 Professional Bio
               </label>
               <textarea
@@ -217,9 +217,9 @@ export default function ExpertProfessionalPage() {
                 placeholder="Describe your professional background and expertise"
                 disabled={!isEditing}
                 rows={4}
-                className="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-slate-50 disabled:text-slate-600 disabled:cursor-not-allowed resize-none"
+                className="w-full px-4 py-2.5 rounded-lg border border-[#D1D5DB] bg-[#F8FAF8] disabled:text-[#4B5563] disabled:cursor-not-allowed resize-none"
               />
-              <div className="text-xs text-slate-500 mt-1">
+              <div className="text-xs text-[#6B7280] mt-1">
                 {formData.professionalBio.length}/500 characters
               </div>
             </div>
@@ -229,18 +229,20 @@ export default function ExpertProfessionalPage() {
         {/* Save Button */}
         {isEditing && (
           <div className="flex gap-3">
-            <button
+            <Button
+              type="button"
               onClick={handleSave}
-              disabled={isSaving}
-              className="flex-1 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+              isLoading={isSaving}
+              loadingText="Checking..."
+              className="flex-1"
             >
               <Save className="w-4 h-4" />
-              {isSaving ? "Saving..." : "Save Changes"}
-            </button>
+              Save Changes
+            </Button>
             <button
               onClick={() => setIsEditing(false)}
               disabled={isSaving}
-              className="flex-1 px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-900 font-semibold rounded-lg transition-colors"
+              className="flex-1 px-6 py-3 bg-[#E5E7EB] hover:bg-[#D1D5DB] text-[#1F2937] font-semibold rounded-lg transition-colors"
             >
               Cancel
             </button>

@@ -87,15 +87,15 @@ export function ChangePasswordModal({ isOpen, onClose }: ChangePasswordModalProp
     <Modal isOpen={isOpen} onClose={handleClose} title="Change Password">
       <form onSubmit={handleSubmit} className="space-y-4 pt-1">
         {errorMessage && (
-          <div className="flex items-start gap-2.5 rounded-2xl bg-rose-50 border border-rose-200 p-3.5 text-xs text-rose-800">
-            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 mt-0.5" />
+          <div className="flex items-start gap-2.5 rounded-2xl bg-[#FEE2E2] border border-[#FCA5A5] p-3.5 text-xs text-[#DC2626]">
+            <AlertCircle className="w-4 h-4 shrink-0 text-[#DC2626] mt-0.5" />
             <p className="font-medium">{errorMessage}</p>
           </div>
         )}
 
         {/* Current Password */}
         <div>
-          <label className="block text-xs font-bold text-gray-700 mb-1.5">
+          <label className="block text-xs font-bold text-[#4B5563] mb-1.5">
             Current Password
           </label>
           <div className="relative">
@@ -105,12 +105,12 @@ export function ChangePasswordModal({ isOpen, onClose }: ChangePasswordModalProp
               onChange={(e) => setCurrentPassword(e.target.value)}
               placeholder="••••••••"
               disabled={isSubmitting}
-              className="h-10 w-full rounded-2xl border border-gray-200 bg-gray-50/50 px-3.5 pr-10 text-xs font-medium text-gray-900 outline-none focus:border-[#0F9F68] focus:bg-white focus:ring-3 focus:ring-[#0F9F68]/15 transition-all"
+              className="h-10 w-full rounded-2xl border border-[#E5E7EB] bg-[#F8FAF8]/50 px-3.5 pr-10 text-xs font-medium text-[#1F2937] outline-none focus:border-[#2E7D32] focus:bg-white focus:ring-3 focus:ring-[#2E7D32]/15 transition-all"
             />
             <button
               type="button"
               onClick={() => setShowCurrent(!showCurrent)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#4B5563] cursor-pointer"
             >
               {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
@@ -119,7 +119,7 @@ export function ChangePasswordModal({ isOpen, onClose }: ChangePasswordModalProp
 
         {/* New Password */}
         <div>
-          <label className="block text-xs font-bold text-gray-700 mb-1.5">
+          <label className="block text-xs font-bold text-[#4B5563] mb-1.5">
             New Password
           </label>
           <div className="relative">
@@ -129,22 +129,22 @@ export function ChangePasswordModal({ isOpen, onClose }: ChangePasswordModalProp
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="Minimum 8 characters"
               disabled={isSubmitting}
-              className="h-10 w-full rounded-2xl border border-gray-200 bg-gray-50/50 px-3.5 pr-10 text-xs font-medium text-gray-900 outline-none focus:border-[#0F9F68] focus:bg-white focus:ring-3 focus:ring-[#0F9F68]/15 transition-all"
+              className="h-10 w-full rounded-2xl border border-[#E5E7EB] bg-[#F8FAF8]/50 px-3.5 pr-10 text-xs font-medium text-[#1F2937] outline-none focus:border-[#2E7D32] focus:bg-white focus:ring-3 focus:ring-[#2E7D32]/15 transition-all"
             />
             <button
               type="button"
               onClick={() => setShowNew(!showNew)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#4B5563] cursor-pointer"
             >
               {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
-          <p className="mt-1 text-[11px] text-gray-400">Must be at least 8 characters</p>
+          <p className="mt-1 text-[11px] text-[#9CA3AF]">Must be at least 8 characters</p>
         </div>
 
         {/* Confirm New Password */}
         <div>
-          <label className="block text-xs font-bold text-gray-700 mb-1.5">
+          <label className="block text-xs font-bold text-[#4B5563] mb-1.5">
             Confirm New Password
           </label>
           <div className="relative">
@@ -154,12 +154,12 @@ export function ChangePasswordModal({ isOpen, onClose }: ChangePasswordModalProp
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Re-type new password"
               disabled={isSubmitting}
-              className="h-10 w-full rounded-2xl border border-gray-200 bg-gray-50/50 px-3.5 pr-10 text-xs font-medium text-gray-900 outline-none focus:border-[#0F9F68] focus:bg-white focus:ring-3 focus:ring-[#0F9F68]/15 transition-all"
+              className="h-10 w-full rounded-2xl border border-[#E5E7EB] bg-[#F8FAF8]/50 px-3.5 pr-10 text-xs font-medium text-[#1F2937] outline-none focus:border-[#2E7D32] focus:bg-white focus:ring-3 focus:ring-[#2E7D32]/15 transition-all"
             />
             <button
               type="button"
               onClick={() => setShowConfirm(!showConfirm)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#4B5563] cursor-pointer"
             >
               {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
@@ -167,19 +167,19 @@ export function ChangePasswordModal({ isOpen, onClose }: ChangePasswordModalProp
         </div>
 
         {/* Buttons */}
-        <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-gray-100">
+        <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#E5E7EB]">
           <button
             type="button"
             onClick={handleClose}
             disabled={isSubmitting}
-            className="rounded-full px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-50"
+            className="rounded-full px-4 py-2 text-xs font-bold text-[#4B5563] hover:bg-[#F1F5F2] transition-colors cursor-pointer disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="inline-flex items-center gap-2 rounded-full bg-[#0F9F68] px-5 py-2 text-xs font-bold text-white shadow-sm hover:bg-[#0D8A5A] transition-all cursor-pointer disabled:opacity-50 active:scale-95"
+            className="inline-flex items-center gap-2 rounded-full bg-[#2E7D32] px-5 py-2 text-xs font-bold text-white shadow-sm hover:bg-[#256B2A] transition-all cursor-pointer disabled:opacity-50 active:scale-95"
           >
             {isSubmitting ? (
               <>

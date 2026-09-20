@@ -16,16 +16,22 @@ export default function AdminLayout({
 }) {
   return (
     <RoleGuard allowedRoles={["ROLE_ADMIN"]}>
-      <div className="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased">
-        <div className="flex min-h-screen">
-          <AdminSidebar />
-          <div className="flex min-w-0 flex-1 flex-col">
-            <Navbar />
-            <main className="mx-auto w-full max-w-[1500px] flex-1 px-3.5 py-4 sm:px-6 sm:py-6 lg:px-8 pb-20 md:pb-6">
-              {children}
-            </main>
+      <div className="min-h-screen bg-[#F1F5F2] text-[#1F2937] font-sans antialiased">
+        {/* Persistent Top Navbar */}
+        <Navbar />
+
+        {/* Main Container: Slim Floating Sidebar + Content */}
+        <div className="w-full max-w-[1720px] mx-auto px-3 sm:px-5 lg:px-6 xl:px-8 py-4 sm:py-5 pb-24 lg:pb-8">
+          <div className="flex gap-4 sm:gap-5 items-start">
+            {/* Slim Icon Rail Sidebar */}
+            <AdminSidebar />
+
+            {/* Dynamic Page Content */}
+            <main className="flex-1 min-w-0">{children}</main>
           </div>
         </div>
+
+        {/* Mobile & Tablet Bottom Navigation */}
         <AdminBottomNav />
       </div>
     </RoleGuard>

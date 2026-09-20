@@ -50,9 +50,3 @@ export interface PageResponse<T> {
   last: boolean;
 }
 
-// Mirrors Java record: com.krishiai.admin.dto.UpdateUserRoleRequest
-export interface UpdateUserRoleRequest {
-  role: UserRole;
-  reason?: string;
-}
-

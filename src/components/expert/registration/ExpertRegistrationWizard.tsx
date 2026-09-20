@@ -41,10 +41,10 @@ export function ExpertRegistrationWizard() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F4F4F6] text-[#171717] font-sans antialiased">
+      <div className="min-h-screen bg-[#F1F5F2] text-[#1F2937] font-sans antialiased">
         <Navbar />
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5" aria-busy="true">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-[rgba(234,234,236,0.85)]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-[#E5E7EB]">
             <div className="space-y-2">
               <Skeleton className="h-3 w-40 rounded-full" />
               <Skeleton className="h-7 w-72 rounded-[16px]" />
@@ -74,26 +74,26 @@ export function ExpertRegistrationWizard() {
     (application.completedSteps.length > 0 || !!application.account.fullName);
 
   return (
-    <div className="min-h-screen bg-[#F4F4F6] text-[#171717] font-sans antialiased selection:bg-[#DDF4EA] selection:text-[#0F9F68]">
+    <div className="min-h-screen bg-[#F1F5F2] text-[#1F2937] font-sans antialiased selection:bg-[#E8F5E9] selection:text-[#2E7D32]">
       <Navbar />
 
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
 
         {/* Breadcrumb */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-3.5 border-b border-[rgba(234,234,236,0.85)]">
-          <div className="flex items-center gap-2 text-xs text-gray-400">
-            <Link href="/" className="hover:text-[#0F9F68] transition-colors font-medium">Home</Link>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-3.5 border-b border-[#E5E7EB]">
+          <div className="flex items-center gap-2 text-xs text-[#9CA3AF]">
+            <Link href="/" className="hover:text-[#2E7D32] transition-colors font-medium">Home</Link>
             <ChevronRight className="w-3 h-3" />
-            <Link href="/experts" className="hover:text-[#0F9F68] transition-colors font-medium">Experts</Link>
+            <Link href="/experts" className="hover:text-[#2E7D32] transition-colors font-medium">Experts</Link>
             <ChevronRight className="w-3 h-3" />
-            <span className="font-bold text-[#0F9F68] bg-[#DDF4EA] px-2 py-0.5 rounded-full border border-[#BCE9D5] text-[11px]">
+            <span className="font-bold text-[#2E7D32] bg-[#E8F5E9] px-2 py-0.5 rounded-full border border-[#C8E6C9] text-[11px]">
               Expert Registration
             </span>
           </div>
 
           <Link
             href="/expert-register/status"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0F9F68] bg-white hover:bg-[#DDF4EA] px-3 py-1.5 rounded-full border border-[#BCE9D5] shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2E7D32] bg-white hover:bg-[#E8F5E9] px-3 py-1.5 rounded-full border border-[#C8E6C9] shadow-[0_2px_8px_#EEF0EE] transition-all"
           >
             <FileCheck2 className="w-3.5 h-3.5" />
             <span>Track Application Status</span>
@@ -127,29 +127,29 @@ export function ExpertRegistrationWizard() {
           {!isSubmittedState && (
             <aside className="lg:col-span-3 lg:sticky lg:top-24 space-y-4">
               {/* Summary card */}
-              <div className="rounded-[24px] border border-[rgba(234,234,236,0.85)] bg-white shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.02)] overflow-hidden">
-                <div className="px-4 py-3 border-b border-[rgba(234,234,236,0.85)] flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-[12px] bg-[#DDF4EA] text-[#0F9F68] flex items-center justify-center">
+              <div className="rounded-[24px] border border-[#E5E7EB] bg-white shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] overflow-hidden">
+                <div className="px-4 py-3 border-b border-[#E5E7EB] flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-[12px] bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center">
                     <ShieldCheck className="w-4 h-4" />
                   </div>
-                  <h2 className="text-sm font-bold text-[#171717]">Your application</h2>
+                  <h2 className="text-sm font-bold text-[#1F2937]">Your application</h2>
                 </div>
 
                 <div className="p-4 space-y-4">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.16em] text-gray-400">Account</p>
-                    <p className="text-sm font-bold text-[#171717] mt-1 truncate">
+                    <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9CA3AF]">Account</p>
+                    <p className="text-sm font-bold text-[#1F2937] mt-1 truncate">
                       {application.account.fullName || "Personal information"}
                     </p>
-                    <p className="text-[11px] text-gray-400 mt-0.5 truncate">
+                    <p className="text-[11px] text-[#9CA3AF] mt-0.5 truncate">
                       {application.account.email || "Complete your account details"}
                     </p>
                   </div>
 
-                  <div className="border-t border-[rgba(234,234,236,0.85)] pt-3">
+                  <div className="border-t border-[#E5E7EB] pt-3">
                     <div className="flex items-center justify-between mb-2">
-                      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-gray-400">Expertise</p>
-                      <span className="text-[10px] font-bold text-[#0F9F68]">
+                      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9CA3AF]">Expertise</p>
+                      <span className="text-[10px] font-bold text-[#2E7D32]">
                         {(application.expertise.primaryCrops || application.expertise.crops).length} crops
                       </span>
                     </div>
@@ -158,36 +158,36 @@ export function ExpertRegistrationWizard() {
                       {application.expertise.specializations.map((id) => {
                         const spec = SPECIALIZATIONS_CATALOG.find((item) => item.id === id);
                         return spec ? (
-                          <span key={id} className="inline-flex items-center gap-1 rounded-full bg-white border border-[rgba(234,234,236,0.85)] px-2 py-0.5 text-[10px] font-medium text-gray-500">
-                            <CheckCircle2 className="w-2.5 h-2.5 text-[#0F9F68]" />{spec.name}
+                          <span key={id} className="inline-flex items-center gap-1 rounded-full bg-white border border-[#E5E7EB] px-2 py-0.5 text-[10px] font-medium text-[#6B7280]">
+                            <CheckCircle2 className="w-2.5 h-2.5 text-[#2E7D32]" />{spec.name}
                           </span>
                         ) : null;
                       })}
                     </div>
                   </div>
 
-                  <div className="border-t border-[rgba(234,234,236,0.85)] pt-3 space-y-3">
-                    <p className="text-[10px] font-black uppercase tracking-[0.16em] text-gray-400">What happens next?</p>
+                  <div className="border-t border-[#E5E7EB] pt-3 space-y-3">
+                    <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9CA3AF]">What happens next?</p>
                     {([
                       [FileCheck2, "Submit application", "Send your completed details and documents"],
                       [ShieldCheck, "Admin verification", "Our team reviews your credentials"],
                       [Award, "Get verified", "Start helping farmers with trusted advice"],
                     ] as const).map(([Icon, title, description]) => (
                       <div key={title} className="flex items-start gap-2.5">
-                        <div className="w-7 h-7 rounded-full bg-[#DDF4EA] text-[#0F9F68] flex items-center justify-center shrink-0">
+                        <div className="w-7 h-7 rounded-full bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center shrink-0">
                           <Icon className="w-3.5 h-3.5" />
                         </div>
                         <div>
-                          <p className="text-xs font-bold text-[#171717]">{title}</p>
-                          <p className="text-[10px] leading-relaxed text-gray-400 mt-0.5">{description}</p>
+                          <p className="text-xs font-bold text-[#1F2937]">{title}</p>
+                          <p className="text-[10px] leading-relaxed text-[#9CA3AF] mt-0.5">{description}</p>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  <div className="rounded-[16px] border border-amber-200 bg-amber-50 px-3 py-2.5 flex items-start gap-2">
-                    <Lock className="w-3.5 h-3.5 text-amber-600 mt-0.5 shrink-0" />
-                    <p className="text-[10px] leading-relaxed text-amber-800">Your information is securely stored and used only for expert verification.</p>
+                  <div className="rounded-[16px] border border-[#FCD34D] bg-[#FEF3C7] px-3 py-2.5 flex items-start gap-2">
+                    <Lock className="w-3.5 h-3.5 text-[#F59E0B] mt-0.5 shrink-0" />
+                    <p className="text-[10px] leading-relaxed text-[#F59E0B]">Your information is securely stored and used only for expert verification.</p>
                   </div>
                 </div>
               </div>
@@ -215,7 +215,7 @@ function SelectedCropBadges({ cropIds }: { cropIds: string[] }) {
   return (
     <>
       {cropIds.map((id) => (
-        <span key={id} className="inline-flex items-center gap-1 rounded-full bg-[#DDF4EA] border border-[#BCE9D5] px-2 py-0.5 text-[10px] font-bold text-[#0F9F68]">
+        <span key={id} className="inline-flex items-center gap-1 rounded-full bg-[#E8F5E9] border border-[#C8E6C9] px-2 py-0.5 text-[10px] font-bold text-[#2E7D32]">
           {cropNameById.get(String(id)) || "Selected crop"}
         </span>
       ))}

@@ -17,9 +17,9 @@ const sizeClasses = {
 };
 
 const colorClasses = {
-  primary: "text-[#166534]",
+  primary: "text-[#2E7D32]",
   white: "text-white",
-  muted: "text-slate-400",
+  muted: "text-[#9CA3AF]",
   current: "text-current",
 };
 

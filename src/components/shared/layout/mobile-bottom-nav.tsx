@@ -48,7 +48,7 @@ export function MobileBottomNav() {
     return (
       <nav
         aria-label="Farmer Mobile Bottom Navigation"
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 px-1 py-1 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] pb-[max(0.375rem,env(safe-area-inset-bottom))]"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#E5E7EB]/90 px-1 py-1 shadow-[0_-4px_20px_#E5E7EB] pb-[max(0.375rem,env(safe-area-inset-bottom))]"
       >
         <div className="flex items-center justify-around max-w-lg mx-auto">
           {/* Dashboard */}
@@ -56,11 +56,11 @@ export function MobileBottomNav() {
             href="/farmer/dashboard"
             className={`flex flex-col items-center justify-center min-w-[54px] min-h-[44px] py-1 px-1.5 rounded-xl transition-all cursor-pointer ${
               isDashboard
-                ? "text-[#0F9F68] font-bold"
-                : "text-slate-500 hover:text-slate-900 font-medium"
+                ? "text-[#2E7D32] font-bold"
+                : "text-[#6B7280] hover:text-[#1F2937] font-medium"
             }`}
           >
-            <div className={`p-1 rounded-full transition-colors ${isDashboard ? "bg-[#DDF4EA]" : ""}`}>
+            <div className={`p-1 rounded-full transition-colors ${isDashboard ? "bg-[#E8F5E9]" : ""}`}>
               <LayoutDashboard className="w-4 h-4" />
             </div>
             <span className="text-[10px] tracking-tight mt-0.5">Dashboard</span>
@@ -71,11 +71,11 @@ export function MobileBottomNav() {
             href="/farmer/crops"
             className={`flex flex-col items-center justify-center min-w-[54px] min-h-[44px] py-1 px-1.5 rounded-xl transition-all cursor-pointer ${
               isCrops
-                ? "text-[#0F9F68] font-bold"
-                : "text-slate-500 hover:text-slate-900 font-medium"
+                ? "text-[#2E7D32] font-bold"
+                : "text-[#6B7280] hover:text-[#1F2937] font-medium"
             }`}
           >
-            <div className={`p-1 rounded-full transition-colors ${isCrops ? "bg-[#DDF4EA]" : ""}`}>
+            <div className={`p-1 rounded-full transition-colors ${isCrops ? "bg-[#E8F5E9]" : ""}`}>
               <Sprout className="w-4 h-4" />
             </div>
             <span className="text-[10px] tracking-tight mt-0.5">My Crops</span>
@@ -86,11 +86,11 @@ export function MobileBottomNav() {
             href="/farmer/analysis"
             className={`flex flex-col items-center justify-center min-w-[54px] min-h-[44px] py-1 px-1.5 rounded-xl transition-all cursor-pointer ${
               isAnalysis
-                ? "text-[#0F9F68] font-bold"
-                : "text-slate-500 hover:text-slate-900 font-medium"
+                ? "text-[#2E7D32] font-bold"
+                : "text-[#6B7280] hover:text-[#1F2937] font-medium"
             }`}
           >
-            <div className={`p-1 rounded-full transition-colors ${isAnalysis ? "bg-[#DDF4EA]" : ""}`}>
+            <div className={`p-1 rounded-full transition-colors ${isAnalysis ? "bg-[#E8F5E9]" : ""}`}>
               <Scan className="w-4 h-4" />
             </div>
             <span className="text-[10px] tracking-tight mt-0.5">AI Scan</span>
@@ -101,11 +101,11 @@ export function MobileBottomNav() {
             href="/farmer/consultations"
             className={`flex flex-col items-center justify-center min-w-[54px] min-h-[44px] py-1 px-1.5 rounded-xl transition-all cursor-pointer ${
               isConsultations
-                ? "text-[#0F9F68] font-bold"
-                : "text-slate-500 hover:text-slate-900 font-medium"
+                ? "text-[#2E7D32] font-bold"
+                : "text-[#6B7280] hover:text-[#1F2937] font-medium"
             }`}
           >
-            <div className={`p-1 rounded-full transition-colors ${isConsultations ? "bg-[#DDF4EA]" : ""}`}>
+            <div className={`p-1 rounded-full transition-colors ${isConsultations ? "bg-[#E8F5E9]" : ""}`}>
               <Users className="w-4 h-4" />
             </div>
             <span className="text-[10px] tracking-tight mt-0.5">Experts</span>
@@ -116,9 +116,9 @@ export function MobileBottomNav() {
             type="button"
             onClick={handleOpenMenu}
             aria-label="Open mobile navigation menu"
-            className="flex flex-col items-center justify-center min-w-[54px] min-h-[44px] py-1 px-1.5 rounded-xl text-slate-600 hover:text-slate-900 font-medium transition-all cursor-pointer active:scale-95"
+            className="flex flex-col items-center justify-center min-w-[54px] min-h-[44px] py-1 px-1.5 rounded-xl text-[#4B5563] hover:text-[#1F2937] font-medium transition-all cursor-pointer active:scale-95"
           >
-            <div className="p-1 rounded-full hover:bg-slate-100">
+            <div className="p-1 rounded-full hover:bg-[#F1F5F2]">
               <Menu className="w-4 h-4" />
             </div>
             <span className="text-[10px] tracking-tight mt-0.5">Menu</span>
@@ -138,7 +138,7 @@ export function MobileBottomNav() {
     return (
       <nav
         aria-label="Expert Mobile Bottom Navigation"
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 px-1 py-1 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] pb-[max(0.375rem,env(safe-area-inset-bottom))]"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#E5E7EB]/90 px-1 py-1 shadow-[0_-4px_20px_#E5E7EB] pb-[max(0.375rem,env(safe-area-inset-bottom))]"
       >
         <div className="flex items-center justify-around max-w-lg mx-auto">
           {/* Dashboard */}
@@ -146,11 +146,11 @@ export function MobileBottomNav() {
             href="/expert/dashboard"
             className={`flex flex-col items-center justify-center min-w-[54px] min-h-[44px] py-1 px-1.5 rounded-xl transition-all cursor-pointer ${
               isDashboard
-                ? "text-emerald-700 font-bold"
-                : "text-slate-500 hover:text-slate-900 font-medium"
+                ? "text-[#2E7D32] font-bold"
+                : "text-[#6B7280] hover:text-[#1F2937] font-medium"
             }`}
           >
-            <div className={`p-1 rounded-full transition-colors ${isDashboard ? "bg-emerald-50" : ""}`}>
+            <div className={`p-1 rounded-full transition-colors ${isDashboard ? "bg-[#E8F5E9]" : ""}`}>
               <LayoutDashboard className="w-4 h-4" />
             </div>
             <span className="text-[10px] tracking-tight mt-0.5">Dashboard</span>
@@ -161,11 +161,11 @@ export function MobileBottomNav() {
             href="/expert/consultations"
             className={`flex flex-col items-center justify-center min-w-[54px] min-h-[44px] py-1 px-1.5 rounded-xl transition-all cursor-pointer ${
               isConsultations
-                ? "text-emerald-700 font-bold"
-                : "text-slate-500 hover:text-slate-900 font-medium"
+                ? "text-[#2E7D32] font-bold"
+                : "text-[#6B7280] hover:text-[#1F2937] font-medium"
             }`}
           >
-            <div className={`p-1 rounded-full transition-colors ${isConsultations ? "bg-emerald-50" : ""}`}>
+            <div className={`p-1 rounded-full transition-colors ${isConsultations ? "bg-[#E8F5E9]" : ""}`}>
               <MessageSquareText className="w-4 h-4" />
             </div>
             <span className="text-[10px] tracking-tight mt-0.5">Inquiries</span>
@@ -176,11 +176,11 @@ export function MobileBottomNav() {
             href="/expert/expertise"
             className={`flex flex-col items-center justify-center min-w-[54px] min-h-[44px] py-1 px-1.5 rounded-xl transition-all cursor-pointer ${
               isExpertise
-                ? "text-emerald-700 font-bold"
-                : "text-slate-500 hover:text-slate-900 font-medium"
+                ? "text-[#2E7D32] font-bold"
+                : "text-[#6B7280] hover:text-[#1F2937] font-medium"
             }`}
           >
-            <div className={`p-1 rounded-full transition-colors ${isExpertise ? "bg-emerald-50" : ""}`}>
+            <div className={`p-1 rounded-full transition-colors ${isExpertise ? "bg-[#E8F5E9]" : ""}`}>
               <Sprout className="w-4 h-4" />
             </div>
             <span className="text-[10px] tracking-tight mt-0.5">Expertise</span>
@@ -191,11 +191,11 @@ export function MobileBottomNav() {
             href="/expert/documents"
             className={`flex flex-col items-center justify-center min-w-[54px] min-h-[44px] py-1 px-1.5 rounded-xl transition-all cursor-pointer ${
               isDocs
-                ? "text-emerald-700 font-bold"
-                : "text-slate-500 hover:text-slate-900 font-medium"
+                ? "text-[#2E7D32] font-bold"
+                : "text-[#6B7280] hover:text-[#1F2937] font-medium"
             }`}
           >
-            <div className={`p-1 rounded-full transition-colors ${isDocs ? "bg-emerald-50" : ""}`}>
+            <div className={`p-1 rounded-full transition-colors ${isDocs ? "bg-[#E8F5E9]" : ""}`}>
               <FileText className="w-4 h-4" />
             </div>
             <span className="text-[10px] tracking-tight mt-0.5">Documents</span>
@@ -206,9 +206,9 @@ export function MobileBottomNav() {
             type="button"
             onClick={handleOpenMenu}
             aria-label="Open mobile navigation menu"
-            className="flex flex-col items-center justify-center min-w-[54px] min-h-[44px] py-1 px-1.5 rounded-xl text-slate-600 hover:text-slate-900 font-medium transition-all cursor-pointer active:scale-95"
+            className="flex flex-col items-center justify-center min-w-[54px] min-h-[44px] py-1 px-1.5 rounded-xl text-[#4B5563] hover:text-[#1F2937] font-medium transition-all cursor-pointer active:scale-95"
           >
-            <div className="p-1 rounded-full hover:bg-slate-100">
+            <div className="p-1 rounded-full hover:bg-[#F1F5F2]">
               <Menu className="w-4 h-4" />
             </div>
             <span className="text-[10px] tracking-tight mt-0.5">Menu</span>
@@ -224,12 +224,12 @@ export function MobileBottomNav() {
   const isExpertsActive = pathname.startsWith("/experts");
 
   const aiHref = isAuthenticated && user?.role === "ROLE_FARMER" ? "/farmer/analysis" : "/#ai-analysis";
-  const weatherHref = "/#ai-analysis";
+  const weatherHref = isAuthenticated && user?.role === "ROLE_FARMER" ? "/farmer/weather" : "/#ai-analysis";
 
   return (
     <nav
       aria-label="Public Mobile Bottom Navigation"
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-1 py-1 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] pb-[max(0.375rem,env(safe-area-inset-bottom))]"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#E5E7EB] px-1 py-1 shadow-[0_-4px_20px_#E5E7EB] pb-[max(0.375rem,env(safe-area-inset-bottom))]"
     >
       <div className="flex items-center justify-around max-w-md mx-auto">
         {/* Home */}
@@ -238,11 +238,11 @@ export function MobileBottomNav() {
           onClick={() => setActiveHash("")}
           className={`flex flex-col items-center justify-center min-w-[54px] min-h-[44px] py-1 px-1.5 rounded-xl transition-all cursor-pointer ${
             isHome
-              ? "text-[#0F9F68] font-bold"
-              : "text-slate-500 hover:text-slate-900 font-medium"
+              ? "text-[#2E7D32] font-bold"
+              : "text-[#6B7280] hover:text-[#1F2937] font-medium"
           }`}
         >
-          <div className={`p-1 rounded-full transition-colors ${isHome ? "bg-[#DDF4EA]" : ""}`}>
+          <div className={`p-1 rounded-full transition-colors ${isHome ? "bg-[#E8F5E9]" : ""}`}>
             <Home className="w-4 h-4" />
           </div>
           <span className="text-[10px] tracking-tight mt-0.5">Home</span>
@@ -254,11 +254,11 @@ export function MobileBottomNav() {
           onClick={() => setActiveHash("#ai-analysis")}
           className={`flex flex-col items-center justify-center min-w-[54px] min-h-[44px] py-1 px-1.5 rounded-xl transition-all cursor-pointer ${
             isAiActive
-              ? "text-[#0F9F68] font-bold"
-              : "text-slate-500 hover:text-slate-900 font-medium"
+              ? "text-[#2E7D32] font-bold"
+              : "text-[#6B7280] hover:text-[#1F2937] font-medium"
           }`}
         >
-          <div className={`p-1 rounded-full transition-colors ${isAiActive ? "bg-[#DDF4EA]" : ""}`}>
+          <div className={`p-1 rounded-full transition-colors ${isAiActive ? "bg-[#E8F5E9]" : ""}`}>
             <Sparkles className="w-4 h-4" />
           </div>
           <span className="text-[10px] tracking-tight mt-0.5">AI Scan</span>
@@ -268,10 +268,10 @@ export function MobileBottomNav() {
         <Link
           href={weatherHref}
           onClick={() => setActiveHash("#ai-analysis")}
-          className="flex flex-col items-center justify-center min-w-[54px] min-h-[44px] py-1 px-1.5 rounded-xl text-slate-500 hover:text-slate-900 font-medium transition-all cursor-pointer"
+          className="flex flex-col items-center justify-center min-w-[54px] min-h-[44px] py-1 px-1.5 rounded-xl text-[#6B7280] hover:text-[#1F2937] font-medium transition-all cursor-pointer"
         >
           <div className="p-1 rounded-full">
-            <CloudSun className="w-4 h-4 text-amber-500" />
+            <CloudSun className="w-4 h-4 text-[#F59E0B]0" />
           </div>
           <span className="text-[10px] tracking-tight mt-0.5">Weather</span>
         </Link>
@@ -281,11 +281,11 @@ export function MobileBottomNav() {
           href="/experts"
           className={`flex flex-col items-center justify-center min-w-[54px] min-h-[44px] py-1 px-1.5 rounded-xl transition-all cursor-pointer ${
             isExpertsActive
-              ? "text-[#0F9F68] font-bold"
-              : "text-slate-500 hover:text-slate-900 font-medium"
+              ? "text-[#2E7D32] font-bold"
+              : "text-[#6B7280] hover:text-[#1F2937] font-medium"
           }`}
         >
-          <div className={`p-1 rounded-full transition-colors ${isExpertsActive ? "bg-[#DDF4EA]" : ""}`}>
+          <div className={`p-1 rounded-full transition-colors ${isExpertsActive ? "bg-[#E8F5E9]" : ""}`}>
             <Users className="w-4 h-4" />
           </div>
           <span className="text-[10px] tracking-tight mt-0.5">Experts</span>
@@ -296,9 +296,9 @@ export function MobileBottomNav() {
           type="button"
           onClick={handleOpenMenu}
           aria-label="Open mobile navigation menu"
-          className="flex flex-col items-center justify-center min-w-[54px] min-h-[44px] py-1 px-1.5 rounded-xl text-slate-600 hover:text-slate-900 font-medium transition-all cursor-pointer active:scale-95"
+          className="flex flex-col items-center justify-center min-w-[54px] min-h-[44px] py-1 px-1.5 rounded-xl text-[#4B5563] hover:text-[#1F2937] font-medium transition-all cursor-pointer active:scale-95"
         >
-          <div className="p-1 rounded-full hover:bg-slate-100">
+          <div className="p-1 rounded-full hover:bg-[#F1F5F2]">
             <Menu className="w-4 h-4" />
           </div>
           <span className="text-[10px] tracking-tight mt-0.5">Menu</span>

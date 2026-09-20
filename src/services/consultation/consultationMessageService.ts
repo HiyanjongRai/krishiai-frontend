@@ -3,19 +3,19 @@ import type { ConsultationMessage, SendMessageRequest } from "@/types/consultati
 
 export const consultationMessageService = {
   /**
-   * GET /api/v1/farmer/consultations/{consultationId}/messages
+   * GET /api/v1/consultations/{consultationId}/messages
    * Retrieves chronological messages for the consultation thread.
    */
   getMessages: async (
     consultationId: number | string
   ): Promise<ConsultationMessage[]> => {
     return api.get<ConsultationMessage[]>(
-      `/v1/farmer/consultations/${consultationId}/messages`
+      `/v1/consultations/${consultationId}/messages`
     );
   },
 
   /**
-   * POST /api/v1/farmer/consultations/{consultationId}/messages
+   * POST /api/v1/consultations/{consultationId}/messages
    * Sends a message to the consultation thread.
    */
   sendMessage: async (
@@ -23,7 +23,7 @@ export const consultationMessageService = {
     request: SendMessageRequest
   ): Promise<ConsultationMessage> => {
     return api.post<ConsultationMessage>(
-      `/v1/farmer/consultations/${consultationId}/messages`,
+      `/v1/consultations/${consultationId}/messages`,
       request
     );
   },

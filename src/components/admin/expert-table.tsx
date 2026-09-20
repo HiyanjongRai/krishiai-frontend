@@ -69,27 +69,27 @@ function getExpertStatus(expert: Expert): "VERIFIED" | "UNDER_REVIEW" | "PENDING
 const statusBadgeConfig = {
   VERIFIED: {
     label: "Verified Expert",
-    cls: "bg-emerald-50 text-emerald-800 border-emerald-200",
+    cls: "bg-[#E8F5E9] text-[#2E7D32] border-[#A5D6A7]",
     icon: CheckCircle2,
   },
   UNDER_REVIEW: {
     label: "Under Review",
-    cls: "bg-blue-50 text-blue-800 border-blue-200",
+    cls: "bg-[#DBEAFE] text-[#2563EB] border-[#93C5FD]",
     icon: Clock,
   },
   PENDING: {
     label: "Pending Review",
-    cls: "bg-amber-50 text-amber-800 border-amber-200",
+    cls: "bg-[#FEF3C7] text-[#F59E0B] border-[#FCD34D]",
     icon: Clock,
   },
   REJECTED: {
     label: "Rejected",
-    cls: "bg-rose-50 text-rose-800 border-rose-200",
+    cls: "bg-[#FEE2E2] text-[#DC2626] border-[#FCA5A5]",
     icon: XCircle,
   },
   DRAFT: {
     label: "Draft",
-    cls: "bg-slate-100 text-slate-700 border-slate-200",
+    cls: "bg-[#F3F4F6] text-[#6B7280] border-[#E5E7EB]",
     icon: Clock,
   },
 };
@@ -194,77 +194,75 @@ export function ExpertTable() {
 
   return (
     <div className="space-y-6">
-      {/* ── 1. Page Header & Stats ─────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
-            Accredited Agronomists
-          </h1>
-          <p className="mt-0.5 text-xs sm:text-sm text-slate-500">
-            Verified agricultural specialists, professional credentials, and advisory domains.
-          </p>
+      {/* Summary Metrics Strip (Farmer Dashboard Style) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] space-y-2 hover:border-[#C8E6C9] transition-colors">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-[#6B7280]">Total Specialists</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#E8F5E9] text-[#2E7D32]">
+              <UserCheck className="h-4 w-4" />
+            </div>
+          </div>
+          <div>
+            <p className="text-2xl sm:text-3xl font-black text-[#1F2937] tracking-tight">{experts.length}</p>
+            <p className="text-[11px] text-[#9CA3AF] mt-0.5">Total registered candidates</p>
+          </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleRefresh}
-          disabled={isRefreshing}
-          className="self-start sm:self-center inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 transition-colors cursor-pointer"
-        >
-          <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin text-emerald-700" : "text-slate-400"}`} />
-          <span>Refresh</span>
-        </button>
+        <div className="rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] space-y-2 hover:border-[#C8E6C9] transition-colors">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-[#6B7280]">Verified &amp; Active</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#E8F5E9] text-[#2E7D32]">
+              <ShieldCheck className="h-4 w-4" />
+            </div>
+          </div>
+          <div>
+            <p className="text-2xl sm:text-3xl font-black text-[#2E7D32] tracking-tight">{verifiedCount}</p>
+            <p className="text-[11px] text-[#9CA3AF] mt-0.5">Accredited consultants</p>
+          </div>
+        </div>
+
+        <div className="rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] space-y-2 hover:border-[#93C5FD] transition-colors">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-[#6B7280]">Under Review</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#DBEAFE] text-[#2563EB]">
+              <Clock className="h-4 w-4" />
+            </div>
+          </div>
+          <div>
+            <p className="text-2xl sm:text-3xl font-black text-[#2563EB] tracking-tight">{underReviewCount}</p>
+            <p className="text-[11px] text-[#9CA3AF] mt-0.5">Credentials evaluating</p>
+          </div>
+        </div>
+
+        <div className="rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] space-y-2 hover:border-[#FCD34D] transition-colors">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-[#6B7280]">Pending Accreditation</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FEF3C7] text-[#F59E0B]">
+              <AlertCircle className="h-4 w-4" />
+            </div>
+          </div>
+          <div>
+            <p className="text-2xl sm:text-3xl font-black text-[#F59E0B] tracking-tight">{pendingCount}</p>
+            <p className="text-[11px] text-[#9CA3AF] mt-0.5">Awaiting initial triage</p>
+          </div>
+        </div>
       </div>
 
-      {/* Real Summary Metrics Strip */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500">Total Specialists</span>
-            <UserCheck className="h-4 w-4 text-slate-400" />
-          </div>
-          <p className="mt-1.5 text-2xl font-bold text-slate-900">{experts.length}</p>
-        </div>
-
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500">Verified &amp; Active</span>
-            <ShieldCheck className="h-4 w-4 text-emerald-600" />
-          </div>
-          <p className="mt-1.5 text-2xl font-bold text-emerald-700">{verifiedCount}</p>
-        </div>
-
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500">Under Review</span>
-            <Clock className="h-4 w-4 text-blue-600" />
-          </div>
-          <p className="mt-1.5 text-2xl font-bold text-blue-700">{underReviewCount}</p>
-        </div>
-
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500">Pending Accreditation</span>
-            <AlertCircle className="h-4 w-4 text-amber-600" />
-          </div>
-          <p className="mt-1.5 text-2xl font-bold text-amber-700">{pendingCount}</p>
-        </div>
-      </div>
-
-      {/* ── 2. Filters & Search Toolbar ─────────────────────────────────────── */}
+      {/* ── 2. Filters & Search Toolbar (Farmer Dashboard Style) ─────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="relative min-w-0 flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+          <Search className="absolute left-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#9CA3AF]" />
           <input
             type="text"
             value={search}
             onChange={(e) => { setSearch(e.target.value); resetPage(); }}
             placeholder="Search by name, organization, designation, crop..."
-            className="h-9 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-xs text-slate-900 outline-none placeholder:text-slate-400 focus:border-emerald-700 focus:ring-1 focus:ring-emerald-700 shadow-2xs transition-colors"
+            className="h-10 w-full rounded-full border border-[#E5E7EB] bg-white pl-9 pr-4 text-xs text-[#1F2937] outline-none placeholder:text-[#9CA3AF] shadow-[0_4px_20px_-2px_#EEF0EE] transition-all focus:border-[#2E7D32] focus:ring-3 focus:ring-[#2E7D32]/15"
           />
         </div>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 -mx-0.5 px-0.5 no-scrollbar flex-nowrap sm:flex-wrap sm:overflow-x-visible">
+        <div className="flex items-center gap-2 overflow-x-auto pb-0.5 -mx-0.5 px-0.5 no-scrollbar flex-nowrap sm:flex-wrap sm:overflow-x-visible">
           {[
             { id: "ALL", label: "All Specialists" },
             { id: "VERIFIED", label: "Verified" },
@@ -276,29 +274,39 @@ export function ExpertTable() {
               key={tab.id}
               type="button"
               onClick={() => { setStatusFilter(tab.id); resetPage(); }}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
+              className={`rounded-full px-4 py-2 text-xs font-bold transition-all cursor-pointer ${
                 statusFilter === tab.id
-                  ? "bg-emerald-700 text-white shadow-2xs"
-                  : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  ? "bg-[#2E7D32] text-white shadow-xs"
+                  : "bg-white border border-[#E5E7EB] text-[#4B5563] shadow-[0_4px_20px_-2px_#EEF0EE] hover:bg-[#F1F5F2] hover:text-[#2E7D32]"
               }`}
             >
               {tab.label}
             </button>
           ))}
+
+          <button
+            type="button"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="inline-flex items-center gap-1.5 rounded-full border border-[#E5E7EB] bg-white px-4 py-2 text-xs font-bold text-[#4B5563] shadow-[0_4px_20px_-2px_#EEF0EE] transition-all hover:bg-[#F1F5F2] hover:text-[#2E7D32] cursor-pointer shrink-0"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin text-[#2E7D32]" : "text-[#9CA3AF]"}`} />
+            <span>Refresh</span>
+          </button>
         </div>
       </div>
 
       {/* ── 3. Main Data Table ──────────────────────────────────────────────── */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-2xs overflow-hidden">
+      <div className="rounded-[24px] border border-[#E5E7EB] bg-white shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] overflow-hidden">
         {isLoading ? (
           <TableSkeleton rows={8} />
         ) : loadError ? (
           <div className="p-8 text-center">
-            <p className="text-sm font-semibold text-rose-700">{loadError}</p>
+            <p className="text-sm font-semibold text-[#DC2626]">{loadError}</p>
             <button
               type="button"
               onClick={() => { setIsLoading(true); void fetchExperts(); }}
-              className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-emerald-800 transition-colors shadow-2xs cursor-pointer"
+              className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-[#2E7D32] px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#256B2A] cursor-pointer"
             >
               <RefreshCw className="h-3.5 w-3.5" />
               <span>Retry</span>
@@ -306,35 +314,35 @@ export function ExpertTable() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center">
-            <UserCheck className="mx-auto h-8 w-8 text-slate-400" />
-            <h3 className="mt-2 text-sm font-semibold text-slate-900">No agronomists found</h3>
-            <p className="mt-1 text-xs text-slate-500">
+            <UserCheck className="mx-auto h-8 w-8 text-[#9CA3AF]" />
+            <h3 className="mt-2 text-sm font-semibold text-[#1F2937]">No agronomists found</h3>
+            <p className="mt-1 text-xs text-[#6B7280]">
               No specialists match your current filter or search criteria.
             </p>
           </div>
         ) : (
           <>
             {/* ── Mobile card list (< md) ──────────────────────────────── */}
-            <div className="md:hidden divide-y divide-slate-100">
+            <div className="md:hidden divide-y divide-[#EEF0EE]">
               {paginated.map((expert) => {
                 const status = getExpertStatus(expert);
                 const badge = statusBadgeConfig[status] || statusBadgeConfig.DRAFT;
                 const BadgeIcon = badge.icon;
                 const displayName = formatFullName(expert.fullName);
                 return (
-                  <div key={expert.profileId} className="p-4 flex items-start gap-3 hover:bg-slate-50/60 transition-colors">
+                  <div key={expert.profileId} className="p-4 flex items-start gap-3 transition-colors hover:bg-[#F8FAF8]">
                     <UserAvatar
                       src={expert.profileImage}
                       name={displayName}
                       size="sm"
-                      className="rounded-lg ring-1 ring-slate-200 shrink-0 mt-0.5"
+                      className="rounded-lg ring-1 ring-[#E5E7EB] shrink-0 mt-0.5"
                     />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
-                          <p className="text-xs font-semibold text-slate-900 truncate">{displayName}</p>
-                          <p className="text-[11px] text-slate-500 truncate">{expert.designation || "Agricultural Specialist"}</p>
-                          <p className="text-[11px] text-slate-400 truncate">{expert.organization || "Independent"}</p>
+                          <p className="text-xs font-semibold text-[#1F2937] truncate">{displayName}</p>
+                          <p className="text-[11px] text-[#6B7280] truncate">{expert.designation || "Agricultural Specialist"}</p>
+                          <p className="text-[11px] text-[#9CA3AF] truncate">{expert.organization || "Independent"}</p>
                         </div>
                         <span className={`inline-flex shrink-0 items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-semibold ${badge.cls}`}>
                           <BadgeIcon className="h-3 w-3 shrink-0" />
@@ -342,17 +350,17 @@ export function ExpertTable() {
                         </span>
                       </div>
                       <div className="mt-2 flex items-center justify-between gap-2">
-                        <p className="text-[11px] text-slate-400 truncate">{expert.email}</p>
+                        <p className="text-[11px] text-[#9CA3AF] truncate">{expert.email}</p>
                         <button
                           type="button"
                           onClick={() => handleViewDetails(expert)}
                           disabled={loadingDetailId === expert.profileId}
-                          className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 shadow-2xs transition-colors cursor-pointer disabled:opacity-50 shrink-0"
+                          className="inline-flex items-center gap-1 rounded-md border border-[#E5E7EB] bg-white px-2.5 py-1 text-xs font-medium text-[#4B5563] shadow-sm transition-colors hover:bg-[#F1F5F2] hover:text-[#2E7D32] cursor-pointer disabled:bg-[#E5E7EB] disabled:text-[#9CA3AF] shrink-0"
                         >
                           {loadingDetailId === expert.profileId ? (
                             <LoadingSpinner size="xs" color="current" />
                           ) : (
-                            <Eye className="h-3 w-3 text-slate-400" />
+                            <Eye className="h-3 w-3 text-[#9CA3AF]" />
                           )}
                           <span>Dossier</span>
                         </button>
@@ -366,7 +374,7 @@ export function ExpertTable() {
             {/* ── Desktop table (md+) ──────────────────────────────────── */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="border-b border-slate-200 bg-slate-50/75 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                <thead className="border-b border-[#E5E7EB] bg-[#F8FAF8] text-[11px] font-semibold text-[#4B5563] uppercase tracking-wider">
                   <tr>
                     <th className="py-3 px-4">Expert Specialist</th>
                     <th className="py-3 px-4 hidden sm:table-cell">Affiliation &amp; Contact</th>
@@ -376,7 +384,7 @@ export function ExpertTable() {
                     <th className="py-3 px-4 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-[#EEF0EE]">
                   {paginated.map((expert) => {
                     const status = getExpertStatus(expert);
                     const badge = statusBadgeConfig[status] || statusBadgeConfig.DRAFT;
@@ -384,33 +392,33 @@ export function ExpertTable() {
                     const displayName = formatFullName(expert.fullName);
 
                     return (
-                      <tr key={expert.profileId} className="hover:bg-slate-50/60 transition-colors">
+                      <tr key={expert.profileId} className="transition-colors hover:bg-[#F8FAF8]">
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-3">
                             <UserAvatar
                               src={expert.profileImage}
                               name={displayName}
                               size="md"
-                              className="rounded-lg ring-1 ring-slate-200 shrink-0"
+                              className="rounded-lg ring-1 ring-[#E5E7EB] shrink-0"
                             />
                             <div className="min-w-0">
-                              <p className="font-semibold text-slate-900 truncate">{displayName}</p>
-                              <p className="text-[11px] text-slate-500 truncate">
+                              <p className="font-semibold text-[#1F2937] truncate">{displayName}</p>
+                              <p className="text-[11px] text-[#6B7280] truncate">
                                 {expert.designation || "Agricultural Specialist"}
                               </p>
-                              <p className="text-[10px] text-slate-400 sm:hidden">{expert.email}</p>
+                              <p className="text-[10px] text-[#9CA3AF] sm:hidden">{expert.email}</p>
                             </div>
                           </div>
                         </td>
 
                         <td className="py-3 px-4 hidden sm:table-cell">
                           <div className="space-y-0.5">
-                            <p className="text-xs font-medium text-slate-700 truncate">
+                            <p className="text-xs font-medium text-[#4B5563] truncate">
                               {expert.organization || "Independent Specialist"}
                             </p>
-                            <p className="text-[11px] text-slate-500 truncate">{expert.email}</p>
+                            <p className="text-[11px] text-[#6B7280] truncate">{expert.email}</p>
                             {expert.phone && (
-                              <p className="text-[11px] text-slate-400">{expert.phone}</p>
+                              <p className="text-[11px] text-[#9CA3AF]">{expert.phone}</p>
                             )}
                           </div>
                         </td>
@@ -420,44 +428,44 @@ export function ExpertTable() {
                             {(expert.primaryCrops ?? []).slice(0, 2).map((crop) => (
                               <span
                                 key={crop}
-                                className="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-700 border border-slate-200"
+                                className="inline-flex items-center gap-1 rounded bg-[#F1F5F2] px-2 py-0.5 text-[10px] font-semibold text-[#4B5563] border border-[#E5E7EB]"
                               >
-                                <Sprout className="h-2.5 w-2.5 text-emerald-700" />
+                                <Sprout className="h-2.5 w-2.5 text-[#2E7D32]" />
                                 <span>{crop}</span>
                               </span>
                             ))}
                             {(expert.primaryCrops?.length ?? 0) > 2 && (
-                              <span className="rounded bg-slate-50 px-1.5 py-0.5 text-[10px] font-medium text-slate-500 border border-slate-200">
+                              <span className="rounded bg-[#F8FAF8] px-1.5 py-0.5 text-[10px] font-medium text-[#6B7280] border border-[#E5E7EB]">
                                 +{(expert.primaryCrops?.length ?? 0) - 2} more
                               </span>
                             )}
                           </div>
                         </td>
 
-                        <td className="py-3 px-4">
-                          <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-semibold ${badge.cls}`}>
+                        <td className="py-3.5 px-4">
+                          <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${badge.cls}`}>
                             <BadgeIcon className="h-3 w-3 shrink-0" />
                             <span>{badge.label}</span>
                           </span>
                         </td>
 
-                        <td className="py-3 px-4 text-slate-500 hidden lg:table-cell whitespace-nowrap">
+                        <td className="py-3.5 px-4 text-[#6B7280] hidden lg:table-cell whitespace-nowrap text-xs">
                           {expert.yearsOfExperience
                             ? `${expert.yearsOfExperience} yrs exp`
                             : "1+ yr exp"}
                         </td>
 
-                        <td className="py-3 px-4 text-right">
+                        <td className="py-3.5 px-4 text-right">
                           <button
                             type="button"
                             onClick={() => handleViewDetails(expert)}
                             disabled={loadingDetailId === expert.profileId}
-                            className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 rounded-full border border-[#E5E7EB] bg-white px-3 py-1.5 text-xs font-semibold text-[#4B5563] shadow-xs transition-colors hover:border-[#2E7D32] hover:bg-[#E8F5E9] hover:text-[#2E7D32] cursor-pointer disabled:opacity-50"
                           >
                             {loadingDetailId === expert.profileId ? (
                               <LoadingSpinner size="xs" color="current" />
                             ) : (
-                              <Eye className="h-3 w-3 text-slate-400" />
+                              <Eye className="h-3 w-3 text-[#9CA3AF]" />
                             )}
                             <span>Dossier</span>
                           </button>
@@ -473,11 +481,11 @@ export function ExpertTable() {
 
         {/* ── Pagination Footer ──────────────────────────────────────────────── */}
         {!isLoading && filtered.length > 0 && (
-          <div className="flex items-center justify-between border-t border-slate-200 px-4 py-3 bg-slate-50/50">
-            <span className="text-xs text-slate-500">
-              Showing <span className="font-semibold text-slate-900">{page * PAGE_SIZE + 1}</span> to{" "}
-              <span className="font-semibold text-slate-900">{Math.min((page + 1) * PAGE_SIZE, filtered.length)}</span> of{" "}
-              <span className="font-semibold text-slate-900">{filtered.length}</span> specialists
+          <div className="flex items-center justify-between border-t border-[#EEF0EE] px-5 py-3.5 bg-[#F8FAF8]">
+            <span className="text-xs text-[#6B7280]">
+              Showing <span className="font-bold text-[#1F2937]">{page * PAGE_SIZE + 1}</span> to{" "}
+              <span className="font-bold text-[#1F2937]">{Math.min((page + 1) * PAGE_SIZE, filtered.length)}</span> of{" "}
+              <span className="font-bold text-[#1F2937]">{filtered.length}</span> specialists
             </span>
 
             <div className="flex items-center gap-1.5">
@@ -485,19 +493,19 @@ export function ExpertTable() {
                 type="button"
                 onClick={() => setPage((p) => Math.max(0, p - 1))}
                 disabled={page === 0}
-                className="rounded-lg border border-slate-200 bg-white p-1.5 text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs transition-colors cursor-pointer"
+                className="rounded-full border border-[#E5E7EB] bg-white p-2 text-[#6B7280] shadow-xs transition-colors hover:bg-[#F1F5F2] hover:text-[#2E7D32] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                 title="Previous page"
               >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-3.5 w-3.5" />
               </button>
               <button
                 type="button"
                 onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                 disabled={page >= totalPages - 1}
-                className="rounded-lg border border-slate-200 bg-white p-1.5 text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs transition-colors cursor-pointer"
+                className="rounded-full border border-[#E5E7EB] bg-white p-2 text-[#6B7280] shadow-xs transition-colors hover:bg-[#F1F5F2] hover:text-[#2E7D32] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                 title="Next page"
               >
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-3.5 w-3.5" />
               </button>
             </div>
           </div>

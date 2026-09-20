@@ -3,10 +3,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import {
-  AlertCircle,
   CheckCircle2,
   Edit2,
-  Layers,
   MapPin,
   Plus,
   RefreshCw,
@@ -19,6 +17,10 @@ import { adminService } from "@/services/admin";
 import { useToast } from "@/providers/toast-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ErrorState } from "@/components/ui/error-state";
+import { DashboardSkeleton } from "@/components/ui/page-skeletons";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { normalizeApiError } from "@/utils/api-response";
 import type {
   CreateCropCategoryRequest,
   CropCategoryResponse,
@@ -61,8 +63,8 @@ function typeLabel(value?: string | null) {
 
 function statusBadge(active: boolean) {
   return active
-    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-    : "border-slate-200 bg-slate-100 text-slate-500";
+    ? "border-[#A5D6A7] bg-[#E8F5E9] text-[#2E7D32]"
+    : "border-[#E5E7EB] bg-[#F3F4F6] text-[#6B7280]";
 }
 
 export default function AdminCropsPage() {
@@ -126,15 +128,16 @@ export default function AdminCropsPage() {
       setCategories(Array.isArray(categoryData) ? categoryData : []);
       setCrops(cropPage.content ?? []);
       setLocations(locationData);
-    } catch {
-      setError("Unable to load crop and location master data. Please check the backend connection.");
+    } catch (requestError) {
+      setError(normalizeApiError(requestError, "Unable to load crop and location master data.").message);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    void loadMasterData();
+    const timer = window.setTimeout(() => void loadMasterData(), 0);
+    return () => window.clearTimeout(timer);
   }, [loadMasterData]);
 
   const provinceOptions = useMemo(
@@ -267,10 +270,8 @@ export default function AdminCropsPage() {
       setCategoryModal(null);
       await loadMasterData();
     } catch (err: unknown) {
-      toast.error({
-        title: "Save Failed",
-        description: err instanceof Error ? err.message : "Unable to save the category.",
-      });
+      const errorInfo = normalizeApiError(err, "Unable to save the category.");
+      toast.error({ title: errorInfo.title, description: errorInfo.message });
     } finally {
       setIsSubmitting(false);
     }
@@ -306,10 +307,8 @@ export default function AdminCropsPage() {
       setCropModal(null);
       await loadMasterData();
     } catch (err: unknown) {
-      toast.error({
-        title: "Save Failed",
-        description: err instanceof Error ? err.message : "Unable to save the crop.",
-      });
+      const errorInfo = normalizeApiError(err, "Unable to save the crop.");
+      toast.error({ title: errorInfo.title, description: errorInfo.message });
     } finally {
       setIsSubmitting(false);
     }
@@ -359,10 +358,8 @@ export default function AdminCropsPage() {
       setLocationModal(null);
       await loadMasterData();
     } catch (err: unknown) {
-      toast.error({
-        title: "Save Failed",
-        description: err instanceof Error ? err.message : "Unable to save the location.",
-      });
+      const errorInfo = normalizeApiError(err, "Unable to save the location.");
+      toast.error({ title: errorInfo.title, description: errorInfo.message });
     } finally {
       setIsSubmitting(false);
     }
@@ -387,10 +384,8 @@ export default function AdminCropsPage() {
       setDeleteTarget(null);
       await loadMasterData();
     } catch (err: unknown) {
-      toast.error({
-        title: "Action Failed",
-        description: err instanceof Error ? err.message : "Unable to deactivate the selected record.",
-      });
+      const errorInfo = normalizeApiError(err, "Unable to deactivate the selected record.");
+      toast.error({ title: errorInfo.title, description: errorInfo.message });
     } finally {
       setIsSubmitting(false);
     }
@@ -398,86 +393,86 @@ export default function AdminCropsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="rounded-lg bg-emerald-50 p-1.5 text-emerald-700">
-              <Layers className="h-5 w-5" />
-            </span>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-950">Crop Master Data</h1>
+      <AdminPageHeader
+        title="Crop Master Data"
+        subtitle="Maintain crop categories, crop records, and location hierarchy used across registration and expertise flows."
+        actions={
+          <div className="flex flex-wrap items-center gap-2.5">
+            <Button variant="outline" rounded="full" onClick={handleRefresh} disabled={isRefreshing} className="shadow-xs text-xs font-semibold px-4 py-2 h-9">
+              <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin text-[#2E7D32]" : ""}`} />
+              Refresh
+            </Button>
+            <Button rounded="full" onClick={() => openCropModal()} className="bg-[#2E7D32] hover:bg-[#256B2A] text-white shadow-xs text-xs font-semibold px-4 py-2 h-9">
+              <Plus className="h-3.5 w-3.5" />
+              Add Crop
+            </Button>
+            <Button rounded="full" onClick={() => openLocationModal()} className="bg-[#2E7D32] hover:bg-[#256B2A] text-white shadow-xs text-xs font-semibold px-4 py-2 h-9">
+              <MapPin className="h-3.5 w-3.5" />
+              Add Location
+            </Button>
           </div>
-          <p className="mt-1 text-sm text-slate-500">
-            Maintain crop categories, crop records, and location hierarchy used across registration and expertise flows.
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" rounded="default" onClick={handleRefresh} disabled={isRefreshing}>
-            <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin text-emerald-600" : ""}`} />
-            Refresh
-          </Button>
-          <Button rounded="default" onClick={() => openCropModal()}>
-            <Plus className="h-4 w-4" />
-            Add Crop
-          </Button>
-          <Button rounded="default" onClick={() => openLocationModal()}>
-            <MapPin className="h-4 w-4" />
-            Add Location
-          </Button>
-        </div>
-      </div>
+        }
+      />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <SummaryCard label="Categories" value={categories.length} subValue={`${categories.filter((item) => item.active).length} active`} />
-        <SummaryCard label="Crops" value={crops.length} subValue={`${crops.filter((item) => item.active).length} active`} />
-        <SummaryCard label="Locations" value={locations.length} subValue={`${locations.filter((item) => item.active).length} active`} />
+        <SummaryCard
+          label="Categories"
+          value={categories.length}
+          subValue={`${categories.filter((item) => item.active).length} active in catalog`}
+          icon={<Sprout className="h-4 w-4 text-[#2E7D32]" />}
+        />
+        <SummaryCard
+          label="Crops"
+          value={crops.length}
+          subValue={`${crops.filter((item) => item.active).length} active for advisory`}
+          icon={<Sprout className="h-4 w-4 text-[#2E7D32]" />}
+        />
+        <SummaryCard
+          label="Locations"
+          value={locations.length}
+          subValue={`${locations.filter((item) => item.active).length} regional divisions`}
+          icon={<MapPin className="h-4 w-4 text-[#2E7D32]" />}
+        />
       </div>
 
-      <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative min-w-[240px] flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between pt-1">
+        <div className="relative w-full lg:w-80">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9CA3AF]" />
           <input
             type="text"
             placeholder="Search categories, crops, locations..."
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm text-slate-800 outline-none transition-colors focus:border-emerald-600 focus:bg-white"
+            className="h-10 w-full rounded-full border border-[#E5E7EB] bg-white pl-9 pr-4 text-xs text-[#1F2937] placeholder:text-[#9CA3AF] outline-none transition-colors focus:border-[#2E7D32] focus:ring-2 focus:ring-[#E8F5E9] shadow-xs"
           />
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
           {(["ALL", "ACTIVE", "INACTIVE"] as const).map((status) => (
             <button
               key={status}
               type="button"
               onClick={() => setStatusFilter(status)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
+              className={`rounded-full px-4 py-2 text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
                 statusFilter === status
-                  ? "bg-emerald-700 text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  ? "bg-[#2E7D32] text-white shadow-sm"
+                  : "bg-white text-[#4B5563] border border-[#E5E7EB] hover:bg-[#F8FAF8] hover:text-[#2E7D32]"
               }`}
             >
-              {status === "ALL" ? "All" : status === "ACTIVE" ? "Active" : "Inactive"}
+              {status === "ALL" ? "All Master Records" : status === "ACTIVE" ? "Active Records" : "Inactive Records"}
             </button>
           ))}
         </div>
       </div>
 
-      {error && (
-        <div className="flex items-center justify-between rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
-          <div className="flex items-center gap-2">
-            <AlertCircle className="h-4 w-4 shrink-0" />
-            <span>{error}</span>
-          </div>
-          <button type="button" onClick={loadMasterData} className="font-semibold underline">
-            Retry
-          </button>
-        </div>
-      )}
-
       {isLoading ? (
-        <div className="rounded-xl border border-slate-200 bg-white p-12 text-center text-sm text-slate-500">
-          <RefreshCw className="mx-auto mb-3 h-6 w-6 animate-spin text-emerald-600" />
-          Loading master data...
-        </div>
+        <DashboardSkeleton cards={3} />
+      ) : error ? (
+        <ErrorState
+          title="Unable to load master data"
+          message={error}
+          onRetry={handleRefresh}
+          isRetrying={isRefreshing}
+        />
       ) : (
         <>
           <CategorySection
@@ -686,14 +681,14 @@ export default function AdminCropsPage() {
           onClose={() => setDeleteTarget(null)}
         >
           <div className="space-y-4">
-            <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
+            <div className="rounded-xl border border-[#FCA5A5] bg-[#FEE2E2] p-4 text-sm text-[#DC2626]">
               Deactivate <span className="font-semibold">{deleteTarget.name}</span>?
             </div>
-            <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
-              <Button type="button" variant="outline" rounded="default" onClick={() => setDeleteTarget(null)}>
+            <div className="flex justify-end gap-2 border-t border-[#EEF0EE] pt-4">
+              <Button type="button" variant="outline" rounded="full" onClick={() => setDeleteTarget(null)} className="px-4 py-2 text-xs font-semibold">
                 Cancel
               </Button>
-              <Button type="button" variant="danger" rounded="default" isLoading={isSubmitting} onClick={confirmDelete}>
+              <Button type="button" variant="danger" rounded="full" isLoading={isSubmitting} onClick={confirmDelete} className="px-4 py-2 text-xs font-semibold">
                 Deactivate
               </Button>
             </div>
@@ -704,12 +699,30 @@ export default function AdminCropsPage() {
   );
 }
 
-function SummaryCard({ label, value, subValue }: { label: string; value: number; subValue: string }) {
+function SummaryCard({
+  label,
+  value,
+  subValue,
+  icon,
+}: {
+  label: string;
+  value: number;
+  subValue: string;
+  icon?: React.ReactNode;
+}) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
-      <p className="mt-1 text-2xl font-bold text-slate-950">{value}</p>
-      <p className="mt-1 text-xs text-slate-500">{subValue}</p>
+    <div className="rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:-translate-y-0.5">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-[#6B7280]">{label}</span>
+        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#E8F5E9] text-[#2E7D32]">
+          {icon || <Sprout className="h-4 w-4" />}
+        </span>
+      </div>
+      <p className="mt-3 text-3xl font-black text-[#1F2937] tracking-tight">{value}</p>
+      <p className="mt-1 text-xs text-[#2E7D32] font-medium flex items-center gap-1.5">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D32]" />
+        {subValue}
+      </p>
     </div>
   );
 }
@@ -730,17 +743,17 @@ function SectionShell({
   children: React.ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div className="flex flex-col gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+    <section className="overflow-hidden rounded-[24px] border border-[#E5E7EB] bg-white shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE]">
+      <div className="flex flex-col gap-3 border-b border-[#EEF0EE] bg-[#F8FAF8]/60 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-sm font-bold text-slate-900">{title}</h2>
-          <p className="mt-0.5 text-xs text-slate-500">{description}</p>
+          <h2 className="text-sm font-bold text-[#1F2937]">{title}</h2>
+          <p className="mt-0.5 text-xs text-[#6B7280]">{description}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-600">
+        <div className="flex items-center gap-2.5">
+          <span className="rounded-full border border-[#E5E7EB] bg-white px-3 py-1 text-xs font-semibold text-[#4B5563] shadow-2xs">
             {count} records
           </span>
-          <Button type="button" size="sm" rounded="default" onClick={onAction}>
+          <Button type="button" size="sm" rounded="full" onClick={onAction} className="bg-[#2E7D32] hover:bg-[#256B2A] text-white shadow-xs px-3.5 py-1.5 text-xs font-semibold">
             <Plus className="h-3.5 w-3.5" />
             {actionLabel}
           </Button>
@@ -770,36 +783,36 @@ function CategorySection({
       actionLabel="Add Category"
       onAction={onCreate}
     >
-      <table className="w-full text-left text-xs text-slate-600">
-        <thead className="border-b border-slate-200 bg-white text-[11px] font-bold uppercase tracking-wide text-slate-500">
+      <table className="w-full text-left text-xs text-[#4B5563]">
+        <thead className="border-b border-[#E5E7EB] bg-[#F8FAF8] text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF]">
           <tr>
-            <th className="px-4 py-3">Category</th>
-            <th className="px-4 py-3">Code</th>
-            <th className="px-4 py-3">Crops</th>
-            <th className="px-4 py-3">Status</th>
-            <th className="px-4 py-3 text-right">Actions</th>
+            <th className="px-5 py-3.5">Category</th>
+            <th className="px-5 py-3.5">Code</th>
+            <th className="px-5 py-3.5">Crops</th>
+            <th className="px-5 py-3.5">Status</th>
+            <th className="px-5 py-3.5 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">
+        <tbody className="divide-y divide-[#EEF0EE]">
           {categories.length === 0 ? (
             <tr>
-              <td colSpan={5} className="px-4 py-8 text-center text-slate-400">
+              <td colSpan={5} className="px-5 py-10 text-center text-[#9CA3AF] font-medium">
                 No crop categories found.
               </td>
             </tr>
           ) : (
             categories.map((category) => (
-              <tr key={category.id} className="hover:bg-slate-50/70">
-                <td className="px-4 py-3">
-                  <p className="font-semibold text-slate-900">{category.name}</p>
-                  <p className="mt-0.5 max-w-md truncate text-[11px] text-slate-500">{category.description || "No description"}</p>
+              <tr key={category.id} className="transition-colors hover:bg-[#F8FAF8]/70">
+                <td className="px-5 py-3.5">
+                  <p className="font-bold text-[#1F2937]">{category.name}</p>
+                  <p className="mt-0.5 max-w-md truncate text-[11px] text-[#6B7280] font-medium">{category.description || "No description"}</p>
                 </td>
-                <td className="px-4 py-3 font-mono text-[11px] text-slate-700">{category.code}</td>
-                <td className="px-4 py-3">{category.cropCount ?? "-"}</td>
-                <td className="px-4 py-3">
+                <td className="px-5 py-3.5 font-mono text-[11px] text-[#4B5563] font-semibold">{category.code}</td>
+                <td className="px-5 py-3.5 font-semibold text-[#1F2937]">{category.cropCount ?? "-"}</td>
+                <td className="px-5 py-3.5">
                   <RecordStatus active={category.active} />
                 </td>
-                <td className="px-4 py-3 text-right">
+                <td className="px-5 py-3.5 text-right">
                   <RowActions onEdit={() => onEdit(category)} onDelete={() => onDelete(category)} />
                 </td>
               </tr>
@@ -830,52 +843,52 @@ function CropSection({
       actionLabel="Add Crop"
       onAction={onCreate}
     >
-      <table className="w-full text-left text-xs text-slate-600">
-        <thead className="border-b border-slate-200 bg-white text-[11px] font-bold uppercase tracking-wide text-slate-500">
+      <table className="w-full text-left text-xs text-[#4B5563]">
+        <thead className="border-b border-[#E5E7EB] bg-[#F8FAF8] text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF]">
           <tr>
-            <th className="px-4 py-3">Image</th>
-            <th className="px-4 py-3">Crop</th>
-            <th className="px-4 py-3">Scientific Name</th>
-            <th className="px-4 py-3">Category</th>
-            <th className="px-4 py-3">Status</th>
-            <th className="px-4 py-3">Source</th>
-            <th className="px-4 py-3 text-right">Actions</th>
+            <th className="px-5 py-3.5">Image</th>
+            <th className="px-5 py-3.5">Crop</th>
+            <th className="px-5 py-3.5">Scientific Name</th>
+            <th className="px-5 py-3.5">Category</th>
+            <th className="px-5 py-3.5">Status</th>
+            <th className="px-5 py-3.5">Source</th>
+            <th className="px-5 py-3.5 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">
+        <tbody className="divide-y divide-[#EEF0EE]">
           {crops.length === 0 ? (
             <tr>
-              <td colSpan={7} className="px-4 py-8 text-center text-slate-400">
+              <td colSpan={7} className="px-5 py-10 text-center text-[#9CA3AF] font-medium">
                 No crop records found.
               </td>
             </tr>
           ) : (
             crops.map((crop) => (
-              <tr key={crop.id} className="hover:bg-slate-50/70">
-                <td className="px-4 py-3">
-                  <div className="relative h-10 w-10 overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
+              <tr key={crop.id} className="transition-colors hover:bg-[#F8FAF8]/70">
+                <td className="px-5 py-3.5">
+                  <div className="relative h-10 w-10 overflow-hidden rounded-[14px] border border-[#E5E7EB] bg-[#F1F5F2]">
                     {crop.imageUrl ? (
                       <Image src={crop.imageUrl} alt={crop.name} fill sizes="40px" className="object-contain p-1" unoptimized />
                     ) : (
-                      <Sprout className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 text-slate-300" />
+                      <Sprout className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 text-[#9CA3AF]" />
                     )}
                   </div>
                 </td>
-                <td className="px-4 py-3">
-                  <p className="font-semibold text-slate-900">{crop.name}</p>
-                  {crop.nepaliName && <p className="mt-0.5 text-[11px] text-slate-500">{crop.nepaliName}</p>}
+                <td className="px-5 py-3.5">
+                  <p className="font-bold text-[#1F2937]">{crop.name}</p>
+                  {crop.nepaliName && <p className="mt-0.5 text-[11px] text-[#6B7280] font-medium">{crop.nepaliName}</p>}
                 </td>
-                <td className="px-4 py-3 italic text-slate-500">{crop.scientificName || "-"}</td>
-                <td className="px-4 py-3">{crop.categoryName || "-"}</td>
-                <td className="px-4 py-3">
+                <td className="px-5 py-3.5 italic text-[#6B7280] font-medium">{crop.scientificName || "-"}</td>
+                <td className="px-5 py-3.5 font-medium">{crop.categoryName || "-"}</td>
+                <td className="px-5 py-3.5">
                   <RecordStatus active={crop.active} />
                 </td>
-                <td className="px-4 py-3">
-                  <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
+                <td className="px-5 py-3.5">
+                  <span className="rounded-full border border-[#E5E7EB] bg-[#F1F5F2] px-2.5 py-0.5 text-[10px] font-semibold text-[#4B5563]">
                     {crop.defaultCrop ? "System" : "Admin"}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-right">
+                <td className="px-5 py-3.5 text-right">
                   <RowActions onEdit={() => onEdit(crop)} onDelete={() => onDelete(crop)} />
                 </td>
               </tr>
@@ -906,38 +919,38 @@ function LocationSection({
       actionLabel="Add Location"
       onAction={() => onCreate(undefined, "PROVINCE")}
     >
-      <table className="w-full text-left text-xs text-slate-600">
-        <thead className="border-b border-slate-200 bg-white text-[11px] font-bold uppercase tracking-wide text-slate-500">
+      <table className="w-full text-left text-xs text-[#4B5563]">
+        <thead className="border-b border-[#E5E7EB] bg-[#F8FAF8] text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF]">
           <tr>
-            <th className="px-4 py-3">Location</th>
-            <th className="px-4 py-3">Type</th>
-            <th className="px-4 py-3">Parent</th>
-            <th className="px-4 py-3">Code</th>
-            <th className="px-4 py-3">Status</th>
-            <th className="px-4 py-3 text-right">Actions</th>
+            <th className="px-5 py-3.5">Location</th>
+            <th className="px-5 py-3.5">Type</th>
+            <th className="px-5 py-3.5">Parent</th>
+            <th className="px-5 py-3.5">Code</th>
+            <th className="px-5 py-3.5">Status</th>
+            <th className="px-5 py-3.5 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">
+        <tbody className="divide-y divide-[#EEF0EE]">
           {locations.length === 0 ? (
             <tr>
-              <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
+              <td colSpan={6} className="px-5 py-10 text-center text-[#9CA3AF] font-medium">
                 No location records found.
               </td>
             </tr>
           ) : (
             locations.map((location) => (
-              <tr key={location.id} className="hover:bg-slate-50/70">
-                <td className="px-4 py-3">
-                  <p className="font-semibold text-slate-900">{location.name}</p>
-                  {location.nepaliName && <p className="mt-0.5 text-[11px] text-slate-500">{location.nepaliName}</p>}
+              <tr key={location.id} className="transition-colors hover:bg-[#F8FAF8]/70">
+                <td className="px-5 py-3.5">
+                  <p className="font-bold text-[#1F2937]">{location.name}</p>
+                  {location.nepaliName && <p className="mt-0.5 text-[11px] text-[#6B7280] font-medium">{location.nepaliName}</p>}
                 </td>
-                <td className="px-4 py-3">{typeLabel(location.municipalityType || location.type)}</td>
-                <td className="px-4 py-3">{location.parentName || "-"}</td>
-                <td className="px-4 py-3 font-mono text-[11px]">{location.code || "-"}</td>
-                <td className="px-4 py-3">
+                <td className="px-5 py-3.5 font-medium">{typeLabel(location.municipalityType || location.type)}</td>
+                <td className="px-5 py-3.5 font-medium">{location.parentName || "-"}</td>
+                <td className="px-5 py-3.5 font-mono text-[11px] font-semibold">{location.code || "-"}</td>
+                <td className="px-5 py-3.5">
                   <RecordStatus active={location.active} />
                 </td>
-                <td className="px-4 py-3 text-right">
+                <td className="px-5 py-3.5 text-right">
                   <RowActions onEdit={() => onEdit(location)} onDelete={() => onDelete(location)} />
                 </td>
               </tr>
@@ -951,8 +964,8 @@ function LocationSection({
 
 function RecordStatus({ active }: { active: boolean }) {
   return (
-    <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[10px] font-semibold ${statusBadge(active)}`}>
-      <CheckCircle2 className="h-3 w-3" />
+    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${statusBadge(active)}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${active ? "bg-[#2E7D32]" : "bg-[#9CA3AF]"}`} />
       {active ? "Active" : "Inactive"}
     </span>
   );
@@ -964,7 +977,7 @@ function RowActions({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => 
       <button
         type="button"
         onClick={onEdit}
-        className="rounded-lg border border-slate-200 p-1.5 text-slate-600 transition-colors hover:bg-slate-50 hover:text-emerald-700"
+        className="rounded-full border border-[#E5E7EB] p-2 text-[#6B7280] transition-colors hover:bg-[#F1F5F2] hover:text-[#2E7D32] shadow-2xs cursor-pointer"
         title="Edit record"
       >
         <Edit2 className="h-3.5 w-3.5" />
@@ -972,7 +985,7 @@ function RowActions({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => 
       <button
         type="button"
         onClick={onDelete}
-        className="rounded-lg border border-slate-200 p-1.5 text-slate-600 transition-colors hover:bg-rose-50 hover:text-rose-600"
+        className="rounded-full border border-[#E5E7EB] p-2 text-[#6B7280] transition-colors hover:bg-[#FEE2E2] hover:text-[#DC2626] shadow-2xs cursor-pointer"
         title="Deactivate record"
       >
         <Trash2 className="h-3.5 w-3.5" />
@@ -993,14 +1006,14 @@ function MasterModal({
   children: React.ReactNode;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true">
-      <div className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
-        <div className="mb-4 flex items-start justify-between gap-3 border-b border-slate-100 pb-3">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1F2937]/50 backdrop-blur-xs p-4" role="dialog" aria-modal="true">
+      <div className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-[28px] border border-[#E5E7EB] bg-white p-6 shadow-2xl">
+        <div className="mb-4 flex items-start justify-between gap-3 border-b border-[#EEF0EE] pb-3.5">
           <div>
-            <h3 className="text-base font-bold text-slate-900">{title}</h3>
-            <p className="mt-0.5 text-xs text-slate-500">{description}</p>
+            <h3 className="text-base font-bold text-[#1F2937]">{title}</h3>
+            <p className="mt-0.5 text-xs text-[#6B7280] font-medium">{description}</p>
           </div>
-          <button type="button" onClick={onClose} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
+          <button type="button" onClick={onClose} className="rounded-full p-1.5 text-[#9CA3AF] hover:bg-[#F1F5F2] hover:text-[#1F2937] cursor-pointer">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -1013,12 +1026,12 @@ function MasterModal({
 function Textarea({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
   return (
     <div>
-      <label className="mb-1.5 block text-xs font-semibold text-slate-700">{label}</label>
+      <label className="mb-1.5 block text-xs font-semibold text-[#1F2937]">{label}</label>
       <textarea
         rows={3}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-xl border border-slate-200 p-3 text-sm text-slate-800 outline-none transition-colors focus:border-emerald-600"
+        className="w-full rounded-xl border border-[#D1D5DB] p-3 text-sm text-[#1F2937] outline-none transition-colors focus:border-[#2E7D32] focus:ring-3 focus:ring-[#E8F5E9]"
       />
     </div>
   );
@@ -1039,12 +1052,12 @@ function Select({
 }) {
   return (
     <div>
-      <label className="mb-1.5 block text-xs font-semibold text-slate-700">{label}</label>
+      <label className="mb-1.5 block text-xs font-semibold text-[#1F2937]">{label}</label>
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
         disabled={disabled}
-        className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none transition-colors focus:border-emerald-600 disabled:bg-slate-100 disabled:text-slate-500"
+        className="h-10 w-full rounded-xl border border-[#D1D5DB] bg-white px-3 text-sm text-[#1F2937] outline-none transition-colors focus:border-[#2E7D32] focus:ring-3 focus:ring-[#E8F5E9] disabled:bg-[#F3F4F6] disabled:text-[#9CA3AF]"
       >
         {children}
       </select>
@@ -1054,12 +1067,12 @@ function Select({
 
 function ActiveToggle({ checked, onChange }: { checked: boolean; onChange: (checked: boolean) => void }) {
   return (
-    <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700">
+    <label className="flex items-center gap-2 rounded-xl border border-[#E5E7EB] bg-[#F8FAF8] px-3 py-2 text-xs font-semibold text-[#4B5563]">
       <input
         type="checkbox"
         checked={checked}
         onChange={(event) => onChange(event.target.checked)}
-        className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+        className="rounded border-[#D1D5DB] text-[#2E7D32] focus:ring-[#E8F5E9]"
       />
       Active in platform selections
     </label>
@@ -1076,11 +1089,11 @@ function ModalActions({
   submitLabel: string;
 }) {
   return (
-    <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
-      <Button type="button" variant="outline" rounded="default" onClick={onCancel}>
+    <div className="flex justify-end gap-2.5 border-t border-[#EEF0EE] pt-4">
+      <Button type="button" variant="outline" rounded="full" onClick={onCancel} className="px-5 py-2 text-xs font-semibold">
         Cancel
       </Button>
-      <Button type="submit" rounded="default" isLoading={isSubmitting} loadingText="Saving...">
+      <Button type="submit" rounded="full" isLoading={isSubmitting} loadingText="Saving..." className="bg-[#2E7D32] hover:bg-[#256B2A] text-white shadow-xs px-5 py-2 text-xs font-semibold">
         {submitLabel}
       </Button>
     </div>

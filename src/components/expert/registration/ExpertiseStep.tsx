@@ -102,75 +102,106 @@ export function ExpertiseStep() {
 
   useEffect(() => {
     let alive = true;
-    setIsLoadingCrops(true);
-    masterDataService.getCrops({ size: 200 })
-      .then((page) => {
-        if (!alive) return;
-        setCropCatalog(page.content ?? []);
-        setCropLoadError(null);
-      })
-      .catch(() => {
-        if (!alive) return;
-        setCropCatalog([]);
-        setCropLoadError("Unable to load crops from the server.");
-      })
-      .finally(() => {
-        if (alive) setIsLoadingCrops(false);
-      });
+    const timer = window.setTimeout(() => {
+      setIsLoadingCrops(true);
+      masterDataService.getCrops({ size: 200 })
+        .then((page) => {
+          if (!alive) return;
+          setCropCatalog(page.content ?? []);
+          setCropLoadError(null);
+        })
+        .catch(() => {
+          if (!alive) return;
+          setCropCatalog([]);
+          setCropLoadError("Unable to load crops from the server.");
+        })
+        .finally(() => {
+          if (alive) setIsLoadingCrops(false);
+        });
 
-    setIsLoadingProvinces(true);
-    masterDataService.getProvinces()
-      .then((data) => {
-        if (!alive) return;
-        setProvinces(data);
-        setLocationLoadError(null);
-      })
-      .catch(() => {
-        if (!alive) return;
-        setProvinces([]);
-        setLocationLoadError("Unable to load locations from the server.");
-      })
-      .finally(() => {
-        if (alive) setIsLoadingProvinces(false);
-      });
+      setIsLoadingProvinces(true);
+      masterDataService.getProvinces()
+        .then((data) => {
+          if (!alive) return;
+          setProvinces(data);
+          setLocationLoadError(null);
+        })
+        .catch(() => {
+          if (!alive) return;
+          setProvinces([]);
+          setLocationLoadError("Unable to load locations from the server.");
+        })
+        .finally(() => {
+          if (alive) setIsLoadingProvinces(false);
+        });
+    }, 0);
 
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+      window.clearTimeout(timer);
+    };
   }, []);
 
   useEffect(() => {
-    if (!selectedProvinceId) {
-      setDistricts([]);
-      setSelectedDistrictId("");
-      return;
-    }
-    setIsLoadingDistricts(true);
-    setSelectedDistrictId("");
-    setSelectedMunicipalityId("");
-    setMunicipalities([]);
-    masterDataService.getDistricts(Number(selectedProvinceId))
-      .then(setDistricts)
-      .catch(() => {
+    let alive = true;
+    const timer = window.setTimeout(() => {
+      if (!selectedProvinceId) {
         setDistricts([]);
-        setLocationLoadError("Unable to load districts for the selected province.");
-      })
-      .finally(() => setIsLoadingDistricts(false));
+        setSelectedDistrictId("");
+        return;
+      }
+      setIsLoadingDistricts(true);
+      setSelectedDistrictId("");
+      setSelectedMunicipalityId("");
+      setMunicipalities([]);
+      masterDataService.getDistricts(Number(selectedProvinceId))
+        .then((data) => {
+          if (alive) setDistricts(data);
+        })
+        .catch(() => {
+          if (!alive) return;
+          setDistricts([]);
+          setLocationLoadError("Unable to load districts for the selected province.");
+        })
+        .finally(() => {
+          if (alive) setIsLoadingDistricts(false);
+        });
+    }, 0);
+
+    return () => {
+      alive = false;
+      window.clearTimeout(timer);
+    };
   }, [selectedProvinceId]);
 
   useEffect(() => {
-    if (!selectedDistrictId) {
-      setMunicipalities([]);
-      setSelectedMunicipalityId("");
-      return;
-    }
-    setIsLoadingMunicipalities(true);
-    setSelectedMunicipalityId("");
-    masterDataService.getMunicipalities(Number(selectedDistrictId))
-      .then(setMunicipalities)
-      .catch(() => {
+    let alive = true;
+    const timer = window.setTimeout(() => {
+      if (!selectedDistrictId) {
         setMunicipalities([]);
-        setLocationLoadError("Unable to load municipalities for the selected district.");
-      })
-      .finally(() => setIsLoadingMunicipalities(false));
+        setSelectedMunicipalityId("");
+        return;
+      }
+      setIsLoadingMunicipalities(true);
+      setSelectedMunicipalityId("");
+      masterDataService.getMunicipalities(Number(selectedDistrictId))
+        .then((data) => {
+          if (alive) setMunicipalities(data);
+        })
+        .catch(() => {
+          if (!alive) return;
+          setMunicipalities([]);
+          setLocationLoadError("Unable to load municipalities for the selected district.");
+        })
+        .finally(() => {
+          if (alive) setIsLoadingMunicipalities(false);
+        });
+    }, 0);
+
+    return () => {
+      alive = false;
+      window.clearTimeout(timer);
+    };
   }, [selectedDistrictId]);
 
   const cropNameById = useMemo(() => new Map(cropCatalog.map((crop) => [String(crop.id), crop.name])), [cropCatalog]);
@@ -271,38 +302,38 @@ export function ExpertiseStep() {
   ];
 
   return (
-    <div className="bg-white rounded-2xl p-5 sm:p-7 border border-[#E2E8E3] shadow-xs space-y-7 animate-in fade-in duration-200">
+    <div className="bg-white rounded-2xl p-5 sm:p-7 border border-[#E5E7EB] shadow-xs space-y-7 animate-in fade-in duration-200">
       {/* Step Header */}
-      <div className="space-y-2 border-b border-[#E2E8E3] pb-5">
-        <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#F0FDF4] border border-emerald-200/80 text-[#166534] text-[11px] font-bold">
-          <Sprout className="w-3.5 h-3.5 text-[#166534]" />
+      <div className="space-y-2 border-b border-[#E5E7EB] pb-5">
+        <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#E8F5E9] border border-[#A5D6A7]/80 text-[#1B5E20] text-[11px] font-bold">
+          <Sprout className="w-3.5 h-3.5 text-[#1B5E20]" />
           <span>Step 3 • Specialization & Domains</span>
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <h1 className="text-xl sm:text-2xl font-black text-[#17201A] tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-black text-[#1F2937] tracking-tight">
             Your Expertise
           </h1>
-          <div className="inline-flex items-center gap-1.5 bg-[#F0FDF4] text-[#166534] font-bold text-xs px-3 py-1 rounded-full border border-emerald-200 self-start sm:self-auto">
-            <Sparkles className="w-3.5 h-3.5 text-[#65A30D]" />
+          <div className="inline-flex items-center gap-1.5 bg-[#E8F5E9] text-[#1B5E20] font-bold text-xs px-3 py-1 rounded-full border border-[#A5D6A7] self-start sm:self-auto">
+            <Sparkles className="w-3.5 h-3.5 text-[#2E7D32]" />
             <span>
               {primaryCrops.length}/3 primary • {secondaryCrops.length} secondary • {expertiseAreas.length} areas
             </span>
           </div>
         </div>
-        <p className="text-xs sm:text-sm text-[#647067] leading-relaxed">
+        <p className="text-xs sm:text-sm text-[#6B7280] leading-relaxed">
           Tell farmers what crops and agricultural areas you specialize in. You can add more expertise later from your dashboard.
         </p>
       </div>
 
       {/* Informational Card: How verification works */}
-      <div className="rounded-2xl border border-emerald-100 bg-gradient-to-r from-[#F0FDF4] to-emerald-50/50 p-4 sm:p-5">
+      <div className="rounded-2xl border border-[#C8E6C9] bg-gradient-to-r from-[#E8F5E9] to-[#E8F5E9]/50 p-4 sm:p-5">
         <div className="flex items-start gap-3">
-          <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+          <div className="w-8 h-8 rounded-xl bg-[#2E7D32] text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
             <ShieldCheck className="w-4 h-4" />
           </div>
           <div className="space-y-2">
-            <h3 className="text-xs sm:text-sm font-bold text-[#166534]">How verification works</h3>
-            <ol className="text-[11px] sm:text-xs text-[#2A4333] space-y-1 list-decimal list-inside leading-relaxed">
+            <h3 className="text-xs sm:text-sm font-bold text-[#1B5E20]">How verification works</h3>
+            <ol className="text-[11px] sm:text-xs text-[#1F2937] space-y-1 list-decimal list-inside leading-relaxed">
               <li><strong>Professional Verification:</strong> We verify your professional credentials, degrees, and identity documents.</li>
               <li><strong>Expertise Claims:</strong> You can add multiple crops and agricultural domains anytime.</li>
               <li><strong>Initial Status:</strong> Your expertise starts as self-declared unless supporting evidence is reviewed.</li>
@@ -319,55 +350,55 @@ export function ExpertiseStep() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-sm sm:text-base font-bold text-[#17201A]">
-                  Primary Crops <span className="text-rose-500">*</span>
+                <h2 className="text-sm sm:text-base font-bold text-[#1F2937]">
+                  Primary Crops <span className="text-[#DC2626]">*</span>
                 </h2>
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-[#166534] text-[11px] font-bold">
+                <span className="px-2.5 py-0.5 rounded-full bg-[#E8F5E9] border border-[#A5D6A7] text-[#1B5E20] text-[11px] font-bold">
                   {primaryCrops.length} of 3 primary crops selected
                 </span>
               </div>
-              <p className="text-xs text-[#647067] mt-0.5">
+              <p className="text-xs text-[#6B7280] mt-0.5">
                 Select up to 3 core crops where you have deep advisory focus and primary experience.
               </p>
             </div>
           </div>
 
           {primaryLimitWarning && (
-            <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-center gap-2 animate-in fade-in">
-              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+            <div className="p-3 bg-[#FEF3C7] border border-[#FCD34D] rounded-xl text-xs text-[#F59E0B] flex items-center gap-2 animate-in fade-in">
+              <AlertCircle className="w-4 h-4 text-[#F59E0B] shrink-0" />
               <span>You can select a maximum of 3 primary crops. Click another primary crop to deselect it first.</span>
             </div>
           )}
 
           <div className="relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#9CA3AF] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="search"
               value={cropQuery}
               onChange={(event) => setCropQuery(event.target.value)}
               placeholder="Search crops by name, Nepali name, or category"
               aria-label="Search crops"
-              className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-xs text-slate-800 outline-none transition-colors focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10"
+              className="w-full rounded-lg border border-[#E5E7EB] bg-white py-2 pl-9 pr-3 text-xs text-[#1F2937] outline-none transition-colors focus:border-[#2E7D32] focus:ring-2 focus:ring-[#2E7D32]/10"
             />
           </div>
 
           {isLoadingCrops ? (
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-6 text-center text-xs text-slate-500">
+            <div className="rounded-xl border border-[#E5E7EB] bg-[#F8FAF8] p-6 text-center text-xs text-[#6B7280]">
               Loading crops from catalog...
             </div>
           ) : cropLoadError ? (
-            <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs text-rose-800">
+            <div className="rounded-xl border border-[#FCA5A5] bg-[#FEE2E2] p-4 text-xs text-[#DC2626]">
               {cropLoadError}
             </div>
           ) : Object.keys(cropsByCategory).length === 0 ? (
-            <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-xs text-slate-500">
+            <div className="rounded-xl border border-dashed border-[#E5E7EB] bg-[#F8FAF8] p-6 text-center text-xs text-[#6B7280]">
               No active crops match your search.
             </div>
           ) : (
             <div className="space-y-5">
               {Object.entries(cropsByCategory).map(([category, categoryCrops]) => (
                 <div key={category} className="space-y-2">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">{category}</h3>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">{category}</h3>
                   <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
                     {categoryCrops.map((crop) => {
                       const cropId = String(crop.id);
@@ -380,26 +411,26 @@ export function ExpertiseStep() {
                           onClick={() => handlePrimaryCropClick(cropId)}
                           className={`flex min-h-[88px] items-center gap-3 rounded-xl border p-3 text-left transition-colors ${
                             isSelected
-                              ? "border-emerald-700 bg-emerald-50"
+                              ? "border-[#C8E6C9] bg-[#E8F5E9]"
                               : isSecondary
-                              ? "border-emerald-200 bg-white opacity-70 hover:opacity-100"
-                              : "border-slate-200 bg-white hover:border-emerald-300"
+                              ? "border-[#A5D6A7] bg-white opacity-70 hover:opacity-100"
+                              : "border-[#E5E7EB] bg-white hover:border-[#A5D6A7]"
                           }`}
                         >
-                          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
+                          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-[#E5E7EB] bg-[#F8FAF8]">
                             {crop.imageUrl ? (
                               <Image src={crop.imageUrl} alt={crop.name} fill sizes="48px" className="object-contain p-1.5" unoptimized />
                             ) : (
-                              <Sprout className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 text-slate-300" />
+                              <Sprout className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 text-[#9CA3AF]" />
                             )}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <p className={`truncate text-xs font-bold ${isSelected ? "text-emerald-800" : "text-slate-900"}`}>{crop.name}</p>
-                            {crop.nepaliName && <p className="truncate text-[11px] text-slate-500">{crop.nepaliName}</p>}
-                            <p className="mt-0.5 truncate text-[10px] font-medium text-slate-400">{crop.categoryName}</p>
+                            <p className={`truncate text-xs font-bold ${isSelected ? "text-[#1B5E20]" : "text-[#1F2937]"}`}>{crop.name}</p>
+                            {crop.nepaliName && <p className="truncate text-[11px] text-[#6B7280]">{crop.nepaliName}</p>}
+                            <p className="mt-0.5 truncate text-[10px] font-medium text-[#9CA3AF]">{crop.categoryName}</p>
                           </div>
                           {isSelected && (
-                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-emerald-700 text-white">
+                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-[#2E7D32] text-white">
                               <Check className="w-3 h-3 stroke-[3]" />
                             </span>
                           )}
@@ -412,19 +443,19 @@ export function ExpertiseStep() {
             </div>
           )}
           {attemptedSubmit && !hasPrimaryCrops && (
-            <p className="text-xs text-rose-600 flex items-center gap-1 font-medium">
+            <p className="text-xs text-[#DC2626] flex items-center gap-1 font-medium">
               <AlertCircle className="w-3.5 h-3.5" /> Please select at least one primary crop.
             </p>
           )}
         </div>
 
         {/* SECTION 2 — SECONDARY CROPS */}
-        <div className="space-y-3 pt-4 border-t border-[#E2E8E3]">
+        <div className="space-y-3 pt-4 border-t border-[#E5E7EB]">
           <div>
-            <h2 className="text-sm sm:text-base font-bold text-[#17201A]">
+            <h2 className="text-sm sm:text-base font-bold text-[#1F2937]">
               Secondary Crops (Supporting Knowledge)
             </h2>
-            <p className="text-xs text-[#647067] mt-0.5">
+            <p className="text-xs text-[#6B7280] mt-0.5">
               Select crops you have working knowledge in. You can advise on these as self-declared or submit evidence anytime.
             </p>
           </div>
@@ -443,12 +474,12 @@ export function ExpertiseStep() {
                   onClick={() => toggleSecondaryCrop(cropId)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors flex items-center gap-1.5 ${
                     isSecondary
-                      ? "bg-emerald-50 border-emerald-300 text-[#166534] font-bold"
-                      : "bg-white border-[#E2E8E3] text-[#425046] hover:border-emerald-300 hover:bg-[#FAFDFB]"
+                      ? "bg-[#E8F5E9] border-[#A5D6A7] text-[#1B5E20] font-bold"
+                      : "bg-white border-[#E5E7EB] text-[#4B5563] hover:border-[#A5D6A7] hover:bg-[#FCFEFC]"
                   }`}
                 >
                   <span>{crop.name}</span>
-                  {isSecondary && <Check className="w-3 h-3 text-[#166534]" />}
+                  {isSecondary && <Check className="w-3 h-3 text-[#1B5E20]" />}
                 </button>
               );
             })}
@@ -456,12 +487,12 @@ export function ExpertiseStep() {
         </div>
 
         {/* SECTION 3 — EXPERTISE AREAS */}
-        <div className="space-y-3 pt-4 border-t border-[#E2E8E3]">
+        <div className="space-y-3 pt-4 border-t border-[#E5E7EB]">
           <div>
-            <h2 className="text-sm sm:text-base font-bold text-[#17201A]">
+            <h2 className="text-sm sm:text-base font-bold text-[#1F2937]">
               Agricultural Expertise Areas
             </h2>
-            <p className="text-xs text-[#647067] mt-0.5">
+            <p className="text-xs text-[#6B7280] mt-0.5">
               Select broader agricultural disciplines where you provide advisory support.
             </p>
           </div>
@@ -476,20 +507,20 @@ export function ExpertiseStep() {
                   onClick={() => toggleExpertiseArea(area.id)}
                   className={`p-3 rounded-xl border text-left transition-all flex items-start justify-between gap-2 ${
                     isSelected
-                      ? "border-[#166534] bg-[#F0FDF4] shadow-xs"
-                      : "border-[#E2E8E3] bg-white hover:border-emerald-300 hover:bg-[#FAFDFB]"
+                      ? "border-[#1B5E20] bg-[#E8F5E9] shadow-xs"
+                      : "border-[#E5E7EB] bg-white hover:border-[#A5D6A7] hover:bg-[#FCFEFC]"
                   }`}
                 >
                   <div>
-                    <p className={`text-xs font-bold ${isSelected ? "text-[#166534]" : "text-[#17201A]"}`}>
+                    <p className={`text-xs font-bold ${isSelected ? "text-[#1B5E20]" : "text-[#1F2937]"}`}>
                       {area.name}
                     </p>
-                    <p className="text-[11px] text-[#647067] leading-relaxed mt-0.5">
+                    <p className="text-[11px] text-[#6B7280] leading-relaxed mt-0.5">
                       {area.description}
                     </p>
                   </div>
                   <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
-                    isSelected ? "bg-[#166534] text-white" : "border border-gray-300 bg-white"
+                    isSelected ? "bg-[#1B5E20] text-white" : "border border-[#D1D5DB] bg-white"
                   }`}>
                     {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
                   </div>
@@ -501,13 +532,13 @@ export function ExpertiseStep() {
 
         {/* SECTION 4 — EXPERTISE DETAILS (Optional) */}
         {allSelectedClaims.length > 0 && (
-          <div className="space-y-3 pt-4 border-t border-[#E2E8E3]">
+          <div className="space-y-3 pt-4 border-t border-[#E5E7EB]">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-sm sm:text-base font-bold text-[#17201A]">
+                <h2 className="text-sm sm:text-base font-bold text-[#1F2937]">
                   Expertise Details (Optional)
                 </h2>
-                <p className="text-xs text-[#647067] mt-0.5">
+                <p className="text-xs text-[#6B7280] mt-0.5">
                   Provide experience level, years in practice, or notes for your claimed expertise.
                 </p>
               </div>
@@ -519,38 +550,38 @@ export function ExpertiseStep() {
                 const detail = claimDetails[claim.key] || {};
 
                 return (
-                  <div key={`detail-${claim.key}`} className="border border-[#E2E8E3] rounded-xl overflow-hidden bg-white">
+                  <div key={`detail-${claim.key}`} className="border border-[#E5E7EB] rounded-xl overflow-hidden bg-white">
                     <button
                       type="button"
                       onClick={() => setExpandedClaim(isExpanded ? null : claim.key)}
-                      className="w-full px-4 py-2.5 flex items-center justify-between text-left hover:bg-slate-50 transition-colors"
+                      className="w-full px-4 py-2.5 flex items-center justify-between text-left hover:bg-[#F8FAF8] transition-colors"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-slate-800">{claim.name}</span>
-                        <span className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+                        <span className="text-xs font-bold text-[#1F2937]">{claim.name}</span>
+                        <span className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded bg-[#F1F5F2] text-[#4B5563]">
                           {claim.type}
                         </span>
                         {detail.level && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#E8F5E9] text-[#2E7D32] border border-[#A5D6A7]">
                             {detail.level}
                           </span>
                         )}
                         {detail.yearsOfExperience !== undefined && (
-                          <span className="text-[10px] text-slate-500 font-medium">
+                          <span className="text-[10px] text-[#6B7280] font-medium">
                             {detail.yearsOfExperience} yrs exp
                           </span>
                         )}
                       </div>
-                      <div className="text-slate-400">
+                      <div className="text-[#9CA3AF]">
                         {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                       </div>
                     </button>
 
                     {isExpanded && (
-                      <div className="p-4 border-t border-slate-100 bg-slate-50/50 space-y-3 animate-in fade-in">
+                      <div className="p-4 border-t border-[#EEF0EE] bg-[#F8FAF8] space-y-3 animate-in fade-in">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
-                            <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                            <label className="block text-[11px] font-bold text-[#4B5563] mb-1">
                               Expertise Level
                             </label>
                             <select
@@ -559,7 +590,7 @@ export function ExpertiseStep() {
                                 level: e.target.value as ExpertiseLevel,
                                 name: claim.name,
                               })}
-                              className="w-full text-xs rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                              className="w-full text-xs rounded-lg border border-[#E5E7EB] bg-white px-2.5 py-1.5 font-medium text-[#1F2937] focus:outline-none focus:ring-1 focus:ring-[#2E7D32]"
                             >
                               {EXPERTISE_LEVEL_OPTIONS.map((opt) => (
                                 <option key={opt.value} value={opt.value}>
@@ -570,7 +601,7 @@ export function ExpertiseStep() {
                           </div>
 
                           <div>
-                            <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                            <label className="block text-[11px] font-bold text-[#4B5563] mb-1">
                               Years of Experience in this domain
                             </label>
                             <input
@@ -583,13 +614,13 @@ export function ExpertiseStep() {
                                 yearsOfExperience: e.target.value ? parseInt(e.target.value, 10) : undefined,
                                 name: claim.name,
                               })}
-                              className="w-full text-xs rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                              className="w-full text-xs rounded-lg border border-[#E5E7EB] bg-white px-2.5 py-1.5 font-medium text-[#1F2937] focus:outline-none focus:ring-1 focus:ring-[#2E7D32]"
                             />
                           </div>
                         </div>
 
                         <div>
-                          <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                          <label className="block text-[11px] font-bold text-[#4B5563] mb-1">
                             Short Description / Practice Note
                           </label>
                           <textarea
@@ -601,7 +632,7 @@ export function ExpertiseStep() {
                               description: e.target.value,
                               name: claim.name,
                             })}
-                            className="w-full text-xs rounded-lg border border-slate-200 bg-white p-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500 leading-relaxed"
+                            className="w-full text-xs rounded-lg border border-[#E5E7EB] bg-white p-2 text-[#1F2937] focus:outline-none focus:ring-1 focus:ring-[#2E7D32] leading-relaxed"
                           />
                         </div>
                       </div>
@@ -614,31 +645,31 @@ export function ExpertiseStep() {
         )}
 
         {/* SECTION 5 — OPTIONAL SUPPORTING EVIDENCE */}
-        <div className="space-y-3 pt-4 border-t border-[#E2E8E3]">
+        <div className="space-y-3 pt-4 border-t border-[#E5E7EB]">
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-sm sm:text-base font-bold text-[#17201A]">
+              <h2 className="text-sm sm:text-base font-bold text-[#1F2937]">
                 Supporting Evidence (Optional)
               </h2>
-              <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold">
+              <span className="px-2 py-0.5 rounded-full bg-[#F1F5F2] text-[#4B5563] text-[10px] font-bold">
                 Optional
               </span>
             </div>
-            <p className="text-xs text-[#647067] mt-0.5 leading-relaxed">
+            <p className="text-xs text-[#6B7280] mt-0.5 leading-relaxed">
               You may provide evidence supporting your expertise. You do not need to upload a separate document for every crop.
             </p>
           </div>
 
-          <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 space-y-4">
+          <div className="p-4 rounded-xl border border-[#E5E7EB] bg-[#F8FAF8] space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                <label className="block text-[11px] font-bold text-[#4B5563] mb-1">
                   Evidence Document Type
                 </label>
                 <select
                   value={evidenceType}
                   onChange={(e) => setEvidenceType(e.target.value as ExpertiseSourceType)}
-                  className="w-full text-xs rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="w-full text-xs rounded-lg border border-[#E5E7EB] bg-white px-2.5 py-1.5 font-medium text-[#1F2937] focus:outline-none focus:ring-1 focus:ring-[#2E7D32]"
                 >
                   {EVIDENCE_TYPE_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
@@ -649,7 +680,7 @@ export function ExpertiseStep() {
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                <label className="block text-[11px] font-bold text-[#4B5563] mb-1">
                   Certificate / Document Title
                 </label>
                 <input
@@ -657,17 +688,17 @@ export function ExpertiseStep() {
                   placeholder="e.g. Advanced Vegetable Production Certificate"
                   value={evidenceTitle}
                   onChange={(e) => setEvidenceTitle(e.target.value)}
-                  className="w-full text-xs rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="w-full text-xs rounded-lg border border-[#E5E7EB] bg-white px-2.5 py-1.5 font-medium text-[#1F2937] focus:outline-none focus:ring-1 focus:ring-[#2E7D32]"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 mb-1">
+              <label className="block text-[11px] font-bold text-[#4B5563] mb-1">
                 Upload Certificate / Letter (PDF or Image, max 15MB)
               </label>
               <div className="flex items-center gap-3">
-                <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-300 bg-white text-emerald-700 hover:bg-emerald-50 text-xs font-bold transition-all shadow-xs">
+                <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#A5D6A7] bg-white text-[#2E7D32] hover:bg-[#E8F5E9] text-xs font-bold transition-all shadow-xs">
                   <Upload className="w-3.5 h-3.5" />
                   <span>{isUploadingEvidence ? "Reading file..." : "Choose Document"}</span>
                   <input
@@ -678,12 +709,12 @@ export function ExpertiseStep() {
                   />
                 </label>
                 {evidenceFileName ? (
-                  <span className="text-xs text-slate-600 flex items-center gap-1">
-                    <FileText className="w-3.5 h-3.5 text-emerald-600" />
+                  <span className="text-xs text-[#4B5563] flex items-center gap-1">
+                    <FileText className="w-3.5 h-3.5 text-[#2E7D32]" />
                     <strong>{evidenceFileName}</strong>
                   </span>
                 ) : (
-                  <span className="text-[11px] text-slate-400">No document attached yet</span>
+                  <span className="text-[11px] text-[#9CA3AF]">No document attached yet</span>
                 )}
               </div>
             </div>
@@ -691,30 +722,30 @@ export function ExpertiseStep() {
         </div>
 
         {/* SECTION 6 — COVERAGE LOCATIONS */}
-        <div className="space-y-3 pt-4 border-t border-[#E2E8E3]">
+        <div className="space-y-3 pt-4 border-t border-[#E5E7EB]">
           <div>
-            <h2 className="text-sm sm:text-base font-bold text-[#17201A]">
+            <h2 className="text-sm sm:text-base font-bold text-[#1F2937]">
               Service Coverage Locations
             </h2>
-            <p className="text-xs text-[#647067] mt-0.5">
+            <p className="text-xs text-[#6B7280] mt-0.5">
               Select the districts and provinces where you are available for farmer consultations and field visits.
             </p>
           </div>
 
           {locationLoadError && (
-            <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-800">
+            <div className="rounded-xl border border-[#FCA5A5] bg-[#FEE2E2] p-3 text-xs text-[#DC2626]">
               {locationLoadError}
             </div>
           )}
 
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
             <div>
-              <label className="mb-1 block text-[11px] font-bold text-slate-700">Province</label>
+              <label className="mb-1 block text-[11px] font-bold text-[#4B5563]">Province</label>
               <select
                 value={selectedProvinceId}
                 onChange={(event) => setSelectedProvinceId(event.target.value)}
                 disabled={isLoadingProvinces}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 outline-none transition-colors focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 disabled:bg-slate-50"
+                className="w-full rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-xs text-[#1F2937] outline-none transition-colors focus:border-[#2E7D32] focus:ring-2 focus:ring-[#2E7D32]/10 disabled:bg-[#F8FAF8]"
               >
                 <option value="">{isLoadingProvinces ? "Loading provinces..." : "Select province"}</option>
                 {provinces.map((province) => (
@@ -724,12 +755,12 @@ export function ExpertiseStep() {
             </div>
 
             <div>
-              <label className="mb-1 block text-[11px] font-bold text-slate-700">District</label>
+              <label className="mb-1 block text-[11px] font-bold text-[#4B5563]">District</label>
               <select
                 value={selectedDistrictId}
                 onChange={(event) => setSelectedDistrictId(event.target.value)}
                 disabled={!selectedProvinceId || isLoadingDistricts}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 outline-none transition-colors focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 disabled:bg-slate-50"
+                className="w-full rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-xs text-[#1F2937] outline-none transition-colors focus:border-[#2E7D32] focus:ring-2 focus:ring-[#2E7D32]/10 disabled:bg-[#F8FAF8]"
               >
                 <option value="">{isLoadingDistricts ? "Loading districts..." : "Select district"}</option>
                 {districts.map((district) => (
@@ -739,12 +770,12 @@ export function ExpertiseStep() {
             </div>
 
             <div>
-              <label className="mb-1 block text-[11px] font-bold text-slate-700">Municipality / Local Level</label>
+              <label className="mb-1 block text-[11px] font-bold text-[#4B5563]">Municipality / Local Level</label>
               <select
                 value={selectedMunicipalityId}
                 onChange={(event) => setSelectedMunicipalityId(event.target.value)}
                 disabled={!selectedDistrictId || isLoadingMunicipalities}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 outline-none transition-colors focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 disabled:bg-slate-50"
+                className="w-full rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-xs text-[#1F2937] outline-none transition-colors focus:border-[#2E7D32] focus:ring-2 focus:ring-[#2E7D32]/10 disabled:bg-[#F8FAF8]"
               >
                 <option value="">{isLoadingMunicipalities ? "Loading local levels..." : "Select local level"}</option>
                 {municipalities.map((municipality) => (
@@ -760,15 +791,15 @@ export function ExpertiseStep() {
             onClick={() => {
               if (selectedMunicipalityId) toggleLocation(selectedMunicipalityId);
             }}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#A5D6A7] bg-[#E8F5E9] px-3 py-2 text-xs font-bold text-[#2E7D32] transition-colors hover:bg-[#E8F5E9] disabled:cursor-not-allowed disabled:opacity-50"
           >
             <MapPin className="h-3.5 w-3.5" />
             {selectedMunicipalityId && locations.includes(selectedMunicipalityId) ? "Remove selected location" : "Add selected location"}
           </button>
 
-          <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-3">
+          <div className="rounded-xl border border-[#E5E7EB] bg-[#F8FAF8]/40 p-3">
             {locations.length === 0 ? (
-              <p className="text-xs text-slate-500">No service coverage locations selected.</p>
+              <p className="text-xs text-[#6B7280]">No service coverage locations selected.</p>
             ) : (
               <div className="flex flex-wrap gap-1.5">
                 {locations.map((locationId) => (
@@ -776,7 +807,7 @@ export function ExpertiseStep() {
                     key={locationId}
                     type="button"
                     onClick={() => toggleLocation(locationId)}
-                    className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-white px-2.5 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-50"
+                    className="inline-flex items-center gap-1 rounded-lg border border-[#A5D6A7] bg-white px-2.5 py-1 text-xs font-semibold text-[#2E7D32] hover:bg-[#E8F5E9]"
                     title="Remove location"
                   >
                     <MapPin className="w-2.5 h-2.5" />
@@ -790,11 +821,11 @@ export function ExpertiseStep() {
         </div>
 
         {/* Wizard Navigation Footer */}
-        <div className="flex items-center justify-between pt-6 border-t border-[#E2E8E3]">
+        <div className="flex items-center justify-between pt-6 border-t border-[#E5E7EB]">
           <button
             type="button"
             onClick={prevStep}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-[#4B5563] hover:text-[#1F2937] hover:bg-[#F1F5F2] transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Previous Step</span>
@@ -802,7 +833,7 @@ export function ExpertiseStep() {
 
           <button
             type="submit"
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#166534] hover:bg-[#14532D] text-white text-xs font-bold transition-all shadow-md hover:shadow-lg cursor-pointer"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#1B5E20] hover:bg-[#1B5E20] text-white text-xs font-bold transition-all shadow-md hover:shadow-lg cursor-pointer"
           >
             <span>Continue to Documents</span>
             <ArrowRight className="w-3.5 h-3.5" />

@@ -24,14 +24,6 @@ export const farmService = {
   },
 
   /**
-   * GET /api/v1/farmer/farm
-   * Retrieves primary/legacy farm for the current farmer.
-   */
-  getPrimaryFarm: async (): Promise<FarmResponse> => {
-    return api.get<FarmResponse>("/v1/farmer/farm");
-  },
-
-  /**
    * POST /api/v1/farmer/farms
    * Registers a new farm.
    */
@@ -53,14 +45,6 @@ export const farmService = {
    */
   deleteFarm: async (id: number): Promise<void> => {
     return api.delete<void>(`/v1/farmer/farms/${id}`);
-  },
-
-  /**
-   * PATCH /api/v1/farmer/farms/{id}/restore
-   * Restores a previously soft-deleted farm.
-   */
-  restoreFarm: async (id: number): Promise<FarmResponse> => {
-    return api.patch<FarmResponse>(`/v1/farmer/farms/${id}/restore`);
   },
 
   /**

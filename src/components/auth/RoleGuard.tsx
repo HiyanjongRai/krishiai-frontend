@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useAuth, getDashboardRoute } from "@/providers/auth-provider";
 import { ShieldAlert, Award, ArrowLeft } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ErrorState } from "@/components/ui/error-state";
+import { Button } from "@/components/ui/button";
 
 interface RoleGuardProps {
   children: React.ReactNode;
@@ -40,9 +42,8 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
       return;
     }
 
-    // 2. Check if user's role is permitted (ROLE_ADMIN has superuser access to view)
-    const hasAccess =
-      allowedRoles.includes(user.role) || user.role === "ROLE_ADMIN";
+    // 2. Check if user's role is permitted for this section.
+    const hasAccess = allowedRoles.includes(user.role);
 
     if (!hasAccess) {
       // Unauthorized cross-role access -> redirect immediately to user's assigned dashboard
@@ -57,11 +58,11 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
   if (isLoading) {
     return (
       <div
-        className="min-h-screen bg-[#F8FAF6] flex flex-col"
+        className="min-h-screen bg-[#F8FAF8] flex flex-col"
         aria-busy="true"
         aria-label="Verifying access permissions"
       >
-        <div className="h-16 border-b border-slate-200 bg-white/90 px-6 flex items-center justify-between">
+        <div className="h-16 border-b border-[#E5E7EB] bg-white/90 px-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Skeleton className="h-8 w-32 rounded-xl" />
           </div>
@@ -84,14 +85,39 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
   }
 
   if (!isAuthenticated || !user) {
-    return null;
+    return (
+      <div className="min-h-screen bg-[#F8FAF8] p-4 flex items-center justify-center">
+        <ErrorState
+          variant="restricted"
+          title="Sign in required"
+          message="Please sign in to access this page."
+          className="max-w-md w-full"
+        />
+      </div>
+    );
   }
 
-  const hasAccess =
-    allowedRoles.includes(user.role) || user.role === "ROLE_ADMIN";
+  const hasAccess = allowedRoles.includes(user.role);
 
   if (!hasAccess) {
-    return null;
+    return (
+      <div className="min-h-screen bg-[#F8FAF8] p-4 flex items-center justify-center">
+        <div className="max-w-md w-full space-y-4">
+          <ErrorState
+            variant="restricted"
+            title="Access restricted"
+            message="You don't have permission to access this page."
+          />
+          <Button
+            type="button"
+            className="w-full"
+            onClick={() => router.replace(getDashboardRoute(user.role))}
+          >
+            Go to Dashboard
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return <>{children}</>;
@@ -125,7 +151,7 @@ export function ExpertVerificationGuard({ children }: { children: React.ReactNod
   if (verificationStatusLoading || isVerifiedExpert === null) {
     return (
       <div className="space-y-6 w-full" aria-busy="true" aria-label="Verifying credentials">
-        <div className="bg-white border border-slate-200/80 rounded-3xl p-6 space-y-3 shadow-xs">
+        <div className="bg-white border border-[#E5E7EB] rounded-3xl p-6 space-y-3 shadow-xs">
           <Skeleton className="h-7 w-60 rounded-xl" />
           <Skeleton className="h-4 w-96 rounded-md" />
         </div>
@@ -143,19 +169,19 @@ export function ExpertVerificationGuard({ children }: { children: React.ReactNod
   if (isVerifiedExpert === false) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white border border-amber-200 rounded-3xl p-8 shadow-sm text-center space-y-6">
-          <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600">
+        <div className="max-w-md w-full bg-white border border-[#FCD34D] rounded-3xl p-8 shadow-sm text-center space-y-6">
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-[#FEF3C7] border border-[#FCD34D] flex items-center justify-center text-[#F59E0B]">
             <ShieldAlert className="w-8 h-8" />
           </div>
 
           <div className="space-y-2">
-            <span className="text-[10px] font-bold text-amber-800 bg-amber-100 border border-amber-300 px-3 py-1 rounded-full uppercase tracking-wider">
+            <span className="text-[10px] font-bold text-[#F59E0B] bg-[#FEF3C7] border border-[#FCD34D] px-3 py-1 rounded-full uppercase tracking-wider">
               Verification Required
             </span>
-            <h3 className="text-xl font-black text-slate-900 pt-1">
+            <h3 className="text-xl font-black text-[#1F2937] pt-1">
               Verified Expert Feature
             </h3>
-            <p className="text-xs text-slate-500 leading-relaxed">
+            <p className="text-xs text-[#6B7280] leading-relaxed">
               Your expert account has not been approved yet. Complete your application
               and wait for admin verification to access farmer consultations and verified advisory services.
             </p>
@@ -164,16 +190,16 @@ export function ExpertVerificationGuard({ children }: { children: React.ReactNod
           <div className="pt-2 flex flex-col gap-2.5">
             <Link
               href="/expert/dashboard"
-              className="w-full py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition-colors flex items-center justify-center gap-1.5"
+              className="w-full py-2.5 rounded-xl bg-[#1F2937] text-white text-xs font-bold hover:bg-[#1F2937] transition-colors flex items-center justify-center gap-1.5"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to Dashboard</span>
             </Link>
             <Link
               href="/expert/profile"
-              className="w-full py-2.5 rounded-xl border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition-colors flex items-center justify-center gap-1.5"
+              className="w-full py-2.5 rounded-xl border border-[#E5E7EB] text-[#4B5563] text-xs font-semibold hover:bg-[#F8FAF8] transition-colors flex items-center justify-center gap-1.5"
             >
-              <Award className="w-3.5 h-3.5 text-emerald-600" />
+              <Award className="w-3.5 h-3.5 text-[#2E7D32]" />
               <span>Complete Profile &amp; Verification</span>
             </Link>
           </div>

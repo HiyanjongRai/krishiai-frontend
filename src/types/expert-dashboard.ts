@@ -25,6 +25,8 @@ export interface ExpertProfileData {
     cropName: string;
     cropCategory: string;
     expertiseType: string;
+    cropEmoji?: string;
+    cropImageUrl?: string;
   }>;
   specializations: Array<{
     id: number;

@@ -13,13 +13,13 @@ export default function KnowledgeBasePage() {
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
       <main className="flex-1 max-w-4xl mx-auto px-4 py-16 space-y-8">
-        <h1 className="text-3xl font-extrabold text-slate-900">Agricultural Knowledge Base</h1>
+        <h1 className="text-3xl font-extrabold text-[#1F2937]">Agricultural Knowledge Base</h1>
         <div className="space-y-4">
           {articles.map((a) => (
             <Link key={a.slug} href={`/knowledge/${a.slug}`}>
-              <Card className="hover:border-emerald-300">
-                <span className="text-[11px] font-bold text-emerald-700 uppercase">{a.category}</span>
-                <h3 className="text-base font-bold text-slate-900 mt-1">{a.title}</h3>
+              <Card className="hover:border-[#A5D6A7]">
+                <span className="text-[11px] font-bold text-[#2E7D32] uppercase">{a.category}</span>
+                <h3 className="text-base font-bold text-[#1F2937] mt-1">{a.title}</h3>
               </Card>
             </Link>
           ))}

@@ -8,6 +8,7 @@ import { AuthProvider } from "@/providers/auth-provider";
 import { AuthModalProvider } from "@/providers/auth-modal-provider";
 import { AuthModal } from "@/components/auth/auth-modal";
 import { KrishiToastProvider } from "@/providers/toast-provider";
+import { NetworkStatusProvider } from "@/providers/app/network-status-provider";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -35,16 +36,18 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
     >
       <body
-        className="min-h-screen bg-white text-slate-900 flex flex-col font-sans antialiased"
+        className="min-h-screen bg-white text-[#1F2937] flex flex-col font-sans antialiased"
         suppressHydrationWarning
       >
         <KrishiToastProvider>
-          <AuthProvider>
-            <AuthModalProvider>
-              {children}
-              <AuthModal />
-            </AuthModalProvider>
-          </AuthProvider>
+          <NetworkStatusProvider>
+            <AuthProvider>
+              <AuthModalProvider>
+                {children}
+                <AuthModal />
+              </AuthModalProvider>
+            </AuthProvider>
+          </NetworkStatusProvider>
         </KrishiToastProvider>
       </body>
     </html>

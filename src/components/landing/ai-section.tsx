@@ -56,11 +56,11 @@ export function AISection() {
             
             {/* Left Column: Interactive AI Analysis Card */}
             <div className="lg:col-span-6">
-              <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-xl space-y-5">
+              <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#E5E7EB] shadow-xl space-y-5">
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-5 items-start">
                   
                   <div className="sm:col-span-6 space-y-3">
-                    <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-slate-200 bg-slate-100">
+                    <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-[#E5E7EB] bg-[#F1F5F2]">
                       <Image
                         src="/images/diseases/crop-disease-leaf.jpg"
                         alt="Potato leaf infected with Early Blight"
@@ -76,8 +76,8 @@ export function AISection() {
                           key={i}
                           className={`relative aspect-square rounded-lg overflow-hidden border ${
                             i === 0
-                              ? "border-emerald-600 ring-2 ring-emerald-500/20"
-                              : "border-slate-200 hover:border-slate-300"
+                              ? "border-[#2E7D32] ring-2 ring-[#E8F5E9]"
+                              : "border-[#E5E7EB] hover:border-[#D1D5DB]"
                           } cursor-pointer transition-all`}
                         >
                           <Image
@@ -94,48 +94,48 @@ export function AISection() {
 
                   <div className="sm:col-span-6 space-y-4 text-left">
                     <div className="space-y-1">
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-800">
-                        <Sprout className="w-3.5 h-3.5 text-emerald-600" />
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-[#1B5E20]">
+                        <Sprout className="w-3.5 h-3.5 text-[#2E7D32]" />
                         <span>AI Analysis Result</span>
                       </div>
-                      <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                      <p className="text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider">
                         Potato Leaf
                       </p>
-                      <h3 className="text-lg font-extrabold text-slate-900 leading-tight">
+                      <h3 className="text-lg font-extrabold text-[#1F2937] leading-tight">
                         Possible Early Blight
                       </h3>
                     </div>
 
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-slate-500 font-medium">Confidence</span>
-                        <span className="font-bold text-slate-800">78%</span>
+                        <span className="text-[#6B7280] font-medium">Confidence</span>
+                        <span className="font-bold text-[#1F2937]">78%</span>
                       </div>
-                      <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden flex gap-0.5">
-                        <div className="h-full bg-emerald-600 w-[20%]" />
-                        <div className="h-full bg-emerald-600 w-[20%]" />
-                        <div className="h-full bg-emerald-600 w-[20%]" />
-                        <div className="h-full bg-amber-400 w-[18%]" />
-                        <div className="h-full bg-slate-200 flex-1" />
+                      <div className="h-2 w-full bg-[#F1F5F2] rounded-full overflow-hidden flex gap-0.5">
+                        <div className="h-full bg-[#2E7D32] w-[20%]" />
+                        <div className="h-full bg-[#2E7D32] w-[20%]" />
+                        <div className="h-full bg-[#2E7D32] w-[20%]" />
+                        <div className="h-full bg-[#FEF3C7] w-[18%]" />
+                        <div className="h-full bg-[#E5E7EB] flex-1" />
                       </div>
                       <div className="flex items-center gap-2 pt-0.5">
-                        <span className="text-[11px] font-medium text-slate-500">Severity:</span>
-                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                        <span className="text-[11px] font-medium text-[#6B7280]">Severity:</span>
+                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-[#FEF3C7] text-[#F59E0B] border border-[#FCD34D]">
                           Medium
                         </span>
                       </div>
                     </div>
 
-                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
-                      <p className="text-[11px] font-bold text-slate-800 uppercase tracking-wider">
+                    <div className="p-3 rounded-xl bg-[#F8FAF8] border border-[#EEF0EE] space-y-1">
+                      <p className="text-[11px] font-bold text-[#1F2937] uppercase tracking-wider">
                         Recommended Action
                       </p>
-                      <p className="text-xs text-slate-600 leading-relaxed">
+                      <p className="text-xs text-[#4B5563] leading-relaxed">
                         Remove affected leaves, improve air circulation and monitor closely.
                       </p>
                     </div>
 
-                    <Link href="/farmer/analysis" className="block text-center w-full py-2.5 px-4 text-xs font-semibold text-white bg-[#0f3d26] hover:bg-[#14532d] rounded-xl transition-colors shadow-xs">
+                    <Link href="/farmer/analysis" className="block text-center w-full py-2.5 px-4 text-xs font-semibold text-white bg-[#1B5E20] hover:bg-[#1B5E20] rounded-xl transition-colors shadow-xs">
                       View Full Report
                     </Link>
                   </div>
@@ -146,25 +146,25 @@ export function AISection() {
 
             {/* Right Column: Copy & Checklist */}
             <div className="lg:col-span-6 space-y-6 text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/90 text-emerald-800 text-xs font-semibold tracking-wide">
-                <Sprout className="w-3.5 h-3.5 text-emerald-600" />
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8F5E9] border border-[#A5D6A7]/90 text-[#1B5E20] text-xs font-semibold tracking-wide">
+                <Sprout className="w-3.5 h-3.5 text-[#2E7D32]" />
                 <span>AI CROP ANALYSIS</span>
               </div>
 
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#1F2937] tracking-tight leading-tight">
                 Understand What <br />
                 Your Crop Is Telling You.
               </h2>
 
-              <p className="text-base text-slate-600 leading-relaxed max-w-lg">
+              <p className="text-base text-[#4B5563] leading-relaxed max-w-lg">
                 Upload an image of your crop and receive an AI-assisted health
                 analysis with confidence information and practical next steps.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
                 {checkmarks.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-2.5 text-sm font-medium text-slate-700">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <div key={idx} className="flex items-center gap-2.5 text-sm font-medium text-[#4B5563]">
+                    <CheckCircle2 className="w-4 h-4 text-[#2E7D32] shrink-0" />
                     <span>{item}</span>
                   </div>
                 ))}
@@ -174,7 +174,7 @@ export function AISection() {
                 <button
                   type="button"
                   onClick={openRegister}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 text-sm font-semibold text-white bg-[#0f3d26] hover:bg-[#14532d] rounded-xl transition-all shadow-md hover:shadow-lg group cursor-pointer min-h-[44px] active:scale-98"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 text-sm font-semibold text-white bg-[#1B5E20] hover:bg-[#1B5E20] rounded-xl transition-all shadow-md hover:shadow-lg group cursor-pointer min-h-[44px] active:scale-98"
                 >
                   <span>Try AI Analysis</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
@@ -187,15 +187,15 @@ export function AISection() {
       </section>
 
       {/* 2. Dual AI Advisor & Weather Cards */}
-      <section className="py-16 sm:py-20 bg-[#fafcf9]">
+      <section className="py-16 sm:py-20 bg-[#FCFEFC]">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
             
             {/* Left Card: AI Advisor */}
-            <div className="bg-[#0b271b] rounded-3xl p-6 sm:p-8 text-white flex flex-col justify-between shadow-xl border border-emerald-900/40 relative overflow-hidden">
+            <div className="bg-[#1B5E20] rounded-3xl p-6 sm:p-8 text-white flex flex-col justify-between shadow-xl border border-[#C8E6C9]/40 relative overflow-hidden">
               <div className="space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-900/60 border border-emerald-700/60 text-emerald-300 text-xs font-semibold tracking-wide">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8F5E9]/60 border border-[#C8E6C9]/60 text-[#2E7D32] text-xs font-semibold tracking-wide">
+                  <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />
                   <span>AI ADVISOR</span>
                 </div>
 
@@ -204,7 +204,7 @@ export function AISection() {
                     Your Agricultural Questions, <br />
                     One AI Advisor Away.
                   </h3>
-                  <p className="text-sm text-emerald-100/70 leading-relaxed max-w-md">
+                  <p className="text-sm text-[#2E7D32]/70 leading-relaxed max-w-md">
                     Ask questions about crops, pests, soil, irrigation, weather, and more.
                   </p>
                 </div>
@@ -212,15 +212,15 @@ export function AISection() {
                 <div className="pt-4 space-y-3.5">
                   <div className="flex items-start justify-end">
                     <div className="max-w-[85%] bg-white/10 border border-white/15 rounded-2xl rounded-tr-xs px-4 py-2.5 text-xs sm:text-[13px] text-white/95 leading-relaxed backdrop-blur-xs">
-                      <p className="font-semibold text-emerald-300 text-[11px] mb-0.5">Farmer</p>
+                      <p className="font-semibold text-[#2E7D32] text-[11px] mb-0.5">Farmer</p>
                       My tomato leaves are turning yellow.
                     </div>
                   </div>
 
                   <div className="flex items-start justify-start">
-                    <div className="max-w-[92%] bg-white text-slate-800 rounded-2xl rounded-tl-xs p-4 text-xs sm:text-[13px] leading-relaxed shadow-lg">
-                      <div className="flex items-center gap-1.5 font-bold text-emerald-800 text-[12px] mb-1.5">
-                        <Sprout className="w-3.5 h-3.5 text-emerald-600" />
+                    <div className="max-w-[92%] bg-white text-[#1F2937] rounded-2xl rounded-tl-xs p-4 text-xs sm:text-[13px] leading-relaxed shadow-lg">
+                      <div className="flex items-center gap-1.5 font-bold text-[#1B5E20] text-[12px] mb-1.5">
+                        <Sprout className="w-3.5 h-3.5 text-[#2E7D32]" />
                         <span>KrishiAI</span>
                       </div>
                       There can be several possible causes, including nutrient issues,
@@ -238,11 +238,11 @@ export function AISection() {
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
                     placeholder="Ask KrishiAI something..."
-                    className="w-full py-3.5 pl-4 pr-12 text-xs sm:text-sm bg-white/10 border border-white/20 rounded-xl text-white placeholder-emerald-100/50 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:bg-white/15 transition-all"
+                    className="w-full py-3.5 pl-4 pr-12 text-xs sm:text-sm bg-white/10 border border-white/20 rounded-xl text-white placeholder-[#E8F5E9]/50 focus:outline-none focus:ring-2 focus:ring-[#E8F5E9] focus:bg-white/15 transition-all"
                   />
                   <button
                     aria-label="Send message"
-                    className="absolute right-2 p-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
+                    className="absolute right-2 p-2 rounded-lg bg-[#2E7D32] hover:bg-[#256B2A] text-white transition-colors"
                   >
                     <Send className="w-4 h-4" />
                   </button>
@@ -251,43 +251,43 @@ export function AISection() {
             </div>
 
             {/* Right Card: Weather Intelligence */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xl flex flex-col justify-between space-y-6">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E5E7EB] shadow-xl flex flex-col justify-between space-y-6">
               <div className="space-y-5">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/90 text-emerald-800 text-xs font-semibold tracking-wide">
-                  <CloudSun className="w-3.5 h-3.5 text-amber-500" />
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8F5E9] border border-[#A5D6A7]/90 text-[#1B5E20] text-xs font-semibold tracking-wide">
+                  <CloudSun className="w-3.5 h-3.5 text-[#F59E0B]0" />
                   <span>WEATHER INTELLIGENCE</span>
                 </div>
 
                 <div>
-                  <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 leading-tight">
+                  <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#1F2937] leading-tight">
                     Know the Weather. <br />
                     Plan Your Farm.
                   </h3>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-100 flex flex-wrap items-center justify-between gap-4">
+                <div className="p-4 rounded-2xl bg-[#F8FAF8] border border-[#EEF0EE] flex flex-wrap items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <Sun className="w-10 h-10 text-amber-500" />
+                    <Sun className="w-10 h-10 text-[#F59E0B]0" />
                     <div>
-                      <div className="text-3xl font-extrabold text-slate-900 leading-none">
+                      <div className="text-3xl font-extrabold text-[#1F2937] leading-none">
                         24°c
                       </div>
-                      <p className="text-xs text-slate-500 font-medium mt-1">Sunny</p>
+                      <p className="text-xs text-[#6B7280] font-medium mt-1">Sunny</p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-3 gap-4 text-xs">
                     <div>
-                      <p className="text-slate-400 text-[11px] font-medium">Humidity</p>
-                      <p className="font-bold text-slate-800 text-sm">56%</p>
+                      <p className="text-[#9CA3AF] text-[11px] font-medium">Humidity</p>
+                      <p className="font-bold text-[#1F2937] text-sm">56%</p>
                     </div>
                     <div>
-                      <p className="text-slate-400 text-[11px] font-medium">Rain Probability</p>
-                      <p className="font-bold text-slate-800 text-sm">20%</p>
+                      <p className="text-[#9CA3AF] text-[11px] font-medium">Rain Probability</p>
+                      <p className="font-bold text-[#1F2937] text-sm">20%</p>
                     </div>
                     <div>
-                      <p className="text-slate-400 text-[11px] font-medium">Wind</p>
-                      <p className="font-bold text-slate-800 text-sm">12 km/h</p>
+                      <p className="text-[#9CA3AF] text-[11px] font-medium">Wind</p>
+                      <p className="font-bold text-[#1F2937] text-sm">12 km/h</p>
                     </div>
                   </div>
                 </div>
@@ -300,24 +300,24 @@ export function AISection() {
                         key={i}
                         className={`min-w-[68px] sm:min-w-0 flex-1 shrink-0 p-2.5 sm:p-2 rounded-xl border snap-start ${
                           i === 0
-                            ? "bg-emerald-50/70 border-emerald-200 ring-1 ring-emerald-500/20"
-                            : "bg-slate-50/60 border-slate-100"
+                            ? "bg-[#E8F5E9]/70 border-[#A5D6A7] ring-1 ring-[#E8F5E9]"
+                            : "bg-[#F8FAF8] border-[#EEF0EE]"
                         } space-y-1 transition-all`}
                       >
-                        <p className="text-[11px] font-semibold text-slate-600">
+                        <p className="text-[11px] font-semibold text-[#4B5563]">
                           {f.day}
                         </p>
                         <div className="flex justify-center my-0.5">
                           <FIcon
                             className={`w-4 h-4 ${
-                              f.isRain ? "text-blue-500" : "text-amber-500"
+                              f.isRain ? "text-[#2563EB]0" : "text-[#F59E0B]0"
                             }`}
                           />
                         </div>
-                        <div className="text-[11px] sm:text-xs font-bold text-slate-800">
+                        <div className="text-[11px] sm:text-xs font-bold text-[#1F2937]">
                           {f.tempHigh}
                         </div>
-                        <div className="text-[10px] text-slate-400">
+                        <div className="text-[10px] text-[#9CA3AF]">
                           {f.tempLow}
                         </div>
                       </div>
@@ -325,10 +325,10 @@ export function AISection() {
                   })}
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200/80 flex items-start gap-2.5">
-                  <Sprout className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <div className="text-xs text-slate-700 leading-relaxed">
-                    <span className="font-bold text-emerald-900 block mb-0.5">
+                <div className="p-3.5 rounded-xl bg-[#E8F5E9]/70 border border-[#A5D6A7]/80 flex items-start gap-2.5">
+                  <Sprout className="w-4 h-4 text-[#2E7D32] shrink-0 mt-0.5" />
+                  <div className="text-xs text-[#4B5563] leading-relaxed">
+                    <span className="font-bold text-[#1B5E20] block mb-0.5">
                       Farm Insight
                     </span>
                     Rain is expected tomorrow. Consider reviewing your irrigation and
@@ -340,7 +340,7 @@ export function AISection() {
               <div className="pt-2">
                 <Link
                   href="/farmer/dashboard"
-                  className="inline-flex items-center gap-2 px-5 py-3 text-xs sm:text-sm font-semibold text-white bg-[#0f3d26] hover:bg-[#14532d] rounded-xl transition-all shadow-xs"
+                  className="inline-flex items-center gap-2 px-5 py-3 text-xs sm:text-sm font-semibold text-white bg-[#1B5E20] hover:bg-[#1B5E20] rounded-xl transition-all shadow-xs"
                 >
                   <span>Check Weather</span>
                   <ArrowRight className="w-4 h-4" />

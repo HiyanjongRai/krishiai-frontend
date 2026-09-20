@@ -21,7 +21,7 @@ export function TableSkeleton({
   return (
     <div
       className={cn(
-        "w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm",
+        "w-full overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white shadow-sm",
         className
       )}
       aria-busy="true"
@@ -31,18 +31,18 @@ export function TableSkeleton({
         <table className="w-full text-left border-collapse">
           {showHeader && (
             <thead>
-              <tr className="border-b border-slate-100 bg-slate-50/80">
+              <tr className="border-b border-[#EEF0EE] bg-[#F8FAF8]">
                 {Array.from({ length: columns }).map((_, i) => (
                   <th key={i} className="py-3.5 px-4 sm:px-5">
-                    <Skeleton className="h-4 w-20 rounded-md bg-slate-200/90" />
+                    <Skeleton className="h-4 w-20 rounded-md bg-[#E5E7EB]" />
                   </th>
                 ))}
               </tr>
             </thead>
           )}
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-[#EEF0EE]">
             {Array.from({ length: rows }).map((_, rowIndex) => (
-              <tr key={rowIndex} className="hover:bg-slate-50/50 transition-colors">
+              <tr key={rowIndex} className="hover:bg-[#F8FAF8] transition-colors">
                 {Array.from({ length: columns }).map((_, colIndex) => {
                   const widthClass = colWidths[colIndex % colWidths.length];
                   return (

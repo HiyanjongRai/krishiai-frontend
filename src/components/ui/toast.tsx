@@ -39,51 +39,51 @@ const TYPE_CONFIG = {
   success: {
     icon: Sprout,
     containerClass:
-      "border-emerald-200 bg-white shadow-emerald-950/10 text-slate-800",
-    iconBg: "bg-emerald-50 text-emerald-600 border border-emerald-200/60",
-    barColor: "bg-emerald-500",
+      "border-[#A5D6A7] bg-white shadow-[#E5E7EB] text-[#1F2937]",
+    iconBg: "bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9]",
+    barColor: "bg-[#2E7D32]",
     badge: "Success",
-    badgeClass: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    badgeClass: "bg-[#E8F5E9] text-[#2E7D32] border-[#A5D6A7]",
     role: "status" as const,
   },
   error: {
     icon: XCircle,
     containerClass:
-      "border-rose-200 bg-white shadow-rose-950/10 text-slate-800",
-    iconBg: "bg-rose-50 text-rose-600 border border-rose-200/60",
-    barColor: "bg-rose-500",
+      "border-[#FCA5A5] bg-white shadow-[#E5E7EB] text-[#1F2937]",
+    iconBg: "bg-[#FEE2E2] text-[#DC2626] border border-[#FCA5A5]/60",
+    barColor: "bg-[#DC2626]",
     badge: "Attention",
-    badgeClass: "bg-rose-50 text-rose-700 border-rose-200",
+    badgeClass: "bg-[#FEE2E2] text-[#DC2626] border-[#FCA5A5]",
     role: "alert" as const,
   },
   warning: {
     icon: AlertTriangle,
     containerClass:
-      "border-amber-200 bg-white shadow-amber-950/10 text-slate-800",
-    iconBg: "bg-amber-50 text-amber-600 border border-amber-200/60",
-    barColor: "bg-amber-500",
+      "border-[#FCD34D] bg-white shadow-[#E5E7EB] text-[#1F2937]",
+    iconBg: "bg-[#FEF3C7] text-[#F59E0B] border border-[#FCD34D]",
+    barColor: "bg-[#F59E0B]",
     badge: "Note",
-    badgeClass: "bg-amber-50 text-amber-700 border-amber-200",
+    badgeClass: "bg-[#FEF3C7] text-[#F59E0B] border-[#FCD34D]",
     role: "alert" as const,
   },
   info: {
     icon: Info,
     containerClass:
-      "border-sky-200 bg-white shadow-sky-950/10 text-slate-800",
-    iconBg: "bg-sky-50 text-sky-600 border border-sky-200/60",
-    barColor: "bg-sky-500",
+      "border-[#93C5FD] bg-white shadow-[#E5E7EB] text-[#1F2937]",
+    iconBg: "bg-[#DBEAFE] text-[#2563EB] border border-[#93C5FD]",
+    barColor: "bg-[#2563EB]",
     badge: "Info",
-    badgeClass: "bg-sky-50 text-sky-700 border-sky-200",
+    badgeClass: "bg-[#DBEAFE] text-[#2563EB] border-[#93C5FD]",
     role: "status" as const,
   },
   loading: {
     icon: Loader2,
     containerClass:
-      "border-emerald-200 bg-white shadow-emerald-950/10 text-slate-800",
-    iconBg: "bg-emerald-50 text-emerald-600 border border-emerald-200/60",
-    barColor: "bg-emerald-500",
+      "border-[#A5D6A7] bg-white shadow-[#E5E7EB] text-[#1F2937]",
+    iconBg: "bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9]",
+    barColor: "bg-[#2E7D32]",
     badge: "Processing",
-    badgeClass: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    badgeClass: "bg-[#E8F5E9] text-[#2E7D32] border-[#A5D6A7]",
     role: "status" as const,
   },
 };
@@ -202,7 +202,7 @@ export function ToastCard({ toast, onDismiss }: ToastCardProps) {
         {/* Content Body */}
         <div className="flex-1 min-w-0 pt-0.5">
           <div className="flex items-center gap-2 mb-0.5">
-            <h4 className="text-sm font-semibold text-slate-900 leading-snug">
+            <h4 className="text-sm font-semibold text-[#1F2937] leading-snug">
               {toast.title}
             </h4>
             <span
@@ -213,7 +213,7 @@ export function ToastCard({ toast, onDismiss }: ToastCardProps) {
           </div>
 
           {toast.description && (
-            <p className="text-xs text-slate-600 leading-relaxed break-words mt-1">
+            <p className="text-xs text-[#4B5563] leading-relaxed break-words mt-1">
               {toast.description}
             </p>
           )}
@@ -230,8 +230,8 @@ export function ToastCard({ toast, onDismiss }: ToastCardProps) {
                 }}
                 className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${
                   toast.action.primary
-                    ? "bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm"
-                    : "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"
+                    ? "bg-[#2E7D32] text-white hover:bg-[#2E7D32] shadow-sm"
+                    : "bg-[#F1F5F2] text-[#4B5563] hover:bg-[#E5E7EB] border border-[#E5E7EB]"
                 }`}
               >
                 {toast.action.label}
@@ -248,7 +248,7 @@ export function ToastCard({ toast, onDismiss }: ToastCardProps) {
             onDismiss(toast.id);
           }}
           aria-label="Dismiss notification"
-          className="shrink-0 p-1.5 -mr-1 -mt-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+          className="shrink-0 p-1.5 -mr-1 -mt-1 text-[#9CA3AF] hover:text-[#4B5563] hover:bg-[#F1F5F2] rounded-lg transition-colors"
         >
           <X className="w-4 h-4" />
         </button>
@@ -256,7 +256,7 @@ export function ToastCard({ toast, onDismiss }: ToastCardProps) {
 
       {/* Progress countdown bar */}
       {!isInfinite && (
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-slate-100 overflow-hidden">
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#F1F5F2] overflow-hidden">
           <div
             className={`h-full transition-all ease-linear ${config.barColor}`}
             style={{

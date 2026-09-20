@@ -81,10 +81,10 @@ const MOCK_REVIEWS: DiagnosticReview[] = [
 ];
 
 const statusConfig: Record<ReviewStatus, { label: string; color: string; bgColor: string; borderColor: string; icon: React.ReactNode }> = {
-  PENDING: { label: "Awaiting Review", color: "text-amber-700", bgColor: "bg-amber-50", borderColor: "border-amber-200", icon: <Clock className="w-3.5 h-3.5" /> },
-  AGREED: { label: "AI Confirmed", color: "text-emerald-700", bgColor: "bg-emerald-50", borderColor: "border-emerald-200", icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
-  DISAGREED: { label: "Corrected", color: "text-blue-700", bgColor: "bg-blue-50", borderColor: "border-blue-200", icon: <XCircle className="w-3.5 h-3.5" /> },
-  ESCALATED: { label: "Escalated", color: "text-rose-700", bgColor: "bg-rose-50", borderColor: "border-rose-200", icon: <AlertCircle className="w-3.5 h-3.5" /> },
+  PENDING: { label: "Awaiting Review", color: "text-[#F59E0B]", bgColor: "bg-[#FEF3C7]", borderColor: "border-[#FCD34D]", icon: <Clock className="w-3.5 h-3.5" /> },
+  AGREED: { label: "AI Confirmed", color: "text-[#2E7D32]", bgColor: "bg-[#E8F5E9]", borderColor: "border-[#A5D6A7]", icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
+  DISAGREED: { label: "Corrected", color: "text-[#2563EB]", bgColor: "bg-[#DBEAFE]", borderColor: "border-[#93C5FD]", icon: <XCircle className="w-3.5 h-3.5" /> },
+  ESCALATED: { label: "Escalated", color: "text-[#DC2626]", bgColor: "bg-[#FEE2E2]", borderColor: "border-[#FCA5A5]", icon: <AlertCircle className="w-3.5 h-3.5" /> },
 };
 
 export default function ExpertAIReviewsPage() {
@@ -113,14 +113,14 @@ export default function ExpertAIReviewsPage() {
       {/* Header */}
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">Expert Workspace</p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">AI Diagnostic Reviews</h1>
-          <p className="mt-1 text-xs sm:text-sm text-slate-600">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-[#2E7D32]">Expert Workspace</p>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-[#1F2937]">AI Diagnostic Reviews</h1>
+          <p className="mt-1 text-xs sm:text-sm text-[#4B5563]">
             Verify AI crop disease diagnoses submitted by farmers. Your review improves model accuracy.
           </p>
         </div>
         {pendingCount > 0 && (
-          <div className="self-start sm:self-auto inline-flex items-center gap-2 rounded-xl bg-amber-100 border border-amber-300 px-3.5 py-2 text-xs font-bold text-amber-800">
+          <div className="self-start sm:self-auto inline-flex items-center gap-2 rounded-xl bg-[#FEF3C7] border border-[#FCD34D] px-3.5 py-2 text-xs font-bold text-[#F59E0B]">
             <Clock className="w-3.5 h-3.5" />
             {pendingCount} pending review{pendingCount !== 1 ? "s" : ""}
           </div>
@@ -138,14 +138,14 @@ export default function ExpertAIReviewsPage() {
               onClick={() => setFilterStatus(s)}
               className={`rounded-xl border p-3 sm:p-4 text-left transition-all ${
                 filterStatus === s
-                  ? "ring-2 ring-emerald-500 border-emerald-300 bg-emerald-50/60"
-                  : "border-slate-200 bg-white hover:border-slate-300"
+                  ? "ring-2 ring-[#2E7D32] border-[#A5D6A7] bg-[#E8F5E9]"
+                  : "border-[#E5E7EB] bg-white hover:border-[#D1D5DB]"
               }`}
             >
-              <p className={`text-[11px] font-medium ${cfg ? cfg.color : "text-slate-500"}`}>
+              <p className={`text-[11px] font-medium ${cfg ? cfg.color : "text-[#6B7280]"}`}>
                 {s === "ALL" ? "All Cases" : cfg?.label}
               </p>
-              <p className="text-xl sm:text-2xl font-bold text-slate-900 mt-1">{count}</p>
+              <p className="text-xl sm:text-2xl font-bold text-[#1F2937] mt-1">{count}</p>
             </button>
           );
         })}
@@ -153,15 +153,15 @@ export default function ExpertAIReviewsPage() {
 
       {/* Filter Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-        <Filter className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+        <Filter className="w-3.5 h-3.5 text-[#9CA3AF] shrink-0" />
         {(["ALL", "PENDING", "AGREED", "DISAGREED", "ESCALATED"] as const).map((s) => (
           <button
             key={s}
             onClick={() => setFilterStatus(s)}
             className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all border ${
               filterStatus === s
-                ? "bg-emerald-700 text-white border-emerald-700"
-                : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
+                ? "bg-[#2E7D32] text-white border-[#C8E6C9]"
+                : "bg-white text-[#4B5563] border-[#E5E7EB] hover:border-[#D1D5DB]"
             }`}
           >
             {s === "ALL" ? "All" : statusConfig[s].label}
@@ -172,9 +172,9 @@ export default function ExpertAIReviewsPage() {
       {/* Reviews List */}
       <div className="space-y-3 sm:space-y-4">
         {filtered.length === 0 ? (
-          <div className="text-center py-10 rounded-xl border border-dashed border-slate-200 bg-white">
-            <Brain className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-            <p className="text-sm font-semibold text-slate-600">No reviews in this category</p>
+          <div className="text-center py-10 rounded-xl border border-dashed border-[#E5E7EB] bg-white">
+            <Brain className="w-10 h-10 text-[#9CA3AF] mx-auto mb-3" />
+            <p className="text-sm font-semibold text-[#4B5563]">No reviews in this category</p>
           </div>
         ) : (
           filtered.map((review) => {
@@ -190,19 +190,19 @@ export default function ExpertAIReviewsPage() {
                 <div className="p-4 sm:p-5">
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                     <div className="flex items-start gap-3 min-w-0">
-                      <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-lg shrink-0">
+                      <div className="w-10 h-10 rounded-xl bg-[#E8F5E9] border border-[#C8E6C9] flex items-center justify-center text-lg shrink-0">
                         {review.cropEmoji}
                       </div>
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-bold text-slate-900 text-sm">{review.farmerName}</span>
+                          <span className="font-bold text-[#1F2937] text-sm">{review.farmerName}</span>
                           <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${cfg.bgColor} ${cfg.borderColor} ${cfg.color}`}>
                             {cfg.icon}
                             {cfg.label}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-500 mt-0.5">
-                          <Leaf className="w-3 h-3 inline mr-1 text-emerald-600" />
+                        <p className="text-xs text-[#6B7280] mt-0.5">
+                          <Leaf className="w-3 h-3 inline mr-1 text-[#2E7D32]" />
                           {review.cropName} · {new Date(review.submittedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                         </p>
                       </div>
@@ -210,7 +210,7 @@ export default function ExpertAIReviewsPage() {
 
                     <button
                       onClick={() => setExpandedId(isExpanded ? null : review.id)}
-                      className="self-start sm:self-center inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-emerald-700 transition-colors shrink-0"
+                      className="self-start sm:self-center inline-flex items-center gap-1.5 text-xs font-semibold text-[#4B5563] hover:text-[#2E7D32] transition-colors shrink-0"
                     >
                       <Eye className="w-3.5 h-3.5" />
                       {isExpanded ? "Collapse" : "Review"}
@@ -220,16 +220,16 @@ export default function ExpertAIReviewsPage() {
 
                   {/* AI Diagnosis Badge */}
                   <div className="mt-3 flex flex-col xs:flex-row xs:items-center gap-2">
-                    <div className="flex items-center gap-2 rounded-lg bg-slate-50 border border-slate-200 px-3 py-2 flex-1 min-w-0">
-                      <Brain className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                    <div className="flex items-center gap-2 rounded-lg bg-[#F8FAF8] border border-[#E5E7EB] px-3 py-2 flex-1 min-w-0">
+                      <Brain className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-[10px] font-bold uppercase tracking-wide text-blue-700">AI Diagnosis</p>
-                        <p className="text-xs font-semibold text-slate-900 truncate">{review.aiDiagnosis}</p>
+                        <p className="text-[10px] font-bold uppercase tracking-wide text-[#2563EB]">AI Diagnosis</p>
+                        <p className="text-xs font-semibold text-[#1F2937] truncate">{review.aiDiagnosis}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
-                      <div className="text-[10px] font-bold text-slate-500">Confidence</div>
-                      <div className={`text-sm font-black ${review.aiConfidence >= 80 ? "text-emerald-700" : review.aiConfidence >= 60 ? "text-amber-700" : "text-red-600"}`}>
+                      <div className="text-[10px] font-bold text-[#6B7280]">Confidence</div>
+                      <div className={`text-sm font-black ${review.aiConfidence >= 80 ? "text-[#2E7D32]" : review.aiConfidence >= 60 ? "text-[#F59E0B]" : "text-[#DC2626]"}`}>
                         {review.aiConfidence}%
                       </div>
                     </div>
@@ -238,11 +238,11 @@ export default function ExpertAIReviewsPage() {
 
                 {/* Expanded Panel */}
                 {isExpanded && (
-                  <div className="border-t border-slate-100 bg-slate-50/50 p-4 sm:p-5 space-y-4">
+                  <div className="border-t border-[#EEF0EE] bg-[#F8FAF8] p-4 sm:p-5 space-y-4">
                     {/* Farmer Note */}
                     <div>
-                      <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Farmer's Observation</h4>
-                      <p className="text-xs sm:text-sm text-slate-700 bg-white border border-slate-200 rounded-lg p-3 leading-relaxed">
+                      <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#6B7280] mb-1.5">Farmer&apos;s Observation</h4>
+                      <p className="text-xs sm:text-sm text-[#4B5563] bg-white border border-[#E5E7EB] rounded-lg p-3 leading-relaxed">
                         {review.farmerNote}
                       </p>
                     </div>
@@ -250,21 +250,21 @@ export default function ExpertAIReviewsPage() {
                     {/* Expert Comment */}
                     {review.status === "PENDING" ? (
                       <div>
-                        <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Your Expert Comment (optional)</h4>
+                        <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#6B7280] mb-1.5">Your Expert Comment (optional)</h4>
                         <textarea
                           value={commentDraft[review.id] || ""}
                           onChange={(e) => setCommentDraft((prev) => ({ ...prev, [review.id]: e.target.value }))}
                           rows={3}
                           placeholder="Add your assessment, corrections, or recommendations for the farmer…"
-                          className="w-full text-xs sm:text-sm rounded-lg border border-slate-300 p-3 bg-white text-slate-900 placeholder-slate-400 resize-none focus:outline-emerald-600"
+                          className="w-full text-xs sm:text-sm rounded-lg border border-[#D1D5DB] p-3 bg-white text-[#1F2937] placeholder-[#9CA3AF] resize-none focus:outline-[#2E7D32]"
                         />
                       </div>
                     ) : review.expertComment ? (
                       <div>
-                        <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Your Expert Comment</h4>
-                        <div className="flex items-start gap-2.5 bg-white border border-slate-200 rounded-lg p-3">
-                          <MessageSquare className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
-                          <p className="text-xs sm:text-sm text-slate-700">{review.expertComment}</p>
+                        <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#6B7280] mb-1.5">Your Expert Comment</h4>
+                        <div className="flex items-start gap-2.5 bg-white border border-[#E5E7EB] rounded-lg p-3">
+                          <MessageSquare className="w-3.5 h-3.5 text-[#2E7D32] mt-0.5 shrink-0" />
+                          <p className="text-xs sm:text-sm text-[#4B5563]">{review.expertComment}</p>
                         </div>
                       </div>
                     ) : null}
@@ -274,21 +274,21 @@ export default function ExpertAIReviewsPage() {
                       <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-1">
                         <button
                           onClick={() => handleAction(review.id, "AGREED")}
-                          className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold px-4 py-2.5 transition-colors shadow-xs min-h-[42px]"
+                          className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-[#2E7D32] hover:bg-[#1B5E20] text-white text-xs font-bold px-4 py-2.5 transition-colors shadow-xs min-h-[42px]"
                         >
                           <ThumbsUp className="w-3.5 h-3.5" />
                           Confirm AI Diagnosis
                         </button>
                         <button
                           onClick={() => handleAction(review.id, "DISAGREED")}
-                          className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2.5 transition-colors shadow-xs min-h-[42px]"
+                          className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-[#2563EB] hover:bg-[#DBEAFE] text-white text-xs font-bold px-4 py-2.5 transition-colors shadow-xs min-h-[42px]"
                         >
                           <ThumbsDown className="w-3.5 h-3.5" />
                           Provide Correction
                         </button>
                         <button
                           onClick={() => handleAction(review.id, "ESCALATED")}
-                          className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold px-4 py-2.5 transition-colors min-h-[42px] sm:w-auto w-full"
+                          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#E5E7EB] hover:bg-[#D1D5DB] text-[#1F2937] text-xs font-bold px-4 py-2.5 transition-colors min-h-[42px] sm:w-auto w-full"
                         >
                           <AlertCircle className="w-3.5 h-3.5" />
                           Escalate

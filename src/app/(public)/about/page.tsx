@@ -6,8 +6,8 @@ export default function AboutPage() {
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
       <main className="flex-1 max-w-4xl mx-auto px-4 py-16 space-y-6">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900">About KrishiAI</h1>
-        <p className="text-slate-600 leading-relaxed">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-[#1F2937]">About KrishiAI</h1>
+        <p className="text-[#4B5563] leading-relaxed">
           KrishiAI is an AI-powered agricultural advisory platform designed to bridge the gap between smallholder farmers, cutting-edge artificial intelligence, and verified agricultural professionals.
         </p>
       </main>

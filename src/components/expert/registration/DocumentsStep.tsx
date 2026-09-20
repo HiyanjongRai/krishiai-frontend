@@ -83,34 +83,34 @@ function UploadZone({
     <div
       className={`p-3.5 rounded-xl border transition-all ${
         isHighlighted
-          ? "border-orange-400 bg-orange-50/50 ring-2 ring-orange-200"
+          ? "border-[#FCD34D] bg-[#FEF3C7]/50 ring-2 ring-[#FEF3C7]"
           : isProcessing
-          ? "border-emerald-300 bg-emerald-50/40"
+          ? "border-[#A5D6A7] bg-[#E8F5E9]/40"
           : uploadedDoc
-          ? "border-emerald-200 bg-[#F0FDF4]/50"
-          : "border-[#E2E8E3] bg-[#F7F9F4] hover:bg-white"
+          ? "border-[#A5D6A7] bg-[#E8F5E9]/50"
+          : "border-[#E5E7EB] bg-[#F8FAF8] hover:bg-white"
       }`}
     >
       <div className="flex items-start justify-between gap-3 mb-2">
         <div>
           <div className="flex items-center gap-2">
-            <h4 className="text-xs sm:text-sm font-bold text-[#17201A]">{title}</h4>
+            <h4 className="text-xs sm:text-sm font-bold text-[#1F2937]">{title}</h4>
             {required ? (
-              <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100/70 px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-bold text-[#1B5E20] bg-[#E8F5E9]/70 px-2 py-0.5 rounded-full">
                 Required
               </span>
             ) : (
-              <span className="text-[10px] font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-medium text-[#9CA3AF] bg-[#F1F5F2] px-2 py-0.5 rounded-full">
                 Optional
               </span>
             )}
             {isHighlighted && (
-              <span className="text-[10px] font-extrabold text-orange-800 bg-orange-200 px-2 py-0.5 rounded-full animate-pulse">
+              <span className="text-[10px] font-extrabold text-[#F59E0B] bg-[#FEF3C7] px-2 py-0.5 rounded-full animate-pulse">
                 Update Requested
               </span>
             )}
           </div>
-          <p className="text-[11px] text-[#647067] mt-0.5 leading-relaxed">
+          <p className="text-[11px] text-[#6B7280] mt-0.5 leading-relaxed">
             {description}
           </p>
         </div>
@@ -118,28 +118,28 @@ function UploadZone({
 
       {isProcessing ? (
         /* Document Processing Local Feedback */
-        <div className="bg-white rounded-xl p-4 border border-emerald-200 shadow-2xs flex items-center gap-3">
+        <div className="bg-white rounded-xl p-4 border border-[#A5D6A7] shadow-2xs flex items-center gap-3">
           <LoadingSpinner size="sm" color="primary" />
           <div className="min-w-0 space-y-0.5">
-            <p className="text-xs sm:text-sm font-bold text-[#17201A] truncate">{processingName}</p>
-            <p className="text-[11px] text-emerald-700 font-medium">Encrypting &amp; attaching document...</p>
+            <p className="text-xs sm:text-sm font-bold text-[#1F2937] truncate">{processingName}</p>
+            <p className="text-[11px] text-[#2E7D32] font-medium">Encrypting &amp; attaching document...</p>
           </div>
         </div>
       ) : uploadedDoc ? (
         /* Uploaded File Card */
-        <div className="bg-white rounded-xl p-4 border border-emerald-200 shadow-2xs flex items-center justify-between gap-3 transition-all">
+        <div className="bg-white rounded-xl p-4 border border-[#A5D6A7] shadow-2xs flex items-center justify-between gap-3 transition-all">
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-10 h-10 rounded-lg bg-emerald-100/70 border border-emerald-200 flex items-center justify-center text-emerald-700 shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-[#E8F5E9]/70 border border-[#A5D6A7] flex items-center justify-center text-[#2E7D32] shrink-0">
               <FileCheck className="w-5 h-5" />
             </div>
             <div className="min-w-0 space-y-0.5">
               <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <p className="text-xs sm:text-sm font-bold text-[#17201A] truncate">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#2E7D32] shrink-0" />
+                <p className="text-xs sm:text-sm font-bold text-[#1F2937] truncate">
                   {uploadedDoc.fileName}
                 </p>
               </div>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[11px] text-[#6B7280]">
                 {uploadedDoc.fileSize} • Uploaded {uploadedDoc.uploadedAt}
               </p>
             </div>
@@ -148,7 +148,7 @@ function UploadZone({
           <button
             type="button"
             onClick={() => onRemove(type)}
-            className="px-3 py-1.5 text-xs font-semibold text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-1 shrink-0 cursor-pointer"
+            className="px-3 py-1.5 text-xs font-semibold text-[#DC2626] hover:text-[#DC2626] hover:bg-[#FEE2E2] rounded-lg transition-colors flex items-center gap-1 shrink-0 cursor-pointer"
           >
             <Trash2 className="w-3.5 h-3.5" />
             <span>Remove</span>
@@ -167,10 +167,10 @@ function UploadZone({
             onClick={() => fileInputRef.current?.click()}
             className={`border-2 border-dashed rounded-xl p-6 text-center transition-all cursor-pointer group ${
               isDragging
-                ? "border-[#166534] bg-emerald-50/50"
+                ? "border-[#1B5E20] bg-[#E8F5E9]"
                 : isHighlighted
-                ? "border-orange-400 bg-white hover:border-orange-500"
-                : "border-slate-300 bg-white hover:border-[#166534] hover:bg-slate-50/70"
+                ? "border-[#FCD34D] bg-white hover:border-[#FCD34D]0"
+                : "border-[#D1D5DB] bg-white hover:border-[#1B5E20] hover:bg-[#F8FAF8]"
             }`}
           >
             <input
@@ -184,23 +184,23 @@ function UploadZone({
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110 ${
                   isHighlighted
-                    ? "bg-orange-100 text-orange-700"
-                    : "bg-emerald-50 text-[#166534]"
+                    ? "bg-[#FEF3C7] text-[#F59E0B]"
+                    : "bg-[#E8F5E9] text-[#1B5E20]"
                 }`}
               >
                 <UploadCloud className="w-5 h-5" />
               </div>
-              <p className="text-xs sm:text-sm font-bold text-[#17201A]">
-                <span className="text-[#166534] underline">Click to upload</span> or drag and drop
+              <p className="text-xs sm:text-sm font-bold text-[#1F2937]">
+                <span className="text-[#1B5E20] underline">Click to upload</span> or drag and drop
               </p>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[11px] text-[#6B7280]">
                 PDF, PNG, or JPG (maximum 10 MB)
               </p>
             </div>
           </div>
 
           {error && (
-            <p className="text-xs font-medium text-rose-600 flex items-center gap-1.5 mt-2">
+            <p className="text-xs font-medium text-[#DC2626] flex items-center gap-1.5 mt-2">
               <AlertCircle className="w-3.5 h-3.5 shrink-0" />
               <span>{error}</span>
             </p>
@@ -237,19 +237,19 @@ export function DocumentsStep() {
   };
 
   return (
-    <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#E2E8E3] shadow-xs space-y-5 animate-in fade-in duration-200">
+    <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#E5E7EB] shadow-xs space-y-5 animate-in fade-in duration-200">
       {/* Step Header */}
       <div className="space-y-1.5">
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#F0FDF4] border border-emerald-200/80 text-[#166534] text-[10px] font-bold">
-          <Shield className="w-3 h-3 text-[#166534]" />
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E8F5E9] border border-[#A5D6A7]/80 text-[#1B5E20] text-[10px] font-bold">
+          <Shield className="w-3 h-3 text-[#1B5E20]" />
           <span>Step 4 • Verification Documents</span>
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <h2 className="text-lg sm:text-xl font-bold text-[#17201A] tracking-tight">
+          <h2 className="text-lg sm:text-xl font-bold text-[#1F2937] tracking-tight">
             Verify your expertise
           </h2>
         </div>
-        <p className="text-xs text-[#647067] leading-relaxed">
+        <p className="text-xs text-[#6B7280] leading-relaxed">
           Upload documents that help us verify your professional background. Your documents are securely reviewed by KrishiAI.
         </p>
       </div>
@@ -299,8 +299,8 @@ export function DocumentsStep() {
         />
 
         {attemptedSubmit && !isComplete && (
-          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+          <div className="p-3 rounded-xl bg-[#FEE2E2] border border-[#FCA5A5] text-[#DC2626] text-xs font-medium flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-[#DC2626] shrink-0" />
             <span>
               Please upload both your <strong>Identity Document</strong> and{" "}
               <strong>Educational Certificate</strong> before proceeding.
@@ -309,24 +309,24 @@ export function DocumentsStep() {
         )}
 
         {/* Security Reassurance Notice */}
-        <div className="p-3 rounded-xl bg-[#F0FDF4] border border-emerald-200 flex items-start gap-2.5 text-[#166534]">
-          <Lock className="w-3.5 h-3.5 shrink-0 mt-0.5 text-[#166534]" />
+        <div className="p-3 rounded-xl bg-[#E8F5E9] border border-[#A5D6A7] flex items-start gap-2.5 text-[#1B5E20]">
+          <Lock className="w-3.5 h-3.5 shrink-0 mt-0.5 text-[#1B5E20]" />
           <div className="text-xs leading-relaxed">
-            <p className="font-bold text-[#17201A]">
+            <p className="font-bold text-[#1F2937]">
               🔒 Your documents are securely used only for verification.
             </p>
-            <p className="text-[#647067] text-[11px] mt-0.5">
+            <p className="text-[#6B7280] text-[11px] mt-0.5">
               KrishiAI follows strict data privacy standards. Your identity documents will never be shared publicly or displayed to farmers.
             </p>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+        <div className="pt-3 border-t border-[#EEF0EE] flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={prevStep}
-            className="px-4 py-2.5 border border-[#E2E8E3] hover:bg-slate-50 text-[#17201A] font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+            className="px-4 py-2.5 border border-[#E5E7EB] hover:bg-[#F8FAF8] text-[#1F2937] font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back</span>
@@ -334,7 +334,7 @@ export function DocumentsStep() {
 
           <button
             type="submit"
-            className="px-6 py-2.5 bg-[#166534] hover:bg-[#14532d] text-white font-bold text-xs rounded-xl transition-all shadow-2xs hover:shadow-xs flex items-center justify-center gap-2 cursor-pointer group"
+            className="px-6 py-2.5 bg-[#1B5E20] hover:bg-[#1B5E20] text-white font-bold text-xs rounded-xl transition-all shadow-2xs hover:shadow-xs flex items-center justify-center gap-2 cursor-pointer group"
           >
             <span>Continue to Review Application</span>
             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />

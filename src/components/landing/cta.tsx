@@ -8,7 +8,7 @@ export function CTA() {
   const { openRegister } = useAuthModal();
 
   return (
-    <section className="py-12 sm:py-16 bg-gradient-to-br from-[#0F9F68] via-[#0D8A5A] to-[#0A6B45] text-white text-center relative overflow-hidden">
+    <section className="py-12 sm:py-16 bg-gradient-to-br from-[#2E7D32] via-[#256B2A] to-[#1B5E20] text-white text-center relative overflow-hidden">
       <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-white/10 blur-3xl pointer-events-none" />
       <div className="absolute -left-20 -bottom-20 h-60 w-60 rounded-full bg-black/10 blur-2xl pointer-events-none" />
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 space-y-5 sm:space-y-6 relative z-10">
@@ -26,7 +26,7 @@ export function CTA() {
           <button
             type="button"
             onClick={openRegister}
-            className="w-full sm:w-auto px-6 py-3.5 text-sm font-bold text-[#0F9F68] bg-white hover:bg-[#F4F4F6] rounded-full transition-all shadow-[0_4px_20px_rgba(0,0,0,0.15)] flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-98"
+            className="w-full sm:w-auto px-6 py-3.5 text-sm font-bold text-[#2E7D32] bg-white hover:bg-[#F1F5F2] rounded-full transition-all shadow-[0_4px_20px_#E5E7EB] flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-98"
           >
             <span>Create Free Farm Account</span>
             <ArrowRight className="w-4 h-4" />

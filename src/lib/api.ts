@@ -1,4 +1,9 @@
 import type { ApiResponse, TokenResponse } from "@/types/auth";
+import {
+  extractBackendErrors,
+  extractBackendFieldErrors,
+  extractBackendMessage,
+} from "@/utils/api-response";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080/api";
 
@@ -36,7 +41,8 @@ export class ApiError extends Error {
   constructor(
     public readonly status: number,
     message: string,
-    public readonly errors: string[] | null = null
+    public readonly errors: string[] | null = null,
+    public readonly fieldErrors: Record<string, string> = {}
   ) {
     super(message);
     this.name = "ApiError";
@@ -167,7 +173,14 @@ async function apiFetch<T>(
         window.dispatchEvent(new Event("krishiai:auth-expired"));
       }
     }
-    throw new ApiError(res.status, body.message ?? "Request failed", body.errors);
+    const message = extractBackendMessage(body) ?? body.message ?? "Request failed";
+    const errors = extractBackendErrors(body);
+    throw new ApiError(
+      res.status,
+      message,
+      errors.length > 0 ? errors : body.errors,
+      extractBackendFieldErrors(body)
+    );
   }
 
   return body.data;

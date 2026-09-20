@@ -34,6 +34,7 @@ import {
 import { ExpertProfileData } from "@/types/expert-dashboard";
 import { ExpertEditAndResubmitModal } from "./ExpertEditAndResubmitModal";
 import { ProfileImageUpload } from "@/components/ui/profile-image-upload";
+import { CropAvatar } from "@/components/ui/crop-avatar";
 
 interface ExpertDocumentSummary {
   documentType?: string;
@@ -88,7 +89,7 @@ export function ExpertProfileView() {
     return (
       <div className="space-y-6 pb-12" aria-busy="true" aria-label="Loading expert profile">
         {/* Top Header skeleton */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#E5E7EB]">
           <div className="space-y-1.5">
             <Skeleton className="h-4 w-48 rounded" />
             <Skeleton className="h-7 w-80 rounded-xl" />
@@ -100,7 +101,7 @@ export function ExpertProfileView() {
         </div>
 
         {/* Hero Identity Card */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 sm:p-8 space-y-6 shadow-xs">
+        <div className="bg-white rounded-xl border border-[#E5E7EB] p-6 sm:p-8 space-y-6 shadow-xs">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
               <Skeleton className="w-20 h-20 rounded-xl shrink-0" />
@@ -117,7 +118,7 @@ export function ExpertProfileView() {
 
         {/* 2-Column: Professional Credentials & Specializations */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4 shadow-xs">
+          <div className="bg-white rounded-xl border border-[#E5E7EB] p-6 space-y-4 shadow-xs">
             <Skeleton className="h-5 w-44 rounded" />
             <div className="grid grid-cols-2 gap-3.5 pt-2">
               <Skeleton className="h-20 rounded-xl" />
@@ -126,7 +127,7 @@ export function ExpertProfileView() {
               <Skeleton className="h-20 rounded-xl" />
             </div>
           </div>
-          <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4 shadow-xs">
+          <div className="bg-white rounded-xl border border-[#E5E7EB] p-6 space-y-4 shadow-xs">
             <Skeleton className="h-5 w-48 rounded" />
             <div className="space-y-2.5 pt-2">
               <Skeleton className="h-10 w-full rounded-lg" />
@@ -137,7 +138,7 @@ export function ExpertProfileView() {
         </div>
 
         {/* Documents Card */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4 shadow-xs">
+        <div className="bg-white rounded-xl border border-[#E5E7EB] p-6 space-y-4 shadow-xs">
           <Skeleton className="h-5 w-52 rounded" />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
             {Array.from({ length: 4 }).map((_, i) => (
@@ -160,65 +161,64 @@ export function ExpertProfileView() {
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Top Breadcrumb & Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
+      {/* ─── HEADER ROW (Farmer Dashboard Style) ───────────────────────────── */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs text-slate-500">
-            <Link href="/expert" className="hover:text-emerald-700 transition-colors">
-              Expert Dashboard
-            </Link>
-            <span>/</span>
-            <span className="font-bold text-slate-900">Profile &amp; Credentials</span>
-          </div>
-          <h1 className="text-2xl font-black text-slate-900 mt-1 tracking-tight">
-            Professional Profile &amp; Accreditation
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-[#1F2937] flex items-center gap-2">
+            <span>My</span>
+            <span className="text-[#2E7D32]">Credentials</span>
           </h1>
+          <p className="text-xs sm:text-sm text-[#6B7280] mt-1">
+            Manage your professional profile, accreditation documents and crop expertise.
+          </p>
         </div>
 
-        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto">
+        <div className="flex items-center gap-2.5 flex-wrap w-full sm:w-auto">
+          {/* Refresh Pill */}
           <button
             type="button"
             onClick={() => fetchProfile(true)}
             disabled={refreshing}
-            className="p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 min-h-[42px]"
+            className="flex items-center justify-between sm:justify-start gap-2 bg-white border border-[#E5E7EB] rounded-full px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs font-semibold text-[#4B5563] shadow-[0_4px_20px_-2px_#EEF0EE] cursor-pointer hover:border-[#D1D5DB] transition-colors disabled:opacity-50 min-h-[40px]"
             title="Refresh"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""} text-[#9CA3AF] shrink-0`} />
             <span className="hidden sm:inline">Refresh</span>
           </button>
 
+          {/* Primary Action Button */}
           <button
             type="button"
             onClick={() => setShowEditModal(true)}
-            className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-xs hover:shadow transition-all cursor-pointer min-h-[42px]"
+            className="flex items-center justify-center gap-2 bg-[#2E7D32] hover:bg-[#256B2A] text-white rounded-full px-4 sm:px-5 py-2 sm:py-2.5 text-xs font-bold shadow-sm transition-all active:scale-95 flex-1 sm:flex-initial min-h-[40px]"
           >
-            <Edit3 className="w-3.5 h-3.5" />
-            <span>{appStatus === "REJECTED" ? "Update Profile & Resubmit" : "Edit Profile"}</span>
+            <Edit3 className="w-3.5 h-3.5 shrink-0" />
+            <span className="whitespace-nowrap">{appStatus === "REJECTED" ? "Update & Resubmit" : "Edit Profile"}</span>
           </button>
         </div>
       </div>
 
       {/* Admin Feedback Banner if REJECTED */}
       {appStatus === "REJECTED" && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50/60 p-4 sm:p-5 shadow-xs">
+        <div className="rounded-xl border border-[#FCA5A5] bg-[#FEE2E2] p-4 sm:p-5 shadow-xs">
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div className="flex items-start gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-rose-100 border border-rose-200 text-rose-600">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#FEE2E2] border border-[#FCA5A5] text-[#DC2626]">
                 <AlertCircle className="w-4.5 h-4.5" />
               </div>
               <div className="space-y-1">
-                <h3 className="text-sm font-bold text-rose-950">
+                <h3 className="text-sm font-bold text-[#DC2626]">
                   Application Requires Updates
                 </h3>
-                <p className="text-xs text-rose-800 leading-relaxed">
+                <p className="text-xs text-[#DC2626] leading-relaxed">
                   The administrator reviewed your application and requested changes before granting accreditation.
                 </p>
                 {profile?.adminNotes && (
-                  <div className="mt-2.5 rounded-lg border border-rose-200 bg-white/80 p-3 text-xs">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-rose-600 mb-1">
+                  <div className="mt-2.5 rounded-lg border border-[#FCA5A5] bg-white/80 p-3 text-xs">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-[#DC2626] mb-1">
                       Admin Feedback
                     </p>
-                    <p className="font-semibold text-rose-900">
+                    <p className="font-semibold text-[#DC2626]">
                       &ldquo;{profile.adminNotes}&rdquo;
                     </p>
                   </div>
@@ -229,7 +229,7 @@ export function ExpertProfileView() {
             <button
               type="button"
               onClick={() => setShowEditModal(true)}
-              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-rose-700 hover:bg-rose-800 px-4 py-2.5 text-xs font-semibold text-white shadow-xs transition-colors shrink-0 cursor-pointer w-full sm:w-auto"
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#B91C1C] hover:bg-rose-800 px-4 py-2.5 text-xs font-semibold text-white shadow-xs transition-colors shrink-0 cursor-pointer w-full sm:w-auto"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Update &amp; Resubmit</span>
@@ -239,8 +239,8 @@ export function ExpertProfileView() {
       )}
 
       {/* Main Profile Header Card */}
-      <div className="bg-white rounded-xl p-4 sm:p-6 border border-slate-200 shadow-xs space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 border-b border-slate-100 pb-6">
+      <div className="bg-white rounded-[24px] p-5 sm:p-6 border border-[#E5E7EB] shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 border-b border-[#EEF0EE] pb-6">
           <div className="flex flex-col xs:flex-row items-start gap-4">
             <div className="shrink-0">
               <ProfileImageUpload
@@ -286,12 +286,12 @@ export function ExpertProfileView() {
             </div>
             <div className="space-y-1">
               <div className="flex items-center gap-2.5 flex-wrap">
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-black text-[#1F2937] tracking-tight">
                   {profile?.user?.fullName || user?.fullName || "Expert"}
                 </h2>
                 {isVerified ? (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#1B5E20] bg-[#E8F5E9] border border-[#A5D6A7] px-2 py-0.5 rounded-md">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#2E7D32]" />
                     Verified Expert
                   </span>
                 ) : appStatus === "SUBMITTED" ? (
@@ -300,28 +300,28 @@ export function ExpertProfileView() {
                     Under Review
                   </span>
                 ) : appStatus === "REJECTED" ? (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-800 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-md">
-                    <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
+                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#DC2626] bg-[#FEE2E2] border border-[#FCA5A5] px-2 py-0.5 rounded-md">
+                    <AlertCircle className="w-3.5 h-3.5 text-[#DC2626]" />
                     Changes Required
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#F59E0B] bg-[#FEF3C7] border border-[#FCD34D] px-2 py-0.5 rounded-md">
                     Draft Profile
                   </span>
                 )}
               </div>
-              <p className="text-sm font-semibold text-slate-600">
+              <p className="text-sm font-semibold text-[#4B5563]">
                 {profile?.designation || "Agricultural Specialist"}{" "}
                 {profile?.organization ? `• ${profile.organization}` : ""}
               </p>
-              <div className="flex flex-wrap items-center gap-3 pt-1 text-xs text-slate-500">
+              <div className="flex flex-wrap items-center gap-3 pt-1 text-xs text-[#6B7280]">
                 <span className="flex items-center gap-1">
-                  <Mail className="w-3.5 h-3.5 text-slate-400" />
+                  <Mail className="w-3.5 h-3.5 text-[#9CA3AF]" />
                   {profile?.user?.email || user?.email}
                 </span>
                 {profile?.user?.phone && (
                   <span className="flex items-center gap-1">
-                    <Phone className="w-3.5 h-3.5 text-slate-400" />
+                    <Phone className="w-3.5 h-3.5 text-[#9CA3AF]" />
                     {profile.user.phone}
                   </span>
                 )}
@@ -330,7 +330,7 @@ export function ExpertProfileView() {
                     href={profile.websiteUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-1 text-emerald-700 hover:underline"
+                    className="flex items-center gap-1 text-[#2E7D32] hover:underline"
                   >
                     <Globe className="w-3.5 h-3.5" />
                     Website
@@ -344,7 +344,7 @@ export function ExpertProfileView() {
             <button
               type="button"
               onClick={() => setShowEditModal(true)}
-              className="px-4 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-xl border border-[#E5E7EB] bg-[#F8FAF8] hover:bg-[#F1F5F2] text-[#4B5563] text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <Edit3 className="w-3.5 h-3.5" />
               <span>Edit Details</span>
@@ -355,20 +355,20 @@ export function ExpertProfileView() {
         {/* Bio */}
         {profile?.bio ? (
           <div className="space-y-1.5">
-            <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <h3 className="text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF]">
               Professional Biography
             </h3>
-            <p className="text-sm text-slate-700 leading-relaxed bg-slate-50 p-4 rounded-lg border border-slate-100">
+            <p className="text-sm text-[#4B5563] leading-relaxed bg-[#F8FAF8] p-4 rounded-lg border border-[#EEF0EE]">
               {profile.bio}
             </p>
           </div>
         ) : (
-          <div className="p-4 rounded-lg bg-slate-50 border border-dashed border-slate-200 text-center">
-            <p className="text-xs text-slate-400">No professional bio added yet.</p>
+          <div className="p-4 rounded-lg bg-[#F8FAF8] border border-dashed border-[#E5E7EB] text-center">
+            <p className="text-xs text-[#9CA3AF]">No professional bio added yet.</p>
             <button
               type="button"
               onClick={() => setShowEditModal(true)}
-              className="text-xs font-semibold text-emerald-700 hover:underline mt-1"
+              className="text-xs font-semibold text-[#2E7D32] hover:underline mt-1"
             >
               + Add Professional Bio
             </button>
@@ -377,50 +377,50 @@ export function ExpertProfileView() {
 
         {/* Academic & Professional Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-          <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-1">
-            <div className="flex items-center gap-2 text-slate-500 text-[11px] font-semibold">
-              <GraduationCap className="w-3.5 h-3.5 text-emerald-600" />
+          <div className="p-4 rounded-lg bg-[#F8FAF8] border border-[#E5E7EB] space-y-1">
+            <div className="flex items-center gap-2 text-[#6B7280] text-[11px] font-semibold">
+              <GraduationCap className="w-3.5 h-3.5 text-[#2E7D32]" />
               <span>Academic Qualification</span>
             </div>
-            <p className="text-sm font-bold text-slate-900 mt-1">
+            <p className="text-sm font-bold text-[#1F2937] mt-1">
               {profile?.qualification || "B.Sc. Agriculture"}
             </p>
-            <p className="text-xs text-slate-500">{profile?.institution || "Institution not specified"}</p>
+            <p className="text-xs text-[#6B7280]">{profile?.institution || "Institution not specified"}</p>
           </div>
 
-          <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-1">
-            <div className="flex items-center gap-2 text-slate-500 text-[11px] font-semibold">
-              <Briefcase className="w-3.5 h-3.5 text-emerald-600" />
+          <div className="p-4 rounded-lg bg-[#F8FAF8] border border-[#E5E7EB] space-y-1">
+            <div className="flex items-center gap-2 text-[#6B7280] text-[11px] font-semibold">
+              <Briefcase className="w-3.5 h-3.5 text-[#2E7D32]" />
               <span>Field Experience</span>
             </div>
-            <p className="text-sm font-bold text-slate-900 mt-1">
+            <p className="text-sm font-bold text-[#1F2937] mt-1">
               {profile?.yearsOfExperience ?? 1} Year{profile?.yearsOfExperience !== 1 ? "s" : ""}
             </p>
-            <p className="text-xs text-slate-500">Direct Agricultural Advisory</p>
+            <p className="text-xs text-[#6B7280]">Direct Agricultural Advisory</p>
           </div>
 
-          <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-1">
-            <div className="flex items-center gap-2 text-slate-500 text-[11px] font-semibold">
-              <Building2 className="w-3.5 h-3.5 text-emerald-600" />
+          <div className="p-4 rounded-lg bg-[#F8FAF8] border border-[#E5E7EB] space-y-1">
+            <div className="flex items-center gap-2 text-[#6B7280] text-[11px] font-semibold">
+              <Building2 className="w-3.5 h-3.5 text-[#2E7D32]" />
               <span>Affiliation</span>
             </div>
-            <p className="text-sm font-bold text-slate-900 mt-1">
+            <p className="text-sm font-bold text-[#1F2937] mt-1">
               {profile?.organization || "Independent Consultant"}
             </p>
-            <p className="text-xs text-slate-500">{profile?.designation || "Expert Specialist"}</p>
+            <p className="text-xs text-[#6B7280]">{profile?.designation || "Expert Specialist"}</p>
           </div>
         </div>
       </div>
 
       {/* Verification Documents Section */}
-      <div className="bg-white rounded-xl p-5 sm:p-6 border border-slate-200 shadow-xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+      <div className="bg-white rounded-[24px] p-5 sm:p-6 border border-[#E5E7EB] shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EEF0EE] pb-4">
           <div className="space-y-0.5">
-            <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-              <FileCheck2 className="w-5 h-5 text-emerald-600" />
+            <h3 className="text-lg font-black text-[#1F2937] flex items-center gap-2">
+              <FileCheck2 className="w-5 h-5 text-[#2E7D32]" />
               Verification Documents &amp; Credentials
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-[#6B7280]">
               Official records uploaded for administrative review and platform accreditation.
             </p>
           </div>
@@ -428,7 +428,7 @@ export function ExpertProfileView() {
           <button
             type="button"
             onClick={() => setShowEditModal(true)}
-            className="px-4 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold flex items-center gap-1.5 border border-emerald-200 transition-colors cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-[#E8F5E9] hover:bg-[#E8F5E9] text-[#1B5E20] text-xs font-bold flex items-center gap-1.5 border border-[#A5D6A7] transition-colors cursor-pointer"
           >
             <Upload className="w-3.5 h-3.5" />
             <span>Re-upload / Replace Documents</span>
@@ -464,36 +464,36 @@ export function ExpertProfileView() {
             return (
               <div
                 key={item.type}
-                className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 flex flex-col justify-between gap-3"
+                className="rounded-xl border border-[#E5E7EB] bg-[#F8FAF8] p-4 flex flex-col justify-between gap-3"
               >
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-200/70 text-slate-600">
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#E5E7EB]/70 text-[#4B5563]">
                       {item.type}
                     </span>
                     {isUploaded ? (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#2E7D32] bg-[#E8F5E9] border border-[#A5D6A7] px-2 py-0.5 rounded-md">
                         <CheckCircle2 className="w-3 h-3" />
                         Uploaded
                       </span>
                     ) : (
-                      <span className="text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">
+                      <span className="text-[11px] font-semibold text-[#F59E0B] bg-[#FEF3C7] border border-[#FCD34D] px-2 py-0.5 rounded-md">
                         Required
                       </span>
                     )}
                   </div>
-                  <h4 className="text-xs font-bold text-slate-900">{item.title}</h4>
-                  <p className="text-[11px] text-slate-500">{item.desc}</p>
+                  <h4 className="text-xs font-bold text-[#1F2937]">{item.title}</h4>
+                  <p className="text-[11px] text-[#6B7280]">{item.desc}</p>
                 </div>
 
-                <div className="rounded-lg bg-white border border-slate-200 p-2.5 flex items-center justify-between text-xs">
+                <div className="rounded-lg bg-white border border-[#E5E7EB] p-2.5 flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2 min-w-0">
-                    <FileText className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    <span className="font-mono text-slate-700 truncate font-medium text-[11px]">
+                    <FileText className="w-3.5 h-3.5 text-[#9CA3AF] shrink-0" />
+                    <span className="font-mono text-[#4B5563] truncate font-medium text-[11px]">
                       {doc ? doc.fileName : "No file uploaded"}
                     </span>
                   </div>
-                  <span className="text-[10px] text-slate-400 shrink-0">
+                  <span className="text-[10px] text-[#9CA3AF] shrink-0">
                     {doc?.fileSize || (isUploaded ? "1.5 MB" : "")}
                   </span>
                 </div>
@@ -501,9 +501,9 @@ export function ExpertProfileView() {
                 <button
                   type="button"
                   onClick={() => setShowEditModal(true)}
-                  className="w-full py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  className="w-full py-1.5 rounded-lg border border-[#E5E7EB] bg-white hover:bg-[#F8FAF8] text-xs font-semibold text-[#4B5563] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                 >
-                  <Upload className="w-3.5 h-3.5 text-emerald-600" />
+                  <Upload className="w-3.5 h-3.5 text-[#2E7D32]" />
                   <span>{isUploaded ? "Replace Document" : "Upload Document"}</span>
                 </button>
               </div>
@@ -515,16 +515,16 @@ export function ExpertProfileView() {
       {/* Expertise & Crops Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Crops */}
-        <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <Sprout className="w-4 h-4 text-emerald-600" />
+        <div className="bg-white rounded-[24px] p-5 border border-[#E5E7EB] shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-[#EEF0EE]">
+            <h3 className="text-sm font-bold text-[#1F2937] flex items-center gap-2">
+              <Sprout className="w-4 h-4 text-[#2E7D32]" />
               Specialty Crop Expertise
             </h3>
             <button
               type="button"
               onClick={() => setShowEditModal(true)}
-              className="text-xs font-semibold text-emerald-700 hover:text-emerald-800 transition-colors"
+              className="text-xs font-semibold text-[#2E7D32] hover:text-[#1B5E20] transition-colors"
             >
               Edit Crops
             </button>
@@ -532,17 +532,17 @@ export function ExpertProfileView() {
 
           {profile?.crops && profile.crops.length > 0 ? (
             <div className="flex flex-wrap gap-2">
-              {profile.crops.map((c) => (
+              {profile.crops.map((c, idx) => (
                 <div
-                  key={c.cropId}
+                  key={c.cropId ? `crop-${c.cropId}` : `crop-${c.cropName || "domain"}-${idx}`}
                   className={`rounded-lg border px-3 py-1.5 text-xs font-semibold flex items-center gap-1.5 ${
                     c.expertiseType === "PRIMARY"
-                      ? "bg-emerald-50 text-emerald-900 border-emerald-200"
-                      : "bg-teal-50 text-teal-900 border-teal-200"
+                      ? "bg-[#E8F5E9] text-[#1B5E20] border-[#A5D6A7]"
+                      : "bg-[#E8F5E9] text-[#2E7D32] border-[#C8E6C9]"
                   }`}
                 >
-                  <span>🌾</span>
-                  <span>{c.cropName}</span>
+                  <CropAvatar name={c.cropName} imageUrl={c.cropImageUrl} emoji={c.cropEmoji} isArea={c.expertiseType === "AREA"} size="xs" />
+                  <span>{c.cropName || "Crop Domain"}</span>
                   <span className="text-[10px] font-bold uppercase opacity-60">
                     ({c.expertiseType})
                   </span>
@@ -550,21 +550,21 @@ export function ExpertProfileView() {
               ))}
             </div>
           ) : (
-            <p className="text-xs text-slate-400">No crop expertise configured yet.</p>
+            <p className="text-xs text-[#9CA3AF]">No crop expertise configured yet.</p>
           )}
         </div>
 
         {/* Specializations & Locations */}
-        <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <Award className="w-4 h-4 text-blue-600" />
+        <div className="bg-white rounded-[24px] p-5 border border-[#E5E7EB] shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-[#EEF0EE]">
+            <h3 className="text-sm font-bold text-[#1F2937] flex items-center gap-2">
+              <Award className="w-4 h-4 text-[#2563EB]" />
               Specializations &amp; Service Zones
             </h3>
             <button
               type="button"
               onClick={() => setShowEditModal(true)}
-              className="text-xs font-semibold text-emerald-700 hover:text-emerald-800 transition-colors"
+              className="text-xs font-semibold text-[#2E7D32] hover:text-[#1B5E20] transition-colors"
             >
               Edit
             </button>
@@ -572,42 +572,42 @@ export function ExpertProfileView() {
 
           <div className="space-y-3">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF] mb-1.5">
                 Specializations
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {(profile?.specializations || []).length > 0 ? (
-                  profile?.specializations.map((s) => (
+                  profile?.specializations.map((s, sIdx) => (
                     <span
-                      key={s.id}
-                      className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700"
+                      key={s.id ? `spec-${s.id}` : `spec-${s.name}-${sIdx}`}
+                      className="rounded-md border border-[#E5E7EB] bg-[#F8FAF8] px-2.5 py-1 text-xs font-semibold text-[#4B5563]"
                     >
                       {s.name}
                     </span>
                   ))
                 ) : (
-                  <span className="text-xs text-slate-400">General Agricultural Advisory</span>
+                  <span className="text-xs text-[#9CA3AF]">General Agricultural Advisory</span>
                 )}
               </div>
             </div>
 
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF] mb-1.5">
                 Service Locations
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {(profile?.locations || []).length > 0 ? (
-                  profile?.locations.map((l) => (
+                  profile?.locations.map((l, lIdx) => (
                     <span
-                      key={l.id}
-                      className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600 flex items-center gap-1"
+                      key={l.id ? `loc-${l.id}` : `loc-${l.name}-${lIdx}`}
+                      className="rounded-md border border-[#E5E7EB] bg-[#F8FAF8] px-2.5 py-1 text-xs font-semibold text-[#4B5563] flex items-center gap-1"
                     >
-                      <MapPin className="w-3 h-3 text-slate-400" />
+                      <MapPin className="w-3 h-3 text-[#9CA3AF]" />
                       {l.name}
                     </span>
                   ))
                 ) : (
-                  <span className="text-xs text-slate-400">All Nepal Regions</span>
+                  <span className="text-xs text-[#9CA3AF]">All Nepal Regions</span>
                 )}
               </div>
             </div>

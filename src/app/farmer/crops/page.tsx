@@ -25,22 +25,22 @@ export default function FarmerCropsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-gray-200/80">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#E5E7EB]/80">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-[#0F9F68]">
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-[#2E7D32]">
             Farm Inventory
           </p>
-          <h1 className="mt-1 text-2xl sm:text-3xl font-black tracking-tight text-[#171717]">
+          <h1 className="mt-1 text-2xl sm:text-3xl font-black tracking-tight text-[#1F2937]">
             Active Crops
           </h1>
-          <p className="mt-0.5 text-xs sm:text-sm text-gray-500 font-medium">
+          <p className="mt-0.5 text-xs sm:text-sm text-[#6B7280] font-medium">
             Monitor growth cycles, cultivation areas, and plant vitality.
           </p>
         </div>
 
         <Link
           href="/farmer/analysis"
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0F9F68] hover:bg-[#0D8A5A] text-white text-xs font-bold rounded-full shadow-xs transition-all active:scale-95 cursor-pointer min-h-[44px]"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#2E7D32] hover:bg-[#256B2A] text-white text-xs font-bold rounded-full shadow-xs transition-all active:scale-95 cursor-pointer min-h-[44px]"
         >
           <Plus className="w-4 h-4" />
           <span>New Crop Scan</span>
@@ -49,37 +49,37 @@ export default function FarmerCropsPage() {
 
       {/* Quick Stats Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-        <div className="bg-white rounded-2xl border border-[rgba(234,234,236,0.85)] p-4 shadow-xs">
+        <div className="bg-white rounded-2xl border border-[#E5E7EB] p-4 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-500">Total Crops</span>
-            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-[#0F9F68] flex items-center justify-center">
+            <span className="text-xs font-semibold text-[#6B7280]">Total Crops</span>
+            <div className="w-7 h-7 rounded-lg bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center">
               <Sprout className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-black text-[#171717] mt-1">{sampleCrops.length}</p>
-          <p className="text-[10px] text-gray-400 mt-0.5 font-medium">Cultivated across farms</p>
+          <p className="text-2xl font-black text-[#1F2937] mt-1">{sampleCrops.length}</p>
+          <p className="text-[10px] text-[#9CA3AF] mt-0.5 font-medium">Cultivated across farms</p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-[rgba(234,234,236,0.85)] p-4 shadow-xs">
+        <div className="bg-white rounded-2xl border border-[#E5E7EB] p-4 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-500">Optimal Vitality</span>
-            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+            <span className="text-xs font-semibold text-[#6B7280]">Optimal Vitality</span>
+            <div className="w-7 h-7 rounded-lg bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center">
               <ShieldCheck className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-black text-emerald-700 mt-1">{healthyCount}</p>
-          <p className="text-[10px] text-emerald-600 font-medium mt-0.5">Healthy & disease-free</p>
+          <p className="text-2xl font-black text-[#2E7D32] mt-1">{healthyCount}</p>
+          <p className="text-[10px] text-[#2E7D32] font-medium mt-0.5">Healthy & disease-free</p>
         </div>
 
-        <div className="col-span-2 sm:col-span-1 bg-white rounded-2xl border border-[rgba(234,234,236,0.85)] p-4 shadow-xs">
+        <div className="col-span-2 sm:col-span-1 bg-white rounded-2xl border border-[#E5E7EB] p-4 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-500">Requires Attention</span>
-            <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center">
+            <span className="text-xs font-semibold text-[#6B7280]">Requires Attention</span>
+            <div className="w-7 h-7 rounded-lg bg-[#FEF3C7] text-[#F59E0B] flex items-center justify-center">
               <AlertTriangle className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-black text-amber-600 mt-1">{attentionCount}</p>
-          <p className="text-[10px] text-amber-600 font-medium mt-0.5">Alerts pending review</p>
+          <p className="text-2xl font-black text-[#F59E0B] mt-1">{attentionCount}</p>
+          <p className="text-[10px] text-[#F59E0B] font-medium mt-0.5">Alerts pending review</p>
         </div>
       </div>
 
@@ -87,13 +87,13 @@ export default function FarmerCropsPage() {
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         {/* Search Input */}
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-[#9CA3AF] absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search crops or varieties..."
-            className="w-full pl-9 pr-4 py-2.5 rounded-full border border-gray-200 bg-white text-xs text-slate-800 placeholder:text-gray-400 focus:outline-none focus:border-[#0F9F68] focus:ring-2 focus:ring-[#0F9F68]/15 transition-all min-h-[44px]"
+            className="w-full pl-9 pr-4 py-2.5 rounded-full border border-[#E5E7EB] bg-white text-xs text-[#1F2937] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#2E7D32] focus:ring-2 focus:ring-[#2E7D32]/15 transition-all min-h-[44px]"
           />
         </div>
 
@@ -106,8 +106,8 @@ export default function FarmerCropsPage() {
               onClick={() => setSelectedFilter(filter)}
               className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap min-h-[36px] ${
                 selectedFilter === filter
-                  ? "bg-[#0F9F68] text-white shadow-xs"
-                  : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                  ? "bg-[#2E7D32] text-white shadow-xs"
+                  : "bg-white border border-[#E5E7EB] text-[#4B5563] hover:bg-[#F8FAF8]"
               }`}
             >
               {filter === "ALL" ? "All Crops" : filter === "HEALTHY" ? "Healthy" : "Needs Review"}
@@ -118,10 +118,10 @@ export default function FarmerCropsPage() {
 
       {/* Crops Grid */}
       {filteredCrops.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-12 text-center">
-          <Sprout className="w-10 h-10 text-gray-300 mx-auto mb-2" />
-          <p className="text-sm font-bold text-gray-700">No matching crops found</p>
-          <p className="text-xs text-gray-400 mt-0.5">Try adjusting your search query or status filter.</p>
+        <div className="rounded-2xl border border-dashed border-[#D1D5DB] bg-white p-12 text-center">
+          <Sprout className="w-10 h-10 text-[#6B7280] mx-auto mb-2" />
+          <p className="text-sm font-bold text-[#4B5563]">No matching crops found</p>
+          <p className="text-xs text-[#9CA3AF] mt-0.5">Try adjusting your search query or status filter.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

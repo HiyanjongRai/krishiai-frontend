@@ -47,14 +47,14 @@ function formatDate(value?: string) {
 function statusClasses(status: string) {
   switch (status.toUpperCase()) {
     case "ACTIVE":
-      return "bg-emerald-50 text-emerald-800 border-emerald-200";
+      return "bg-[#E8F5E9] text-[#2E7D32] border-[#A5D6A7]";
     case "BLOCKED":
     case "SUSPENDED":
-      return "bg-rose-50 text-rose-800 border-rose-200";
+      return "bg-[#FEE2E2] text-[#DC2626] border-[#FCA5A5]";
     case "PENDING":
-      return "bg-amber-50 text-amber-800 border-amber-200";
+      return "bg-[#FEF3C7] text-[#F59E0B] border-[#FCD34D]";
     default:
-      return "bg-slate-100 text-slate-700 border-slate-200";
+      return "bg-[#F3F4F6] text-[#6B7280] border-[#E5E7EB]";
   }
 }
 
@@ -127,65 +127,58 @@ export function UserTable() {
 
   return (
     <div className="space-y-6">
-      {/* ── 1. Page Header & Stats Strip ────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
-            Cultivators Directory
-          </h1>
-          <p className="mt-0.5 text-xs sm:text-sm text-slate-500">
-            Oversee registered agricultural producers, plot allocations, and security statuses.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={handleRefresh}
-          disabled={isRefreshing}
-          className="self-start sm:self-center inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 transition-colors cursor-pointer"
-        >
-          <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin text-emerald-700" : "text-slate-400"}`} />
-          <span>Refresh</span>
-        </button>
-      </div>
-
-      {/* Real Summary Metrics Strip */}
+      {/* Summary Metrics Strip (Farmer Dashboard Style) */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs">
+        <div className="rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] space-y-2 hover:border-[#C8E6C9] transition-colors">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500">Total Cultivators</span>
-            <Users className="h-4 w-4 text-slate-400" />
+            <span className="text-xs font-bold text-[#6B7280]">Total Cultivators</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#E8F5E9] text-[#2E7D32]">
+              <Users className="h-4 w-4" />
+            </div>
           </div>
-          <p className="mt-1.5 text-2xl font-bold text-slate-900">{farmers.length}</p>
+          <div>
+            <p className="text-2xl sm:text-3xl font-black text-[#1F2937] tracking-tight">{farmers.length}</p>
+            <p className="text-[11px] text-[#9CA3AF] mt-0.5">Registered farmer network</p>
+          </div>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs">
+        <div className="rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] space-y-2 hover:border-[#C8E6C9] transition-colors">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500">Active Accounts</span>
-            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+            <span className="text-xs font-bold text-[#6B7280]">Active Accounts</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#E8F5E9] text-[#2E7D32]">
+              <CheckCircle2 className="h-4 w-4" />
+            </div>
           </div>
-          <p className="mt-1.5 text-2xl font-bold text-emerald-700">{totalActive}</p>
+          <div>
+            <p className="text-2xl sm:text-3xl font-black text-[#2E7D32] tracking-tight">{totalActive}</p>
+            <p className="text-[11px] text-[#9CA3AF] mt-0.5">Platform enabled producers</p>
+          </div>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs">
+        <div className="rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] space-y-2 hover:border-[#FCA5A5] transition-colors">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500">Suspended / Blocked</span>
-            <AlertCircle className="h-4 w-4 text-rose-500" />
+            <span className="text-xs font-bold text-[#6B7280]">Suspended / Blocked</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FEE2E2] text-[#DC2626]">
+              <AlertCircle className="h-4 w-4" />
+            </div>
           </div>
-          <p className="mt-1.5 text-2xl font-bold text-slate-900">{totalBlocked}</p>
+          <div>
+            <p className="text-2xl sm:text-3xl font-black text-[#1F2937] tracking-tight">{totalBlocked}</p>
+            <p className="text-[11px] text-[#9CA3AF] mt-0.5">Restricted or flagged accounts</p>
+          </div>
         </div>
       </div>
 
-      {/* ── 2. Filters & Search Toolbar ─────────────────────────────────────── */}
+      {/* ── 2. Filters & Search Toolbar (Farmer Dashboard Pills) ─────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="relative min-w-0 flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+          <Search className="absolute left-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#9CA3AF]" />
           <input
             type="text"
             value={search}
             onChange={(e) => { setSearch(e.target.value); resetPage(); }}
             placeholder="Search by name, email, phone, location..."
-            className="h-9 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-xs text-slate-900 outline-none placeholder:text-slate-400 focus:border-emerald-700 focus:ring-1 focus:ring-emerald-700 shadow-2xs transition-colors"
+            className="h-10 w-full rounded-full border border-[#E5E7EB] bg-white pl-9 pr-4 text-xs text-[#1F2937] outline-none placeholder:text-[#9CA3AF] shadow-[0_4px_20px_-2px_#EEF0EE] transition-all focus:border-[#2E7D32] focus:ring-3 focus:ring-[#2E7D32]/15"
           />
         </div>
 
@@ -193,7 +186,7 @@ export function UserTable() {
           <select
             value={roleFilter}
             onChange={(e) => { setRoleFilter(e.target.value); resetPage(); }}
-            className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-700 outline-none focus:border-emerald-700 shadow-2xs cursor-pointer"
+            className="h-10 rounded-full border border-[#E5E7EB] bg-white px-4 text-xs font-semibold text-[#4B5563] shadow-[0_4px_20px_-2px_#EEF0EE] outline-none focus:border-[#2E7D32] focus:ring-3 focus:ring-[#2E7D32]/15 cursor-pointer"
           >
             <option value="ALL">All Roles</option>
             <option value="ROLE_FARMER">Farmers</option>
@@ -204,7 +197,7 @@ export function UserTable() {
           <select
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value); resetPage(); }}
-            className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-700 outline-none focus:border-emerald-700 shadow-2xs cursor-pointer"
+            className="h-10 rounded-full border border-[#E5E7EB] bg-white px-4 text-xs font-semibold text-[#4B5563] shadow-[0_4px_20px_-2px_#EEF0EE] outline-none focus:border-[#2E7D32] focus:ring-3 focus:ring-[#2E7D32]/15 cursor-pointer"
           >
             <option value="ALL">All Statuses</option>
             <option value="ACTIVE">Active</option>
@@ -217,7 +210,7 @@ export function UserTable() {
             <select
               value={locationFilter}
               onChange={(e) => { setLocationFilter(e.target.value); resetPage(); }}
-              className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-700 outline-none focus:border-emerald-700 shadow-2xs cursor-pointer"
+              className="h-10 rounded-full border border-[#E5E7EB] bg-white px-4 text-xs font-semibold text-[#4B5563] shadow-[0_4px_20px_-2px_#EEF0EE] outline-none focus:border-[#2E7D32] focus:ring-3 focus:ring-[#2E7D32]/15 cursor-pointer"
             >
               <option value="ALL">All Locations</option>
               {locations.map((loc) => (
@@ -227,20 +220,30 @@ export function UserTable() {
               ))}
             </select>
           )}
+
+          <button
+            type="button"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="inline-flex items-center gap-1.5 rounded-full border border-[#E5E7EB] bg-white px-4 py-2 text-xs font-bold text-[#4B5563] shadow-[0_4px_20px_-2px_#EEF0EE] transition-all hover:bg-[#F1F5F2] hover:text-[#2E7D32] cursor-pointer"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin text-[#2E7D32]" : "text-[#9CA3AF]"}`} />
+            <span>Refresh</span>
+          </button>
         </div>
       </div>
 
       {/* ── 3. Main Data Table ──────────────────────────────────────────────── */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-2xs overflow-hidden">
+      <div className="rounded-[24px] border border-[#E5E7EB] bg-white shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] overflow-hidden">
         {isLoading ? (
           <TableSkeleton rows={8} />
         ) : loadError ? (
           <div className="p-8 text-center">
-            <p className="text-sm font-semibold text-rose-700">{loadError}</p>
+            <p className="text-sm font-semibold text-[#DC2626]">{loadError}</p>
             <button
               type="button"
               onClick={() => { setIsLoading(true); void fetchFarmers(); }}
-              className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-emerald-800 transition-colors shadow-2xs cursor-pointer"
+              className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-[#2E7D32] px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#256B2A] cursor-pointer"
             >
               <RefreshCw className="h-3.5 w-3.5" />
               <span>Retry</span>
@@ -248,31 +251,31 @@ export function UserTable() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center">
-            <Users className="mx-auto h-8 w-8 text-slate-400" />
-            <h3 className="mt-2 text-sm font-semibold text-slate-900">No cultivators found</h3>
-            <p className="mt-1 text-xs text-slate-500">
+            <Users className="mx-auto h-8 w-8 text-[#9CA3AF]" />
+            <h3 className="mt-2 text-sm font-semibold text-[#1F2937]">No cultivators found</h3>
+            <p className="mt-1 text-xs text-[#6B7280]">
               No registered farmers match your current search or filter criteria.
             </p>
           </div>
         ) : (
           <>
             {/* ── Mobile card list (< md) ──────────────────────────────── */}
-            <div className="md:hidden divide-y divide-slate-100">
+            <div className="md:hidden divide-y divide-[#EEF0EE]">
               {paginated.map((farmer) => (
-                <div key={farmer.id} className="p-4 flex items-start gap-3 hover:bg-slate-50/60 transition-colors">
+                <div key={farmer.id} className="p-4 flex items-start gap-3 transition-colors hover:bg-[#F8FAF8]">
                   <UserAvatar
                     src={farmer.profileImage}
                     name={farmer.fullName}
                     size="sm"
-                    className="rounded-lg ring-1 ring-slate-200 shrink-0 mt-0.5"
+                    className="rounded-lg ring-1 ring-[#E5E7EB] shrink-0 mt-0.5"
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <p className="text-xs font-semibold text-slate-900 truncate">{farmer.fullName}</p>
-                        <p className="text-[11px] text-slate-500 truncate">{farmer.email}</p>
+                        <p className="text-xs font-semibold text-[#1F2937] truncate">{farmer.fullName}</p>
+                        <p className="text-[11px] text-[#6B7280] truncate">{farmer.email}</p>
                         {farmer.location && (
-                          <p className="mt-0.5 text-[11px] text-slate-400 flex items-center gap-1">
+                          <p className="mt-0.5 text-[11px] text-[#9CA3AF] flex items-center gap-1">
                             <MapPin className="h-3 w-3 shrink-0" />
                             {farmer.location}
                           </p>
@@ -283,20 +286,20 @@ export function UserTable() {
                       </span>
                     </div>
                     <div className="mt-2 flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 text-[11px] text-slate-500">
-                        <span className="inline-flex items-center gap-1 rounded bg-slate-100 px-1.5 py-0.5 font-semibold text-slate-700">
-                          <Sprout className="h-3 w-3 text-emerald-700" />{farmer.cropsCount ?? 0}
+                      <div className="flex items-center gap-2 text-[11px] text-[#6B7280]">
+                        <span className="inline-flex items-center gap-1 rounded bg-[#F1F5F2] px-1.5 py-0.5 font-semibold text-[#4B5563]">
+                          <Sprout className="h-3 w-3 text-[#2E7D32]" />{farmer.cropsCount ?? 0}
                         </span>
-                        <span className="inline-flex items-center gap-1 rounded bg-slate-100 px-1.5 py-0.5 font-semibold text-slate-700">
-                          <Bot className="h-3 w-3 text-blue-600" />{farmer.aiAnalysesCount ?? 0}
+                        <span className="inline-flex items-center gap-1 rounded bg-[#EEF2FF] px-1.5 py-0.5 font-semibold text-[#3730A3]">
+                          <Bot className="h-3 w-3 text-[#4F46E5]" />{farmer.aiAnalysesCount ?? 0}
                         </span>
                       </div>
                       <button
                         type="button"
                         onClick={() => { setSelectedFarmer(farmer); setIsDetailsOpen(true); }}
-                        className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 shadow-2xs transition-colors cursor-pointer"
+                        className="inline-flex items-center gap-1 rounded-md border border-[#E5E7EB] bg-white px-2.5 py-1 text-xs font-medium text-[#4B5563] shadow-sm transition-colors hover:bg-[#F1F5F2] hover:text-[#2E7D32] cursor-pointer"
                       >
-                        <Eye className="h-3 w-3 text-slate-400" />
+                        <Eye className="h-3 w-3 text-[#9CA3AF]" />
                         <span>Manage</span>
                       </button>
                     </div>
@@ -308,7 +311,7 @@ export function UserTable() {
             {/* ── Desktop table (md+) ──────────────────────────────────── */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="border-b border-slate-200 bg-slate-50/75 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                <thead className="border-b border-[#E5E7EB] bg-[#F8FAF8] text-[11px] font-semibold text-[#4B5563] uppercase tracking-wider">
                   <tr>
                     <th className="py-3 px-4">Cultivator</th>
                     <th className="py-3 px-4">Email Address</th>
@@ -320,71 +323,72 @@ export function UserTable() {
                     <th className="py-3 px-4 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-[#EEF0EE]">
                   {paginated.map((farmer) => (
-                    <tr key={farmer.id} className="hover:bg-slate-50/60 transition-colors">
+                    <tr key={farmer.id} className="transition-colors hover:bg-[#F8FAF8]">
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-3">
                           <UserAvatar
                             src={farmer.profileImage}
                             name={farmer.fullName}
                             size="sm"
-                            className="rounded-lg ring-1 ring-slate-200 shrink-0"
+                            className="rounded-lg ring-1 ring-[#E5E7EB] shrink-0"
                           />
                           <div className="min-w-0">
-                            <p className="font-semibold text-slate-900 truncate">{farmer.fullName}</p>
-                            <p className="text-[11px] text-slate-500">{farmer.phone || "No phone recorded"}</p>
+                            <p className="font-semibold text-[#1F2937] truncate">{farmer.fullName}</p>
+                            <p className="text-[11px] text-[#6B7280]">{farmer.phone || "No phone recorded"}</p>
                           </div>
                         </div>
                       </td>
 
-                      <td className="py-3 px-4 text-slate-600 font-medium">{farmer.email}</td>
+                      <td className="py-3 px-4 text-[#4B5563] font-medium">{farmer.email}</td>
 
-                      <td className="py-3 px-4 text-slate-600">
+                      <td className="py-3 px-4 text-[#4B5563]">
                         {farmer.location ? (
                           <span className="inline-flex items-center gap-1">
-                            <MapPin className="h-3 w-3 text-slate-400 shrink-0" />
+                            <MapPin className="h-3 w-3 text-[#9CA3AF] shrink-0" />
                             <span>{farmer.location}</span>
                           </span>
                         ) : (
-                          <span className="text-slate-400">—</span>
+                          <span className="text-[#9CA3AF]">—</span>
                         )}
                       </td>
 
-                      <td className="py-3 px-4 text-slate-500 whitespace-nowrap">
+                      <td className="py-3 px-4 text-[#6B7280] whitespace-nowrap">
                         {formatDate(farmer.createdAt)}
                       </td>
 
                       <td className="py-3 px-4">
-                        <span className="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-700">
-                          <Sprout className="h-3 w-3 text-emerald-700" />
+                        <span className="inline-flex items-center gap-1 rounded bg-[#F1F5F2] px-2 py-0.5 text-xs font-semibold text-[#4B5563]">
+                          <Sprout className="h-3 w-3 text-[#2E7D32]" />
                           {farmer.cropsCount ?? 0}
                         </span>
                       </td>
 
                       <td className="py-3 px-4">
-                        <span className="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-700">
-                          <Bot className="h-3 w-3 text-blue-600" />
+                        <span className="inline-flex items-center gap-1 rounded bg-[#EEF2FF] px-2 py-0.5 text-xs font-semibold text-[#3730A3]">
+                          <Bot className="h-3 w-3 text-[#4F46E5]" />
                           {farmer.aiAnalysesCount ?? 0}
                         </span>
                       </td>
 
-                      <td className="py-3 px-4">
-                        <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-semibold ${statusClasses(farmer.status)}`}>
+                      <td className="py-3.5 px-4">
+                        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${statusClasses(farmer.status)}`}>
+                          <span className="w-1.5 h-1.5 rounded-full bg-current" />
                           {farmer.status}
                         </span>
                       </td>
 
-                      <td className="py-3 px-4 text-right">
+                      <td className="py-3.5 px-4 text-right">
                         <button
                           type="button"
                           onClick={() => {
                             setSelectedFarmer(farmer);
                             setIsDetailsOpen(true);
                           }}
-                          className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 shadow-2xs transition-colors cursor-pointer"
+                          className="inline-flex items-center gap-1.5 rounded-full border border-[#E5E7EB] bg-white px-3 py-1.5 text-xs font-semibold text-[#4B5563] shadow-xs transition-colors hover:border-[#2E7D32] hover:bg-[#E8F5E9] hover:text-[#2E7D32] cursor-pointer"
                         >
-                          <Eye className="h-3 w-3 text-slate-400" />
+                          <Eye className="h-3 w-3 text-[#9CA3AF]" />
                           <span>Manage</span>
                         </button>
                       </td>
@@ -398,11 +402,11 @@ export function UserTable() {
 
         {/* ── Pagination Footer ──────────────────────────────────────────────── */}
         {!isLoading && filtered.length > 0 && (
-          <div className="flex items-center justify-between border-t border-slate-200 px-4 py-3 bg-slate-50/50">
-            <span className="text-xs text-slate-500">
-              Showing <span className="font-semibold text-slate-900">{page * PAGE_SIZE + 1}</span> to{" "}
-              <span className="font-semibold text-slate-900">{Math.min((page + 1) * PAGE_SIZE, filtered.length)}</span> of{" "}
-              <span className="font-semibold text-slate-900">{filtered.length}</span> cultivators
+          <div className="flex items-center justify-between border-t border-[#EEF0EE] px-5 py-3.5 bg-[#F8FAF8]">
+            <span className="text-xs text-[#6B7280]">
+              Showing <span className="font-bold text-[#1F2937]">{page * PAGE_SIZE + 1}</span> to{" "}
+              <span className="font-bold text-[#1F2937]">{Math.min((page + 1) * PAGE_SIZE, filtered.length)}</span> of{" "}
+              <span className="font-bold text-[#1F2937]">{filtered.length}</span> cultivators
             </span>
 
             <div className="flex items-center gap-1.5">
@@ -410,19 +414,19 @@ export function UserTable() {
                 type="button"
                 onClick={() => setPage((p) => Math.max(0, p - 1))}
                 disabled={page === 0}
-                className="rounded-lg border border-slate-200 bg-white p-1.5 text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs transition-colors cursor-pointer"
+                className="rounded-full border border-[#E5E7EB] bg-white p-2 text-[#6B7280] shadow-xs transition-colors hover:bg-[#F1F5F2] hover:text-[#2E7D32] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                 title="Previous page"
               >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-3.5 w-3.5" />
               </button>
               <button
                 type="button"
                 onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                 disabled={page >= totalPages - 1}
-                className="rounded-lg border border-slate-200 bg-white p-1.5 text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs transition-colors cursor-pointer"
+                className="rounded-full border border-[#E5E7EB] bg-white p-2 text-[#6B7280] shadow-xs transition-colors hover:bg-[#F1F5F2] hover:text-[#2E7D32] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                 title="Next page"
               >
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-3.5 w-3.5" />
               </button>
             </div>
           </div>

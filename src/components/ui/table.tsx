@@ -9,7 +9,7 @@ export function Table({
   return (
     <div className="w-full overflow-x-auto">
       <table
-        className={cn("w-full text-left text-sm text-slate-600", className)}
+        className={cn("w-full text-left text-sm text-[#4B5563]", className)}
         {...props}
       >
         {children}

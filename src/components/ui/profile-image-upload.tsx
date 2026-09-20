@@ -154,10 +154,10 @@ export function ProfileImageUpload({
           aria-label="Change profile photo"
           className={`
             absolute inset-0 rounded-[inherit] flex items-center justify-center
-            bg-black/40 opacity-0 group-hover:opacity-100
+            bg-[#1F2937]/40 opacity-0 group-hover:opacity-100
             transition-opacity duration-200 cursor-pointer
             disabled:cursor-not-allowed focus-visible:opacity-100
-            focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#0F9F68]
+            focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2E7D32]
           `}
         >
           {uploadState === "uploading" ? (
@@ -175,19 +175,19 @@ export function ProfileImageUpload({
           onClick={openPicker}
           disabled={isProcessing}
           className={`
-            inline-flex items-center gap-1.5 text-[11px] font-bold px-3.5 py-1.5 rounded-full
+            inline-flex items-center gap-1.5 text-[11px] font-bold px-3.5 py-1.5 rounded-lg
             transition-all duration-150 cursor-pointer active:scale-95
             disabled:opacity-50 disabled:cursor-not-allowed
             ${uploadState === "uploading"
-              ? "bg-[#DDF4EA] text-[#0F9F68] border border-[#BCE9D5]"
-              : "bg-[#0F9F68] text-white hover:bg-[#0D8A5A] shadow-xs"
+              ? "bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9]"
+              : "bg-[#2E7D32] text-white hover:bg-[#256B2A] shadow-sm"
             }
           `}
         >
           {uploadState === "uploading" ? (
             <>
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              Uploading…
+              Uploading...
             </>
           ) : uploadState === "success" ? (
             <>
@@ -208,7 +208,7 @@ export function ProfileImageUpload({
             type="button"
             onClick={handleRemove}
             disabled={isProcessing}
-            className="inline-flex items-center gap-1 text-[10px] font-semibold text-rose-500 hover:text-rose-600 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#DC2626] hover:text-[#B91C1C] transition-colors cursor-pointer disabled:text-[#9CA3AF] disabled:cursor-not-allowed"
             aria-label="Remove profile photo"
           >
             {uploadState === "removing" ? (
@@ -216,13 +216,13 @@ export function ProfileImageUpload({
             ) : (
               <Trash2 className="w-3 h-3" />
             )}
-            {uploadState === "removing" ? "Removing…" : "Remove photo"}
+            {uploadState === "removing" ? "Removing..." : "Remove photo"}
           </button>
         )}
 
         {/* Hint text */}
         {uploadState !== "uploading" && uploadState !== "removing" && (
-          <p className="text-[10px] text-gray-400 text-center">
+          <p className="text-[10px] text-[#9CA3AF] text-center">
             {ALLOWED_TYPE_LABELS} &bull; Max {MAX_IMAGE_SIZE_LABEL}
           </p>
         )}
@@ -231,16 +231,16 @@ export function ProfileImageUpload({
       {/* ── Error message ─────────────────────────────────────────────── */}
       {uploadState === "error" && errorMsg && (
         <div
-          className="flex items-start gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-[11px] text-rose-700 font-medium max-w-xs"
+          className="flex items-start gap-1.5 rounded-xl border border-[#FCA5A5] bg-[#FEE2E2] px-3 py-2 text-[11px] text-[#DC2626] font-medium max-w-xs"
           role="alert"
           aria-live="assertive"
         >
-          <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0 text-rose-500" />
+          <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#DC2626]" />
           <span>{errorMsg}</span>
           <button
             type="button"
             onClick={() => { setErrorMsg(null); setUploadState("idle"); }}
-            className="ml-auto text-rose-400 hover:text-rose-600 transition-colors cursor-pointer"
+            className="ml-auto text-[#DC2626] hover:text-[#B91C1C] transition-colors cursor-pointer"
             aria-label="Dismiss error"
           >
             <X className="w-3 h-3" />

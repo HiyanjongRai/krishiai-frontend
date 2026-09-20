@@ -17,11 +17,11 @@ export function Statistics() {
   ];
 
   return (
-    <section className="py-12 sm:py-16 lg:py-20 bg-[#F4F4F6]">
+    <section className="py-12 sm:py-16 lg:py-20 bg-[#F1F5F2]">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
 
-          <div className="lg:col-span-7 rounded-[24px] sm:rounded-[28px] bg-gradient-to-br from-[#0F9F68] via-[#0D8A5A] to-[#0A6B45] p-5 sm:p-7 lg:p-8 text-white shadow-[0_10px_30px_-8px_rgba(15,159,104,0.35)] border border-[rgba(15,159,104,0.2)] relative overflow-hidden space-y-5 sm:space-y-6">
+          <div className="lg:col-span-7 rounded-[24px] sm:rounded-[28px] bg-gradient-to-br from-[#2E7D32] via-[#256B2A] to-[#1B5E20] p-5 sm:p-7 lg:p-8 text-white shadow-[0_10px_30px_-8px_#C8E6C9] border border-[#C8E6C9] relative overflow-hidden space-y-5 sm:space-y-6">
             <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl pointer-events-none" />
             <div className="absolute -left-8 -bottom-8 h-32 w-32 rounded-full bg-black/10 blur-lg pointer-events-none" />
             <div className="relative z-10 space-y-2">
@@ -66,12 +66,12 @@ export function Statistics() {
               {metrics.map((m, i) => (
                 <div
                   key={i}
-                  className="p-4 sm:p-5 rounded-[22px] sm:rounded-[24px] border border-[rgba(234,234,236,0.85)] bg-white shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.02)] flex flex-col items-center justify-center text-center space-y-1 hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.07)] transition-shadow"
+                  className="p-4 sm:p-5 rounded-[22px] sm:rounded-[24px] border border-[#E5E7EB] bg-white shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] flex flex-col items-center justify-center text-center space-y-1 hover:shadow-[0_8px_30px_-4px_#E5E7EB] transition-shadow"
                 >
-                  <div className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-[#171717]">
+                  <div className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-[#1F2937]">
                     {m.value}
                   </div>
-                  <div className="text-[11px] sm:text-xs font-medium text-gray-500 leading-snug">
+                  <div className="text-[11px] sm:text-xs font-medium text-[#6B7280] leading-snug">
                     {m.label}
                   </div>
                 </div>

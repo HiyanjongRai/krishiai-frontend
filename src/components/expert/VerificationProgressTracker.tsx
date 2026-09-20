@@ -47,13 +47,13 @@ function getStageIcon(
   isCurrent: boolean
 ) {
   if (isCompleted) {
-    return <CheckCircle2 className="h-5 w-5 text-emerald-600" />;
+    return <CheckCircle2 className="h-5 w-5 text-[#2E7D32]" />;
   }
   if (isCurrent && stage === "clock") {
-    return <Clock className="h-5 w-5 text-amber-600 animate-pulse" />;
+    return <Clock className="h-5 w-5 text-[#F59E0B] animate-pulse" />;
   }
   return (
-    <div className="h-5 w-5 rounded-full border-2 border-slate-300 bg-white" />
+    <div className="h-5 w-5 rounded-full border-2 border-[#D1D5DB] bg-white" />
   );
 }
 
@@ -73,8 +73,8 @@ export function VerificationProgressTracker({
   const isApproved = currentStatus === "APPROVED";
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8">
-      <h3 className="text-lg font-bold text-slate-900 mb-6">
+    <div className="bg-white rounded-2xl border border-[#E5E7EB] p-6 sm:p-8">
+      <h3 className="text-lg font-bold text-[#1F2937] mb-6">
         Expert Verification Progress
       </h3>
 
@@ -106,8 +106,8 @@ export function VerificationProgressTracker({
                   <div
                     className={`font-semibold text-sm transition-colors ${
                       isCompleted || isCurrent
-                        ? "text-slate-900"
-                        : "text-slate-400"
+                        ? "text-[#1F2937]"
+                        : "text-[#9CA3AF]"
                     }`}
                   >
                     {stage.label}
@@ -115,8 +115,8 @@ export function VerificationProgressTracker({
                   <div
                     className={`text-xs mt-1 transition-colors ${
                       isCompleted || isCurrent
-                        ? "text-slate-600"
-                        : "text-slate-400"
+                        ? "text-[#4B5563]"
+                        : "text-[#9CA3AF]"
                     }`}
                   >
                     {stage.description}
@@ -126,17 +126,17 @@ export function VerificationProgressTracker({
                   {isCurrent && (
                     <div className="mt-2">
                       {stage.status === "PENDING" && submittedAt && (
-                        <div className="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded inline-block">
+                        <div className="text-[11px] font-medium text-[#2E7D32] bg-[#E8F5E9] px-2.5 py-1 rounded inline-block">
                           Submitted {new Date(submittedAt).toLocaleDateString()}
                         </div>
                       )}
                       {stage.status === "UNDER_REVIEW" && underReviewSince && (
-                        <div className="text-[11px] font-medium text-amber-700 bg-amber-50 px-2.5 py-1 rounded inline-block">
+                        <div className="text-[11px] font-medium text-[#F59E0B] bg-[#FEF3C7] px-2.5 py-1 rounded inline-block">
                           Since {new Date(underReviewSince).toLocaleDateString()}
                         </div>
                       )}
                       {stage.status === "APPROVED" && approvedAt && (
-                        <div className="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded inline-block">
+                        <div className="text-[11px] font-medium text-[#2E7D32] bg-[#E8F5E9] px-2.5 py-1 rounded inline-block">
                           Approved {new Date(approvedAt).toLocaleDateString()}
                         </div>
                       )}
@@ -151,10 +151,10 @@ export function VerificationProgressTracker({
                   <div
                     className={`w-0.5 h-6 transition-colors ${
                       isCompleted
-                        ? "bg-emerald-200"
+                        ? "bg-[#C8E6C9]"
                         : isCurrent
-                          ? "bg-amber-200"
-                          : "bg-slate-200"
+                          ? "bg-[#FEF3C7]"
+                          : "bg-[#E5E7EB]"
                     }`}
                   />
                 </div>
@@ -165,57 +165,57 @@ export function VerificationProgressTracker({
       </div>
 
       {/* Current Status Description */}
-      <div className="mt-8 pt-6 border-t border-slate-200">
-        <div className="bg-slate-50 rounded-xl p-4">
-          <div className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-2">
+      <div className="mt-8 pt-6 border-t border-[#E5E7EB]">
+        <div className="bg-[#F8FAF8] rounded-xl p-4">
+          <div className="text-xs font-bold text-[#4B5563] uppercase tracking-wide mb-2">
             Current Status
           </div>
           {currentStatus === "UNDER_REVIEW" && (
             <div>
-              <div className="text-sm font-semibold text-amber-900 mb-1">
+              <div className="text-sm font-semibold text-[#F59E0B] mb-1">
                 Under Review
               </div>
-              <div className="text-sm text-slate-700">
+              <div className="text-sm text-[#4B5563]">
                 Our admin team is reviewing your professional qualifications and submitted expertise. This typically takes 3-7 business days.
               </div>
             </div>
           )}
           {currentStatus === "PENDING" && (
             <div>
-              <div className="text-sm font-semibold text-emerald-900 mb-1">
+              <div className="text-sm font-semibold text-[#1B5E20] mb-1">
                 Application Received
               </div>
-              <div className="text-sm text-slate-700">
+              <div className="text-sm text-[#4B5563]">
                 Your application has been received. We will begin reviewing your credentials shortly.
               </div>
             </div>
           )}
           {currentStatus === "ADDITIONAL_INFO_REQUIRED" && (
             <div>
-              <div className="text-sm font-semibold text-blue-900 mb-1">
+              <div className="text-sm font-semibold text-[#2563EB] mb-1">
                 Additional Information Required
               </div>
-              <div className="text-sm text-slate-700">
+              <div className="text-sm text-[#4B5563]">
                 Please provide the requested additional information to proceed with verification.
               </div>
             </div>
           )}
           {currentStatus === "APPROVED" && (
             <div>
-              <div className="text-sm font-semibold text-emerald-900 mb-1">
+              <div className="text-sm font-semibold text-[#1B5E20] mb-1">
                 Verification Complete
               </div>
-              <div className="text-sm text-slate-700">
+              <div className="text-sm text-[#4B5563]">
                 Congratulations! Your professional expertise has been verified. You can now access all verified expert features.
               </div>
             </div>
           )}
           {currentStatus === "REJECTED" && (
             <div>
-              <div className="text-sm font-semibold text-red-900 mb-1">
+              <div className="text-sm font-semibold text-[#DC2626] mb-1">
                 Application Needs Changes
               </div>
-              <div className="text-sm text-slate-700">
+              <div className="text-sm text-[#4B5563]">
                 Please review the feedback provided and update your application accordingly.
               </div>
             </div>
