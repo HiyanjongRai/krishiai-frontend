@@ -11,18 +11,22 @@ import {
   MapPin,
   CloudSun,
   Users,
+  MessageSquare,
   History,
+  Award,
   Settings,
   LogOut,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
 import { useAuth } from "@/providers/auth-provider";
+import { useMessaging } from "@/hooks/useMessaging";
 import { UserAvatar } from "@/components/ui/avatar";
 
 export function FarmerSidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const { totalUnreadCount } = useMessaging();
   const [collapsed, setCollapsed] = useState(false);
 
   // Persist collapsed state across page navigation
@@ -73,10 +77,10 @@ export function FarmerSidebar() {
 
   const secondaryNavItems = [
     {
-      label: "Weather",
-      href: "/farmer/weather",
-      icon: CloudSun,
-      isActive: pathname.startsWith("/farmer/weather"),
+      label: "Find Experts",
+      href: "/farmer/experts",
+      icon: Award,
+      isActive: pathname.startsWith("/farmer/experts"),
     },
     {
       label: "Consultations",
@@ -85,12 +89,27 @@ export function FarmerSidebar() {
       isActive: pathname.startsWith("/farmer/consultations"),
     },
     {
+      label: "Messages",
+      href: "/farmer/messages",
+      icon: MessageSquare,
+      badge: totalUnreadCount > 0 ? String(totalUnreadCount) : undefined,
+      badgeColor: "bg-[#2E7D32] text-white",
+      isActive: pathname.startsWith("/farmer/messages"),
+    },
+    {
+      label: "Weather",
+      href: "/farmer/weather",
+      icon: CloudSun,
+      isActive: pathname.startsWith("/farmer/weather"),
+    },
+    {
       label: "History",
       href: "/farmer/dashboard#history",
       icon: History,
       isActive: false,
     },
   ];
+
 
   return (
     <aside
@@ -191,11 +210,19 @@ export function FarmerSidebar() {
               >
                 <Icon className="w-4 h-4 shrink-0" />
                 {!collapsed && (
-                  <span className="truncate text-xs font-semibold">{item.label}</span>
+                  <>
+                    <span className="flex-1 truncate text-xs font-semibold">{item.label}</span>
+                    {item.badge && (
+                      <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${item.badgeColor || 'bg-[#2E7D32] text-white'}`}>
+                        {item.badge}
+                      </span>
+                    )}
+                  </>
                 )}
                 {collapsed && (
                   <span className="pointer-events-none absolute left-full ml-3 z-50 whitespace-nowrap rounded-lg bg-[#1F2937] px-2.5 py-1.5 text-[11px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-150 shadow-lg">
                     {item.label}
+                    {item.badge && ` (${item.badge})`}
                     <span className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 bg-[#1F2937]" />
                   </span>
                 )}

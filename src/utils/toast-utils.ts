@@ -1,5 +1,6 @@
 import { ApiError } from "@/lib/api";
 import { normalizeApiError } from "@/utils/api-response";
+export { toast } from "@/providers/app/toast-provider";
 
 /**
  * Extracts a safe, user-friendly error message from any caught error.

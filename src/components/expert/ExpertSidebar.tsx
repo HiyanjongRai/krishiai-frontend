@@ -25,8 +25,12 @@ import {
   ChevronLeft,
   ChevronRight,
   Users,
+  MessageSquare,
+  Tag,
+  Wallet,
 } from "lucide-react";
 import { UserAvatar } from "@/components/ui/avatar";
+import { useMessaging } from "@/hooks/useMessaging";
 
 interface ExpertQuickProfile {
   verifiedExpert: boolean;
@@ -45,6 +49,7 @@ interface ExpertProfileResponse {
 export function ExpertSidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const { totalUnreadCount } = useMessaging();
   const [profileData, setProfileData] = useState<ExpertQuickProfile | null>(null);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -95,9 +100,27 @@ export function ExpertSidebar() {
       label: "Farmer Inquiries",
       href: "/expert/consultations",
       icon: MessageSquareText,
-      badge: "5",
-      badgeColor: "bg-[#E8F5E9] text-[#2E7D32] border-[#A5D6A7]",
       isActive: pathname.startsWith("/expert/consultations"),
+    },
+    {
+      label: "Messages",
+      href: "/expert/messages",
+      icon: MessageSquare,
+      badge: totalUnreadCount > 0 ? String(totalUnreadCount) : undefined,
+      badgeColor: "bg-[#2E7D32] text-white",
+      isActive: pathname.startsWith("/expert/messages"),
+    },
+    {
+      label: "Pricing Packages",
+      href: "/expert/pricing",
+      icon: Tag,
+      isActive: pathname.startsWith("/expert/pricing"),
+    },
+    {
+      label: "Earnings & Wallet",
+      href: "/expert/earnings",
+      icon: Wallet,
+      isActive: pathname.startsWith("/expert/earnings"),
     },
     {
       label: "Crop Expertise",

@@ -200,6 +200,13 @@ export function KrishiToastProvider({ children }: { children: ReactNode }) {
     [addToast, promise, dismiss]
   );
 
+  React.useEffect(() => {
+    globalToast = toastMethods;
+    return () => {
+      globalToast = null;
+    };
+  }, [toastMethods]);
+
   const contextValue = useMemo(() => ({ toast: toastMethods }), [toastMethods]);
 
   return (
@@ -210,6 +217,21 @@ export function KrishiToastProvider({ children }: { children: ReactNode }) {
   );
 }
 
+let globalToast: ToastContextValue["toast"] | null = null;
+
+export const toast = {
+  success: (title: string, opts?: { description?: string }) =>
+    globalToast ? globalToast.success(opts ? { title, ...opts } : title) : "",
+  error: (title: string, opts?: { description?: string }) =>
+    globalToast ? globalToast.error(opts ? { title, ...opts } : title) : "",
+  warning: (title: string, opts?: { description?: string }) =>
+    globalToast ? globalToast.warning(opts ? { title, ...opts } : title) : "",
+  info: (title: string, opts?: { description?: string }) =>
+    globalToast ? globalToast.info(opts ? { title, ...opts } : title) : "",
+  loading: (title: string, opts?: { description?: string }) =>
+    globalToast ? globalToast.loading(opts ? { title, ...opts } : title) : "",
+};
+
 export function useToast() {
   const context = useContext(ToastContext);
   if (!context) {
@@ -217,3 +239,4 @@ export function useToast() {
   }
   return context;
 }
+

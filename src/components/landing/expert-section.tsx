@@ -86,54 +86,56 @@ export function ExpertSection() {
                 return (
                   <div
                     key={exp.id}
-                    className="rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] hover:shadow-[0_8px_30px_-4px_#E5E7EB] hover:border-[#C8E6C9] transition-all flex flex-col items-center text-center space-y-3 group"
+                    className="relative rounded-3xl border border-gray-200/90 bg-white overflow-hidden p-5 shadow-xs hover:shadow-xl hover:border-emerald-300 transition-all duration-300 flex flex-col items-center text-center space-y-3 group"
                   >
-                    <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-[#E5E7EB] ring-4 ring-[#F1F5F2] group-hover:ring-[#E8F5E9] transition-all">
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#2E7D32] via-[#43A047] to-[#81C784]" />
+
+                    <div className="relative mt-2 w-20 h-20 rounded-full overflow-hidden border-2 border-emerald-100 ring-4 ring-emerald-50 group-hover:ring-emerald-100 transition-all">
                       <Image
                         src={exp.avatar}
                         alt={exp.name}
                         fill
                         sizes="80px"
-                        className="object-cover"
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
 
                     <div className="space-y-0.5">
-                      <h4 className="text-sm font-bold text-[#1F2937]">
+                      <h4 className="text-sm font-bold text-gray-900 group-hover:text-[#1B5E20] transition-colors">
                         {exp.name}
                       </h4>
-                      <p className="text-xs text-[#9CA3AF] font-medium">
+                      <p className="text-xs text-gray-500 font-medium">
                         {exp.role}
                       </p>
                     </div>
 
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E8F5E9] border border-[#C8E6C9] text-[11px] font-bold text-[#2E7D32]">
-                      <CatIcon className="w-3 h-3" />
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-bold text-[#1B5E20]">
+                      <CatIcon className="w-3 h-3 text-[#2E7D32]" />
                       <span>{exp.category}</span>
                     </div>
 
-                    <div className="w-full pt-2 border-t border-[#E5E7EB] space-y-1 text-xs">
-                      <div className="flex items-center justify-center gap-1 font-bold text-[#1F2937]">
-                        <Star className="w-3.5 h-3.5 fill-[#F59E0B] text-[#F59E0B]" />
+                    <div className="w-full pt-2.5 border-t border-gray-100 space-y-1 text-xs">
+                      <div className="flex items-center justify-center gap-1 font-bold text-gray-800">
+                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
                         <span>{exp.rating}</span>
-                        <span className="text-[#9CA3AF] font-normal">({exp.reviews})</span>
+                        <span className="text-gray-400 font-normal">({exp.reviews})</span>
                       </div>
-                      <p className="text-[11px] text-[#9CA3AF]">
+                      <p className="text-[11px] text-gray-500">
                         {exp.experience}
                       </p>
 
                       <div className="flex items-center justify-center gap-1 text-[11px] font-bold text-[#2E7D32] pt-0.5">
                         <Check className="w-3 h-3 stroke-[3]" />
-                        <span>Verified</span>
+                        <span>Verified Specialist</span>
                       </div>
                     </div>
 
                     <div className="pt-2 w-full">
                       <Link
                         href={`/experts/${exp.id}`}
-                        className="text-xs font-bold text-[#2E7D32] hover:text-[#256B2A] flex items-center justify-center gap-1 transition-colors"
+                        className="w-full inline-flex items-center justify-center gap-1.5 py-2 px-4 rounded-xl bg-gray-50 hover:bg-[#2E7D32] text-xs font-bold text-gray-700 hover:text-white border border-gray-200 hover:border-[#2E7D32] transition-all shadow-2xs group-hover:border-emerald-300"
                       >
-                        <span>View Expert</span>
+                        <span>View Profile</span>
                         <ArrowRight className="w-3 h-3" />
                       </Link>
                     </div>

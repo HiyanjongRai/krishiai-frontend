@@ -19,6 +19,7 @@ import {
   ExternalLink,
   ChevronLeft,
   ChevronRight,
+  Coins,
 } from "lucide-react";
 import { ADMIN_NAV_SECTIONS } from "@/components/admin/admin-navigation";
 import { useAuth } from "@/providers/auth-provider";
@@ -110,6 +111,12 @@ export function AdminSidebar() {
   ];
 
   const secondaryNavItems = [
+    {
+      label: "Financials",
+      href: "/admin/financials",
+      icon: Coins,
+      isActive: pathname.startsWith("/admin/financials"),
+    },
     {
       label: "Consultations",
       href: "/admin/consultations",
