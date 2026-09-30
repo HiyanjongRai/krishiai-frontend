@@ -74,7 +74,7 @@ export default function FarmerConsultationDetailPage() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-base sm:text-lg font-bold text-[#1F2937]">
-                {consultation.subject || `Consultation #${consultation.id}`}
+                {consultation.subject || `Consultation ${consultation.referenceNumber ?? `#${consultation.id}`}`}
               </h1>
               <span
                 className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
@@ -91,7 +91,7 @@ export default function FarmerConsultationDetailPage() {
               </span>
             </div>
             <p className="text-xs text-[#6B7280]">
-              Expert: {consultation.expert?.fullName ?? 'Assigned Agricultural Specialist'}
+              Expert: {consultation.expert?.fullName ?? 'Assigned Agricultural Specialist'} · <span className="font-mono">{consultation.referenceNumber ?? `#${consultation.id}`}</span>
             </p>
           </div>
         </div>

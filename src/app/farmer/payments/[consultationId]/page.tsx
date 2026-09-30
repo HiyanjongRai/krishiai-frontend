@@ -151,7 +151,7 @@ export default function FarmerPaymentCheckoutPage() {
               {consultation.expert?.fullName ?? "Agricultural Specialist"}
             </h2>
             <p className="text-xs text-[#6B7280]">
-              {consultation.subject || `Consultation #${consultation.id}`}
+              {consultation.subject || `Consultation ${consultation.referenceNumber ?? `#${consultation.id}`}`}
             </p>
           </div>
 
@@ -165,6 +165,15 @@ export default function FarmerPaymentCheckoutPage() {
 
         {/* Breakdown details */}
         <div className="space-y-3 text-xs text-[#4B5563]">
+          <div className="flex items-center justify-between py-1 border-b border-gray-50">
+            <span className="flex items-center gap-1.5 text-[#374151] font-medium">
+              Reference
+            </span>
+            <span className="font-mono text-xs font-semibold text-[#1F2937]">
+              {consultation.referenceNumber ?? `#${consultation.id}`}
+            </span>
+          </div>
+
           <div className="flex items-center justify-between py-1 border-b border-gray-50">
             <span className="flex items-center gap-1.5 text-[#374151] font-medium">
               <Sprout className="w-4 h-4 text-[#2E7D32]" />

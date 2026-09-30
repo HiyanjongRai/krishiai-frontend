@@ -25,16 +25,12 @@ export default function AdminDiseasesPage() {
     setTimeout(() => setIsRefreshing(false), 600);
   };
 
-  const diseases = [
-    { id: 1, name: "Bacterial Leaf Blight", scientific: "Xanthomonas oryzae", crop: "Paddy (Rice)", type: "BACTERIAL", severity: "HIGH", accuracy: "99.2%", status: "Active" },
-    { id: 2, name: "Early Blight", scientific: "Alternaria solani", crop: "Tomato, Potato", type: "FUNGAL", severity: "MODERATE", accuracy: "97.8%", status: "Active" },
-    { id: 3, name: "Late Blight", scientific: "Phytophthora infestans", crop: "Potato, Tomato", type: "FUNGAL", severity: "HIGH", accuracy: "98.5%", status: "Active" },
-    { id: 4, name: "Fall Armyworm Damage", scientific: "Spodoptera frugiperda", crop: "Maize (Corn)", type: "PEST", severity: "HIGH", accuracy: "96.4%", status: "Active" },
-    { id: 5, name: "Yellow Rust (Stripe Rust)", scientific: "Puccinia striiformis", crop: "Wheat", type: "FUNGAL", severity: "HIGH", accuracy: "98.7%", status: "Active" },
-    { id: 6, name: "Brown Spot Disease", scientific: "Bipolaris oryzae", crop: "Paddy (Rice)", type: "FUNGAL", severity: "MODERATE", accuracy: "95.1%", status: "Active" },
-    { id: 7, name: "Tomato Yellow Leaf Curl", scientific: "Begomovirus TYLCV", crop: "Tomato", type: "VIRAL", severity: "HIGH", accuracy: "96.9%", status: "Active" },
-    { id: 8, name: "Powdery Mildew", scientific: "Erysiphe cichoracearum", crop: "Cucurbits, Apple", type: "FUNGAL", severity: "LOW", accuracy: "97.3%", status: "Active" },
-  ];
+  // TODO: Replace with real API call when /v1/admin/diseases endpoint is available
+  const diseases: {
+    id: number; name: string; scientific: string;
+    crop: string; type: string; severity: string;
+    accuracy: string; status: string;
+  }[] = [];
 
   const filtered = diseases.filter((d) => {
     const matchesType = selectedType === "ALL" || d.type === selectedType;
@@ -90,10 +86,8 @@ export default function AdminDiseasesPage() {
               <CheckCircle2 className="h-4 w-4" />
             </span>
           </div>
-          <p className="mt-3 text-3xl font-black text-[#1F2937] tracking-tight">142</p>
-          <p className="mt-1 text-xs text-[#2E7D32] font-medium flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D32]" /> Verified treatments
-          </p>
+          <p className="mt-3 text-3xl font-black text-[#9CA3AF] tracking-tight">&mdash;</p>
+          <p className="mt-1 text-xs text-[#9CA3AF] font-medium">Verified treatments</p>
         </div>
 
         <div className="rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:-translate-y-0.5">
@@ -103,10 +97,8 @@ export default function AdminDiseasesPage() {
               <AlertTriangle className="h-4 w-4" />
             </span>
           </div>
-          <p className="mt-3 text-3xl font-black text-[#1F2937] tracking-tight">5</p>
-          <p className="mt-1 text-xs text-[#DC2626] font-medium flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#DC2626]" /> Require quarantine alert
-          </p>
+          <p className="mt-3 text-3xl font-black text-[#9CA3AF] tracking-tight">&mdash;</p>
+          <p className="mt-1 text-xs text-[#9CA3AF] font-medium">Require quarantine alert</p>
         </div>
 
         <div className="rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:-translate-y-0.5">
@@ -116,10 +108,8 @@ export default function AdminDiseasesPage() {
               <Sprout className="h-4 w-4" />
             </span>
           </div>
-          <p className="mt-3 text-3xl font-black text-[#1F2937] tracking-tight">24</p>
-          <p className="mt-1 text-xs text-[#2563EB] font-medium flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]" /> AI vision supported
-          </p>
+          <p className="mt-3 text-3xl font-black text-[#9CA3AF] tracking-tight">&mdash;</p>
+          <p className="mt-1 text-xs text-[#9CA3AF] font-medium">AI vision supported</p>
         </div>
       </div>
 
@@ -222,6 +212,14 @@ export default function AdminDiseasesPage() {
                   </td>
                 </tr>
               ))}
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-5 py-12 text-center">
+                    <p className="text-sm font-semibold text-[#9CA3AF]">No disease records found</p>
+                    <p className="text-xs text-[#9CA3AF] mt-1">Add a new pathology entry to begin building the disease repository.</p>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

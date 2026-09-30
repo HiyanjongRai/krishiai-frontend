@@ -2,6 +2,7 @@ export interface PublicExpertise {
   cropId?: number | null;
   cropName?: string;
   cropEmoji?: string;
+  cropImageUrl?: string | null;
   categoryName?: string;
   expertiseType?: string;
   verificationStatus?: string;

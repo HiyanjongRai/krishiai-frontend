@@ -22,8 +22,8 @@ export function ConversationList({
 
   const filtered = conversations.filter((c) => {
     if (!searchQuery.trim()) return true;
-    const name = c.otherParticipant?.fullName?.toLowerCase() ?? '';
-    const title = c.title?.toLowerCase() ?? '';
+    const name = (c.otherParticipant?.fullName || c.otherParticipant?.displayName || '').toLowerCase();
+    const title = (c.title || '').toLowerCase();
     const query = searchQuery.toLowerCase();
     return name.includes(query) || title.includes(query);
   });
@@ -89,7 +89,10 @@ export function ConversationList({
           filtered.map((conv) => {
             const isSelected = selectedId === conv.id;
             const displayName =
-              conv.otherParticipant?.fullName ?? conv.title ?? 'Consultation';
+              conv.otherParticipant?.fullName ||
+              conv.otherParticipant?.displayName ||
+              conv.title ||
+              'Consultation';
             const isOnline = conv.otherParticipant?.online ?? false;
             const isExpert = conv.otherParticipant?.role === 'ROLE_EXPERT';
 

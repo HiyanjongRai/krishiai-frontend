@@ -28,7 +28,15 @@ export async function loginUser(
 export async function registerUser(
   data: RegisterRequest
 ): Promise<UserResponse> {
-  return api.post<UserResponse>("/v1/auth/register", data);
+  const safeData = { email: data.email, password: data.password, fullName: data.fullName, phone: data.phone };
+  return api.post<UserResponse>("/v1/auth/register/farmer", safeData);
+}
+
+export async function registerExpertUser(
+  data: RegisterRequest
+): Promise<UserResponse> {
+  const safeData = { email: data.email, password: data.password, fullName: data.fullName, phone: data.phone };
+  return api.post<UserResponse>("/v1/auth/register/expert", safeData);
 }
 
 /**

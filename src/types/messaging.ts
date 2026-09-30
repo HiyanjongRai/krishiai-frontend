@@ -16,6 +16,7 @@ export type ReportStatus = 'PENDING' | 'REVIEWED' | 'DISMISSED';
 
 export interface UserPublicSummaryDto {
   id: number;
+  displayName: string;
   fullName: string;
   profileImageUrl: string | null;
   role: string;
@@ -61,6 +62,7 @@ export interface CursorPageResponse<T> {
 
 export interface ConsultationDetailDto {
   id: number;
+  referenceNumber?: string;
   farmer: UserPublicSummaryDto;
   expert: UserPublicSummaryDto | null;
   cropName: string | null;

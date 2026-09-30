@@ -26,14 +26,11 @@ export default function AdminKnowledgePage() {
     setTimeout(() => setIsRefreshing(false), 600);
   };
 
-  const sources = [
-    { id: "KB-01", title: "NARC Nepal Agricultural Research Council: Cereal Diseases 2025", type: "RESEARCH", chunks: 342, dimension: "1536 dim", status: "INDEXED", updated: "3 days ago" },
-    { id: "KB-02", title: "National Seed Board: Certified Seed & Yield Optimization Guidelines", type: "GOV", chunks: 180, dimension: "1536 dim", status: "INDEXED", updated: "1 week ago" },
-    { id: "KB-03", title: "Terai & Mid-Hills Soil Nutrient Management & Fertilizer Standards", type: "RESEARCH", chunks: 512, dimension: "1536 dim", status: "INDEXED", updated: "2 weeks ago" },
-    { id: "KB-04", title: "Department of Agriculture Seasonal Advisory Bulletin: Monsoonal Prep", type: "BULLETIN", chunks: 94, dimension: "1536 dim", status: "INDEXED", updated: "1 month ago" },
-    { id: "KB-05", title: "Integrated Pest Management (IPM) Tomato & Vegetable Guidelines", type: "RESEARCH", chunks: 420, dimension: "1536 dim", status: "INDEXED", updated: "1 month ago" },
-    { id: "KB-06", title: "Common Crop Pathologies: Symptoms & Chemical Antidote Compendium", type: "FAQ", chunks: 640, dimension: "1536 dim", status: "SYNCING", updated: "Just now" },
-  ];
+  // TODO: Replace with real API call when /v1/admin/knowledge endpoint is available
+  const sources: {
+    id: string; title: string; type: string;
+    chunks: number; dimension: string; status: string; updated: string;
+  }[] = [];
 
   const filtered = sources.filter((s) => {
     const matchesType = selectedType === "ALL" || s.type === selectedType;
@@ -75,10 +72,8 @@ export default function AdminKnowledgePage() {
               <FileText className="h-4 w-4" />
             </span>
           </div>
-          <p className="mt-3 text-3xl font-black text-[#1F2937] tracking-tight">420</p>
-          <p className="mt-1 text-xs text-[#2E7D32] font-medium flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D32]" /> Fully parsed &amp; verified
-          </p>
+          <p className="mt-3 text-3xl font-black text-[#9CA3AF] tracking-tight">&mdash;</p>
+          <p className="mt-1 text-xs text-[#9CA3AF] font-medium">Fully parsed &amp; verified</p>
         </div>
 
         <div className="rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:-translate-y-0.5">
@@ -88,10 +83,8 @@ export default function AdminKnowledgePage() {
               <Layers className="h-4 w-4" />
             </span>
           </div>
-          <p className="mt-3 text-3xl font-black text-[#1F2937] tracking-tight">84,200</p>
-          <p className="mt-1 text-xs text-[#2E7D32] font-medium flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D32]" /> 512-token chunking
-          </p>
+          <p className="mt-3 text-3xl font-black text-[#9CA3AF] tracking-tight">&mdash;</p>
+          <p className="mt-1 text-xs text-[#9CA3AF] font-medium">512-token chunking</p>
         </div>
 
         <div className="rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:-translate-y-0.5">
@@ -114,10 +107,8 @@ export default function AdminKnowledgePage() {
               <Sparkles className="h-4 w-4" />
             </span>
           </div>
-          <p className="mt-3 text-3xl font-black text-[#1F2937] tracking-tight">99.4%</p>
-          <p className="mt-1 text-xs text-[#2E7D32] font-medium flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D32]" /> Zero hallucinations
-          </p>
+          <p className="mt-3 text-3xl font-black text-[#9CA3AF] tracking-tight">&mdash;</p>
+          <p className="mt-1 text-xs text-[#9CA3AF] font-medium">RAG grounding score</p>
         </div>
       </div>
 
@@ -220,6 +211,14 @@ export default function AdminKnowledgePage() {
                   </td>
                 </tr>
               ))}
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="px-5 py-12 text-center">
+                    <p className="text-sm font-semibold text-[#9CA3AF]">No knowledge sources indexed yet</p>
+                    <p className="text-xs text-[#9CA3AF] mt-1">Upload a PDF or document to begin building the vector index.</p>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

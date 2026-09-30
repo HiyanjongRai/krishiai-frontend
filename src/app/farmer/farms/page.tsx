@@ -280,77 +280,77 @@ export default function FarmerFarmsPage() {
   }, [farms]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-5">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-[#E5E7EB]">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-[#E5E7EB]">
         <div>
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-[#E8F5E9] text-[#2E7D32]">
-              <MapPin className="w-5 h-5" />
+            <span className="p-1 rounded-lg bg-[#E8F5E9] text-[#2E7D32]">
+              <MapPin className="w-4 h-4" />
             </span>
-            <h1 className="text-2xl sm:text-3xl font-black text-[#1F2937] tracking-tight">
+            <h1 className="text-lg sm:text-xl font-bold text-[#1F2937] tracking-tight">
               Farm Management
             </h1>
           </div>
-          <p className="text-xs sm:text-sm text-[#6B7280] mt-1">
+          <p className="text-[11px] sm:text-xs text-[#6B7280] mt-0.5">
             Register and monitor your agricultural plots, land parcels, and GPS coordinates across Nepal.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 w-full sm:w-auto">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <button
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="p-2.5 rounded-full bg-white border border-[#E5E7EB] text-[#4B5563] hover:text-[#2E7D32] hover:border-[#C8E6C9] transition-colors shadow-2xs cursor-pointer"
+            className="p-2 rounded-lg bg-white border border-[#E5E7EB] text-[#4B5563] hover:text-[#2E7D32] hover:border-[#C8E6C9] transition-colors shadow-2xs cursor-pointer"
             title="Refresh farms"
           >
-            <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin text-[#2E7D32]" : ""}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin text-[#2E7D32]" : ""}`} />
           </button>
 
-          <Button onClick={openCreateModal} className="w-full sm:w-auto">
-            <Plus className="w-4 h-4 mr-1.5" />
+          <Button onClick={openCreateModal} size="sm" className="rounded-lg py-1.5 px-3 text-xs w-full sm:w-auto">
+            <Plus className="w-3.5 h-3.5 mr-1" />
             <span>Add New Farm</span>
           </Button>
         </div>
       </div>
 
       {/* Metric Cards Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="rounded-2xl bg-white border border-[#E5E7EB]/80 p-5 shadow-2xs">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="rounded-xl bg-white border border-[#E5E7EB]/80 p-3.5 shadow-2xs">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-bold text-[#6B7280] uppercase tracking-wider">Registered Farms</p>
-            <div className="w-8 h-8 rounded-xl bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center">
-              <Layers className="w-4 h-4" />
+            <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Registered Farms</p>
+            <div className="w-6 h-6 rounded-lg bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center">
+              <Layers className="w-3.5 h-3.5" />
             </div>
           </div>
-          <p className="text-2xl sm:text-3xl font-black text-[#1F2937] mt-2">{farms.length}</p>
-          <p className="text-[11px] text-[#9CA3AF] mt-0.5">Active agricultural holdings</p>
+          <p className="text-xl sm:text-2xl font-bold text-[#1F2937] mt-1">{farms.length}</p>
+          <p className="text-[10px] text-[#9CA3AF] mt-0.5">Active agricultural holdings</p>
         </div>
 
-        <div className="rounded-2xl bg-white border border-[#E5E7EB]/80 p-5 shadow-2xs">
+        <div className="rounded-xl bg-white border border-[#E5E7EB]/80 p-3.5 shadow-2xs">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-bold text-[#6B7280] uppercase tracking-wider">Combined Area</p>
-            <div className="w-8 h-8 rounded-xl bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center">
-              <Sprout className="w-4 h-4" />
+            <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Combined Area</p>
+            <div className="w-6 h-6 rounded-lg bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center">
+              <Sprout className="w-3.5 h-3.5" />
             </div>
           </div>
-          <p className="text-2xl sm:text-3xl font-black text-[#1F2937] mt-2">
-            {totalAreaSummary} <span className="text-sm font-semibold text-[#6B7280]">Ropani eq.</span>
+          <p className="text-xl sm:text-2xl font-bold text-[#1F2937] mt-1">
+            {totalAreaSummary} <span className="text-xs font-semibold text-[#6B7280]">Ropani eq.</span>
           </p>
-          <p className="text-[11px] text-[#9CA3AF] mt-0.5">Across all registered parcels</p>
+          <p className="text-[10px] text-[#9CA3AF] mt-0.5">Across all registered parcels</p>
         </div>
 
-        <div className="rounded-2xl bg-white border border-[#E5E7EB]/80 p-5 shadow-2xs">
+        <div className="rounded-xl bg-white border border-[#E5E7EB]/80 p-3.5 shadow-2xs">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-bold text-[#6B7280] uppercase tracking-wider">Primary Location</p>
-            <div className="w-8 h-8 rounded-xl bg-[#DBEAFE] text-[#2563EB] flex items-center justify-center">
-              <Compass className="w-4 h-4" />
+            <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Primary Location</p>
+            <div className="w-6 h-6 rounded-lg bg-[#DBEAFE] text-[#2563EB] flex items-center justify-center">
+              <Compass className="w-3.5 h-3.5" />
             </div>
           </div>
-          <p className="text-lg sm:text-xl font-bold text-[#1F2937] mt-2 truncate">
+          <p className="text-base sm:text-lg font-bold text-[#1F2937] mt-1 truncate">
             {farms[0]?.location?.name || "Unassigned Region"}
           </p>
-          <p className="text-[11px] text-[#9CA3AF] mt-0.5">District / Municipality tree</p>
+          <p className="text-[10px] text-[#9CA3AF] mt-0.5">District / Municipality tree</p>
         </div>
       </div>
 
@@ -430,11 +430,11 @@ export default function FarmerFarmsPage() {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filteredFarms.map((farm, index) => (
             <div
               key={farm.id}
-              className="rounded-3xl border border-[#E5E7EB] bg-white p-6 shadow-2xs hover:shadow-md hover:border-[#C8E6C9] transition-all flex flex-col justify-between group"
+              className="rounded-2xl border border-[#E5E7EB] bg-white p-4 sm:p-5 shadow-2xs hover:shadow-md hover:border-[#C8E6C9] transition-all flex flex-col justify-between group"
             >
               <div>
                 <div className="flex items-start justify-between gap-3 mb-3">
@@ -507,6 +507,13 @@ export default function FarmerFarmsPage() {
                 </span>
 
                 <div className="flex items-center gap-1.5">
+                  <Link
+                    href={`/farmer/farms/${farm.id}`}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] font-semibold text-[#2E7D32] bg-[#E8F5E9] hover:bg-[#C8E6C9] transition-colors"
+                  >
+                    <Sprout className="w-3 h-3" />
+                    Manage Crops
+                  </Link>
                   <button
                     onClick={() => openEditModal(farm)}
                     className="p-2 rounded-xl text-[#6B7280] hover:text-[#2E7D32] hover:bg-[#E8F5E9] transition-colors cursor-pointer"

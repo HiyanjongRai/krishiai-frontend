@@ -46,7 +46,9 @@ export interface PaymentInitiationResponse {
 
 export interface PaymentResponseDto {
   id: number;
+  referenceNumber?: string;
   consultationId: number;
+  consultationReferenceNumber?: string;
   payerId: number;
   provider: PaymentProvider;
   transactionUuid: string;
@@ -69,11 +71,13 @@ export type LedgerEntryType = 'EXPERT_EARNING' | 'PLATFORM_COMMISSION' | 'WITHDR
 
 export interface WalletLedgerEntry {
   id: number;
+  referenceNumber?: string;
   type: LedgerEntryType;
   amount: number;
   currency: string;
   referenceType: string | null;
   referenceId: number | null;
+  targetReference?: string | null;
   description: string | null;
   createdAt: string;
 }
@@ -86,10 +90,11 @@ export interface ExpertEarningsSummary {
   transactions: WalletLedgerEntry[];
 }
 
-export type WithdrawalStatus = 'PENDING' | 'PROCESSED' | 'REJECTED';
+export type WithdrawalStatus = 'PENDING' | 'APPROVED' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'REJECTED' | 'CANCELLED';
 
 export interface WithdrawalRequest {
   id: number;
+  referenceNumber?: string;
   expertId: number;
   expertName: string;
   amount: number;
@@ -99,6 +104,7 @@ export interface WithdrawalRequest {
   requestedAt: string;
   processedAt: string | null;
   adminNotes: string | null;
+  payoutReference: string | null;
 }
 
 export interface CreateWithdrawalRequest {

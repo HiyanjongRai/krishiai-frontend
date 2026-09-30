@@ -273,8 +273,8 @@ export default function ExpertEarningsPage() {
                           <td className="py-3 px-3 text-[#1F2937] font-medium max-w-xs truncate">
                             {entry.description || "Consultation fee earning"}
                           </td>
-                          <td className="py-3 px-3 text-[#6B7280] font-mono">
-                            #{entry.referenceId ?? entry.id}
+                          <td className="py-3 px-3 text-[#6B7280] font-mono text-[11px]">
+                            {entry.referenceNumber ?? entry.targetReference ?? (entry.referenceId ? `#${entry.referenceId}` : `#${entry.id}`)}
                           </td>
                           <td
                             className={`py-3 px-3 text-right font-bold whitespace-nowrap ${
@@ -310,7 +310,7 @@ export default function ExpertEarningsPage() {
                 <table className="w-full text-left text-xs">
                   <thead>
                     <tr className="border-b border-gray-100 text-[#9CA3AF] font-bold uppercase tracking-wider">
-                      <th className="pb-3 px-3">Requested At</th>
+                      <th className="pb-3 px-3">Reference / Date</th>
                       <th className="pb-3 px-3">Amount</th>
                       <th className="pb-3 px-3">Destination Details</th>
                       <th className="pb-3 px-3">Status</th>
@@ -321,13 +321,18 @@ export default function ExpertEarningsPage() {
                     {withdrawals.map((req) => (
                       <tr key={req.id} className="hover:bg-gray-50/70 transition-colors">
                         <td className="py-3 px-3 text-[#4B5563] whitespace-nowrap">
-                          {new Date(req.requestedAt).toLocaleString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
+                          <div className="font-mono font-bold text-gray-900 text-xs">
+                            {req.referenceNumber ?? `#${req.id}`}
+                          </div>
+                          <div className="text-[11px] text-gray-500">
+                            {new Date(req.requestedAt).toLocaleString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </div>
                         </td>
                         <td className="py-3 px-3 font-bold text-[#1F2937] whitespace-nowrap">
                           NPR {Number(req.amount).toLocaleString()}
@@ -336,41 +341,60 @@ export default function ExpertEarningsPage() {
                           {req.accountDetails}
                         </td>
                         <td className="py-3 px-3">
-                          <span
-                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] ${
-                              req.status === "PROCESSED"
-                                ? "bg-[#E8F5E9] text-[#2E7D32] border border-[#A5D6A7]"
-                                : req.status === "PENDING"
-                                ? "bg-[#FEF3C7] text-[#D97706] border border-[#FDE68A]"
-                                : "bg-[#FEE2E2] text-[#DC2626] border border-[#FECACA]"
-                            }`}
-                          >
-                            {req.status === "PROCESSED" ? (
-                              <>
-                                <CheckCircle2 className="w-3 h-3" />
-                                <span>Disbursed</span>
-                              </>
-                            ) : req.status === "PENDING" ? (
-                              <>
-                                <Clock className="w-3 h-3" />
-                                <span>Pending Approval</span>
-                              </>
-                            ) : (
-                              <>
-                                <AlertCircle className="w-3 h-3" />
-                                <span>Rejected</span>
-                              </>
-                            )}
-                          </span>
+                          {req.status === "COMPLETED" && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-[#E8F5E9] text-[#2E7D32] border border-[#A5D6A7]">
+                              <CheckCircle2 className="w-3 h-3" />
+                              <span>Disbursed</span>
+                            </span>
+                          )}
+                          {req.status === "PROCESSING" && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-blue-50 text-blue-700 border border-blue-200">
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                              <span>Processing</span>
+                            </span>
+                          )}
+                          {req.status === "APPROVED" && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-indigo-50 text-indigo-700 border border-indigo-200">
+                              <CheckCircle2 className="w-3 h-3" />
+                              <span>Approved</span>
+                            </span>
+                          )}
+                          {req.status === "PENDING" && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-[#FEF3C7] text-[#D97706] border border-[#FDE68A]">
+                              <Clock className="w-3 h-3" />
+                              <span>Pending Approval</span>
+                            </span>
+                          )}
+                          {req.status === "REJECTED" && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-[#FEE2E2] text-[#DC2626] border border-[#FECACA]">
+                              <AlertCircle className="w-3 h-3" />
+                              <span>Rejected</span>
+                            </span>
+                          )}
+                          {(req.status === "CANCELLED" || req.status === "FAILED") && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-gray-100 text-gray-700 border border-gray-300">
+                              <AlertCircle className="w-3 h-3" />
+                              <span>Failed / Cancelled</span>
+                            </span>
+                          )}
                         </td>
                         <td className="py-3 px-3 text-[#6B7280]">
-                          {req.adminNotes ? (
-                            <span className="text-gray-700">{req.adminNotes}</span>
-                          ) : req.processedAt ? (
-                            <span>Processed on {new Date(req.processedAt).toLocaleDateString()}</span>
-                          ) : (
-                            <span className="text-gray-400">—</span>
-                          )}
+                          <div className="space-y-0.5">
+                            {req.payoutReference && (
+                              <p className="text-xs font-mono font-semibold text-emerald-700">
+                                Ref: {req.payoutReference}
+                              </p>
+                            )}
+                            {req.adminNotes ? (
+                              <p className="text-gray-700">{req.adminNotes}</p>
+                            ) : req.processedAt ? (
+                              <p className="text-[11px] text-gray-500">
+                                Processed on {new Date(req.processedAt).toLocaleDateString()}
+                              </p>
+                            ) : (
+                              <span className="text-gray-400">—</span>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}

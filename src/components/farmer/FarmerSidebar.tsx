@@ -104,9 +104,9 @@ export function FarmerSidebar() {
     },
     {
       label: "History",
-      href: "/farmer/dashboard#history",
+      href: "/farmer/history",
       icon: History,
-      isActive: false,
+      isActive: pathname.startsWith("/farmer/history"),
     },
   ];
 

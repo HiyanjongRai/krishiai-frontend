@@ -27,6 +27,7 @@ import {
 import { Navbar } from "@/components/shared/layout/navbar";
 import { Footer } from "@/components/shared/layout/footer";
 import { UserAvatar } from "@/components/ui/avatar";
+import { CropAvatar } from "@/components/ui/crop-avatar";
 import { Modal } from "@/components/ui/modal";
 import { ConsultationRequestModal } from "@/components/messaging/ConsultationRequestModal";
 import { useAuth } from "@/providers/auth-provider";
@@ -34,7 +35,6 @@ import { useAuthModal } from "@/providers/auth-modal-provider";
 import { toast } from "@/lib/toast-utils";
 import { expertDirectoryService } from "@/services/expert";
 import { packageService } from "@/services/packageService";
-import { defaultVerifiedExperts } from "@/data/experts";
 import type { VerifiedExpert } from "@/types/expert-directory";
 import type { ConsultationPackage } from "@/types/payment";
 
@@ -73,25 +73,16 @@ export default function ExpertsDirectoryPage() {
   const [bookingExpert, setBookingExpert] = useState<VerifiedExpert | null>(null);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
 
-  // Load experts from API, fallback to defaultVerifiedExperts
+  // Load experts from the backend API
   useEffect(() => {
     async function loadExperts() {
       try {
         setLoading(true);
         const data = await expertDirectoryService.getExperts();
-        if (data && data.length > 0) {
-          // Merge API data with default verified list if count is low
-          const existingIds = new Set(data.map((d) => d.expertProfileId));
-          const supplementary = defaultVerifiedExperts.filter(
-            (d) => !existingIds.has(d.expertProfileId)
-          );
-          setExperts([...data, ...supplementary]);
-        } else {
-          setExperts(defaultVerifiedExperts);
-        }
+        setExperts(data ?? []);
       } catch (err) {
-        console.warn("Could not fetch experts from backend API, using verified catalog", err);
-        setExperts(defaultVerifiedExperts);
+        console.warn("Could not fetch experts from backend API", err);
+        setExperts([]);
       } finally {
         setLoading(false);
       }
@@ -499,9 +490,9 @@ export default function ExpertsDirectoryPage() {
                             {exp.verifiedCrops.slice(0, 4).map((c, idx) => (
                               <span
                                 key={idx}
-                                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-emerald-50 text-[#1B5E20] text-xs font-semibold border border-emerald-100"
+                                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-emerald-50 text-[#1B5E20] text-xs font-semibold border border-emerald-100"
                               >
-                                <span>{c.cropEmoji || "🌱"}</span>
+                                <CropAvatar name={c.cropName} imageUrl={c.cropImageUrl} emoji={c.cropEmoji} size="xs" />
                                 <span>{c.cropName}</span>
                               </span>
                             ))}
@@ -642,8 +633,8 @@ export default function ExpertsDirectoryPage() {
                       key={i}
                       className="p-2.5 rounded-xl border border-[#C8E6C9] bg-[#F1F8F1] flex items-center justify-between text-xs"
                     >
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-base">{c.cropEmoji || "🌱"}</span>
+                      <div className="flex items-center gap-2">
+                        <CropAvatar name={c.cropName} imageUrl={c.cropImageUrl} emoji={c.cropEmoji} size="sm" />
                         <div>
                           <p className="font-bold text-[#1B5E20]">{c.cropName}</p>
                           <p className="text-[10px] text-[#4B5563]">{c.expertiseArea || c.categoryName || "Specialist"}</p>

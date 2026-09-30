@@ -2,14 +2,16 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useAuth } from "@/providers/auth-provider";
 import { useToast } from "@/providers/toast-provider";
 import { farmService } from "@/services/farm";
+import { cropTaskService } from "@/services/farm/farmCropService";
 import type { FarmerDashboardResponse } from "@/types/farm";
+import type { CropTaskResponse } from "@/types/farmCrop";
 import { WeatherWidget } from "@/components/weather";
 
 import {
+  LayoutDashboard,
   Scan,
   Bot,
   Users,
@@ -19,87 +21,68 @@ import {
   Send,
   AlertTriangle,
   Sprout,
-  Sun,
-  Star,
   ChevronDown,
-  CloudRain,
   MapPin,
   Activity,
+  Layers,
+  ShieldCheck,
+  Clock,
+  History,
+  CheckCircle2,
+  ClipboardList,
+  Sparkles,
 } from "lucide-react";
-import { CropAvatar } from "@/components/ui/crop-avatar";
 
-// ─── Quixotic-Style Bar Chart Component ───────────────────────────────────────
+// ─── Mini Bar Chart Component ────────────────────────────────────────────────
 function MiniBarChart() {
-  const months = [
-    { label: "APR", value: 32, active: false },
-    { label: "MAY", value: 54, active: false },
-    { label: "JUN", value: 46, active: false },
-    { label: "JUL", value: 85, active: true, badge: "+17.8%" },
-    { label: "AUG", value: 62, active: false },
-    { label: "SEP", value: 52, active: false },
+  const bars = [
+    { label: "APR", val: 40 },
+    { label: "MAY", val: 65 },
+    { label: "JUN", val: 85 },
+    { label: "JUL", val: 55 },
+    { label: "AUG", val: 90 },
+    { label: "SEP", val: 75 },
   ];
-  const max = 85;
-
   return (
-    <div className="flex items-end gap-2.5 h-32 w-full pt-2">
-      {months.map((m) => {
-        const heightPct = (m.value / max) * 100;
-        return (
-          <div key={m.label} className="flex flex-col items-center gap-1.5 flex-1">
-            {m.badge ? (
-              <span className="text-[10px] font-bold text-white bg-[#2E7D32] px-2 py-0.5 rounded-full whitespace-nowrap shadow-xs">
-                {m.badge}
-              </span>
-            ) : (
-              <div className="h-4" />
-            )}
-            <div
-              className={`w-full rounded-full transition-all duration-300 ${
-                m.active
-                  ? "bg-[#2E7D32] shadow-sm ring-4 ring-[#2E7D32]/15"
-                  : "bg-[#E8F5E9] hover:bg-[#E8F5E9]"
-              }`}
-              style={{ height: `${heightPct}%` }}
-            />
-            <span className="text-[10px] font-semibold text-[#9CA3AF] mt-1">{m.label}</span>
-          </div>
-        );
-      })}
+    <div className="flex items-end gap-2 sm:gap-3 h-28 w-full pt-2">
+      {bars.map((item) => (
+        <div key={item.label} className="flex flex-col items-center gap-1.5 flex-1 h-full justify-end">
+          <div
+            className="w-full rounded-t-lg bg-[#2E7D32]/80 hover:bg-[#2E7D32] transition-all cursor-pointer"
+            style={{ height: `${item.val}%` }}
+            title={`${item.label}: ${item.val}% diagnosis rate`}
+          />
+          <span className="text-[10px] font-semibold text-[#9CA3AF]">{item.label}</span>
+        </div>
+      ))}
     </div>
   );
 }
 
 // ─── Smooth Area Sparkline SVG ────────────────────────────────────────────────
 function Sparkline() {
-  const points = [15, 35, 28, 55, 45, 68, 60, 82, 70, 88];
   const w = 220;
-  const h = 55;
-  const xs = points.map((_, i) => (i / (points.length - 1)) * w);
-  const ys = points.map((v) => h - (v / 100) * h);
-
-  // Smooth bezier curve
-  let d = `M ${xs[0]} ${ys[0]}`;
-  for (let i = 1; i < points.length; i++) {
-    const prevX = xs[i - 1];
-    const prevY = ys[i - 1];
-    const currX = xs[i];
-    const currY = ys[i];
-    const cx1 = prevX + (currX - prevX) / 2;
-    const cx2 = cx1;
-    d += ` C ${cx1} ${prevY}, ${cx2} ${currY}, ${currX} ${currY}`;
-  }
-  const filled = `${d} L ${w},${h} L 0,${h} Z`;
+  const h = 48;
+  const points = "0,35 40,28 80,32 120,18 160,22 200,12 220,15";
+  const filled = `M 0,35 L 40,28 L 80,32 L 120,18 L 160,22 L 200,12 L 220,15 L 220,${h} L 0,${h} Z`;
 
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-12 overflow-visible" preserveAspectRatio="none">
+    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-10 overflow-visible" preserveAspectRatio="none">
       <defs>
         <linearGradient id="farmSparkGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#2E7D32" stopOpacity="0.25" />
+          <stop offset="0%" stopColor="#2E7D32" stopOpacity="0.2" />
           <stop offset="100%" stopColor="#2E7D32" stopOpacity="0.0" />
         </linearGradient>
       </defs>
       <path d={filled} fill="url(#farmSparkGrad)" />
-      <path d={d} fill="none" stroke="#2E7D32" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <polyline
+        points={points}
+        fill="none"
+        stroke="#2E7D32"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -111,6 +94,7 @@ export function FarmerDashboardView() {
   const [chatInput, setChatInput] = useState("");
   const [chartMode, setChartMode] = useState<"Monthly" | "Annually">("Monthly");
   const [dashboardData, setDashboardData] = useState<FarmerDashboardResponse | null>(null);
+  const [pendingTasks, setPendingTasks] = useState<CropTaskResponse[]>([]);
 
   useEffect(() => {
     let active = true;
@@ -119,15 +103,34 @@ export function FarmerDashboardView() {
       .then((data) => {
         if (active) setDashboardData(data);
       })
-      .catch(() => {
-        // Silently fallback to standard layout metrics
-      });
+      .catch(() => {});
+
+    cropTaskService
+      .getAllPendingTasks()
+      .then((tasks) => {
+        if (active) setPendingTasks(tasks || []);
+      })
+      .catch(() => {});
+
     return () => {
       active = false;
     };
   }, []);
 
-  const farmerName = user?.fullName?.split(" ")[0] || "Ram";
+  const handleCompleteTask = async (taskId: number) => {
+    try {
+      await cropTaskService.markTaskStatus(taskId, "DONE");
+      setPendingTasks((prev) => prev.filter((t) => t.id !== taskId));
+      toast.success({
+        title: "Task completed!",
+        description: "Great job keeping up with your crop care schedule.",
+      });
+    } catch {
+      toast.error({ title: "Failed to update task" });
+    }
+  };
+
+  const farmerName = user?.fullName?.split(" ")[0] || "Farmer";
 
   const handleChatSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,500 +143,421 @@ export function FarmerDashboardView() {
   };
 
   return (
-    <div className="space-y-6">
-
-      {/* ─── HEADER ROW (Quixotic Style) ─────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div className="space-y-4 sm:space-y-5">
+      {/* ─── 1. PAGE HEADER (Matches 'My Farm' Standard) ───────────────────────── */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-[#E5E7EB]">
         <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-[#1F2937] flex items-center gap-2">
-            <span>Welcome Back,</span>
-            <span className="text-[#2E7D32]">{farmerName}</span>
-          </h1>
-          <p className="text-xs sm:text-sm text-[#6B7280] mt-1">
-            Real-time crop health, farm analytics, and AI diagnostic insights.
+          <div className="flex items-center gap-2">
+            <span className="p-1 rounded-lg bg-[#E8F5E9] text-[#2E7D32]">
+              <LayoutDashboard className="w-4 h-4" />
+            </span>
+            <h1 className="text-lg sm:text-xl font-bold text-[#1F2937] tracking-tight">
+              Welcome Back, <span className="text-[#2E7D32]">{farmerName}</span>
+            </h1>
+          </div>
+          <p className="text-[11px] sm:text-xs text-[#6B7280] mt-0.5">
+            Real-time crop health, farm analytics, and AI diagnostic insights across your plots.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap w-full sm:w-auto">
-          {/* Date Range Pill */}
-          <div className="flex items-center justify-between sm:justify-start gap-2 bg-white border border-[#E5E7EB] rounded-full px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs font-semibold text-[#4B5563] shadow-[0_4px_20px_-2px_#EEF0EE] cursor-pointer hover:border-[#D1D5DB] transition-colors flex-1 sm:flex-initial">
-            <div className="flex items-center gap-2 min-w-0">
-              <Calendar className="w-3.5 h-3.5 text-[#9CA3AF] shrink-0" />
-              <span className="truncate">Kharif 2081 (Jun – Sep)</span>
-            </div>
-            <ChevronDown className="w-3 h-3 text-[#9CA3AF] shrink-0" />
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          {/* Season Pill */}
+          <div className="flex items-center gap-1.5 bg-white border border-[#E5E7EB] rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#4B5563] shadow-2xs">
+            <Calendar className="w-3.5 h-3.5 text-[#9CA3AF] shrink-0" />
+            <span className="truncate">Kharif Season (2081)</span>
           </div>
 
-          {/* Primary Action Button */}
+          {/* New Crop Scan Action */}
           <Link
             href="/farmer/analysis"
-            className="flex items-center justify-center gap-2 bg-[#2E7D32] hover:bg-[#256B2A] text-white rounded-full px-4 sm:px-5 py-2 sm:py-2.5 text-xs font-bold shadow-sm transition-all active:scale-95 flex-1 sm:flex-initial min-h-[40px]"
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#2E7D32] hover:bg-[#256B2A] text-white text-xs font-bold rounded-lg shadow-xs transition-all active:scale-95 cursor-pointer whitespace-nowrap"
           >
-            <Plus className="w-3.5 h-3.5 shrink-0" />
-            <span className="whitespace-nowrap">New Crop Analysis</span>
+            <Plus className="w-3.5 h-3.5" />
+            <span>New Crop Scan</span>
           </Link>
         </div>
       </div>
 
-      {/* ─── 3-COLUMN RESPONSIVE DASHBOARD GRID ─────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-
-        {/* ════════════════════════════════════════════════════════════════════
-            LEFT COLUMN (Desktop: 3 cols, Laptop/Tablet: 4 cols)
-            ════════════════════════════════════════════════════════════════════ */}
-        <div className="lg:col-span-4 xl:col-span-3 space-y-5">
-
-          {/* Card: Hero Crop Summary (Credit-Card Style) */}
-          <div className="rounded-[24px] border border-[#E5E7EB] bg-white p-5 space-y-4 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-bold text-[#1F2937]">Crop Goal</p>
-                <p className="text-[11px] text-[#9CA3AF]">Total active harvest</p>
-              </div>
-              <Link
-                href="/farmer/crops"
-                className="w-7 h-7 rounded-full border border-[#E5E7EB] flex items-center justify-center text-[#9CA3AF] hover:text-[#2E7D32] hover:border-[#C8E6C9] transition-colors"
-              >
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-
-            {/* Rich Green Hero Card (Inspired by reference credit card surface) */}
-            <div className="bg-gradient-to-br from-[#2E7D32] to-[#388E3C] rounded-[22px] p-5 text-white shadow-md relative overflow-hidden space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] font-bold tracking-wider text-[#2E7D32] uppercase">
-                    {dashboardData?.primaryFarm ? "Primary Farm" : "Primary Harvest"}
-                  </span>
-                  <p className="text-xl font-black tracking-tight mt-0.5 truncate max-w-[170px]">
-                    {dashboardData?.primaryFarm?.farmName || "Tomato"}
-                  </p>
-                </div>
-                <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center backdrop-blur-xs">
-                  <Sprout className="w-5 h-5 text-white" />
-                </div>
-              </div>
-
-              <div>
-                <p className="text-[10px] font-semibold text-[#2E7D32] opacity-90">Field Area</p>
-                <p className="text-2xl font-black tracking-tight">
-                  {dashboardData?.primaryFarm?.area
-                    ? `${dashboardData.primaryFarm.area} ${dashboardData.primaryFarm.areaUnit.toLowerCase()}`
-                    : "1.5 Hectares"}
-                </p>
-              </div>
-
-              <div className="flex items-center justify-between pt-1 border-t border-white/20 text-[10px] text-[#2E7D32]">
-                <span className="font-mono tracking-wider truncate max-w-[140px]">
-                  {dashboardData?.primaryFarm?.location?.name || "Kathmandu Farm"}
-                </span>
-                <span>{dashboardData ? `${dashboardData.totalFarms} Farms` : "EXP: 09/81"}</span>
-              </div>
-            </div>
-
-            {/* Weekly Activity Metric */}
-            <div className="flex items-center justify-between pt-1">
-              <div>
-                <p className="text-[11px] text-[#9CA3AF] font-semibold">Active Crops</p>
-                <p className="text-xl font-black text-[#1F2937]">
-                  {dashboardData ? `${dashboardData.cropCount} Crops` : "8 Crops"}
-                </p>
-              </div>
-              <span className="px-2.5 py-1 rounded-full bg-[#E8F5E9] text-[#2E7D32] text-[10px] font-bold border border-[#C8E6C9]">
-                {dashboardData?.activeConsultations ? `${dashboardData.activeConsultations} Active Sessions` : "+12.8%"}
-              </span>
+      {/* ─── 2. METRIC CARDS ROW (Matches 'My Farm' Cards) ──────────────────────── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="rounded-xl bg-white border border-[#E5E7EB]/80 p-3.5 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Registered Farms</p>
+            <div className="w-6 h-6 rounded-lg bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center">
+              <Layers className="w-3.5 h-3.5" />
             </div>
           </div>
-
-          {/* Card: Quick Actions */}
-          <div className="rounded-[24px] border border-[#E5E7EB] bg-white p-5 space-y-3 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE]">
-            <p className="text-xs font-bold text-[#1F2937]">Quick Operations</p>
-            <div className="space-y-2">
-              <Link
-                href="/farmer/farms"
-                className="flex items-center gap-3 p-3 rounded-2xl hover:bg-[#F1F5F2] transition-colors group cursor-pointer"
-              >
-                <div className="w-9 h-9 rounded-xl bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <MapPin className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-[#1F2937]">Manage My Farms</p>
-                  <p className="text-[10px] text-[#9CA3AF] truncate">Plots, coordinates &amp; units</p>
-                </div>
-                <ArrowUpRight className="w-3.5 h-3.5 text-[#6B7280] group-hover:text-[#2E7D32] transition-colors" />
-              </Link>
-
-              <Link
-                href="/farmer/analysis"
-                className="flex items-center gap-3 p-3 rounded-2xl hover:bg-[#F1F5F2] transition-colors group cursor-pointer"
-              >
-                <div className="w-9 h-9 rounded-xl bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <Scan className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-[#1F2937]">Analyze Crop</p>
-                  <p className="text-[10px] text-[#9CA3AF] truncate">AI leaf diagnosis</p>
-                </div>
-                <ArrowUpRight className="w-3.5 h-3.5 text-[#6B7280] group-hover:text-[#2E7D32] transition-colors" />
-              </Link>
-
-              <Link
-                href="/farmer/ai-advisor"
-                className="flex items-center gap-3 p-3 rounded-2xl hover:bg-[#F1F5F2] transition-colors group cursor-pointer"
-              >
-                <div className="w-9 h-9 rounded-xl bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <Bot className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-[#1F2937]">Ask AI Advisor</p>
-                  <p className="text-[10px] text-[#9CA3AF] truncate">Farm recommendations</p>
-                </div>
-                <ArrowUpRight className="w-3.5 h-3.5 text-[#6B7280] group-hover:text-[#2E7D32] transition-colors" />
-              </Link>
-
-              <Link
-                href="/farmer/consultations"
-                className="flex items-center gap-3 p-3 rounded-2xl hover:bg-[#F1F5F2] transition-colors group cursor-pointer"
-              >
-                <div className="w-9 h-9 rounded-xl bg-[#DBEAFE] text-[#2563EB] flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <Users className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-[#1F2937]">Consult Expert</p>
-                  <p className="text-[10px] text-[#9CA3AF] truncate">Book verified specialist</p>
-                </div>
-                <ArrowUpRight className="w-3.5 h-3.5 text-[#6B7280] group-hover:text-[#2563EB] transition-colors" />
-              </Link>
-            </div>
-          </div>
+          <p className="text-xl sm:text-2xl font-bold text-[#1F2937] mt-1">
+            {dashboardData?.totalFarms ?? 1}
+          </p>
+          <p className="text-[10px] text-[#9CA3AF] mt-0.5">Active agricultural holdings</p>
         </div>
 
-        {/* ════════════════════════════════════════════════════════════════════
-            CENTER COLUMN (Desktop: 6 cols, Laptop/Tablet: 8 cols)
-            ════════════════════════════════════════════════════════════════════ */}
-        <div className="lg:col-span-8 xl:col-span-6 space-y-5">
+        <div className="rounded-xl bg-white border border-[#E5E7EB]/80 p-3.5 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Active Crops</p>
+            <div className="w-6 h-6 rounded-lg bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center">
+              <Sprout className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <p className="text-xl sm:text-2xl font-bold text-[#1F2937] mt-1">
+            {dashboardData?.cropCount ?? 6}
+          </p>
+          <p className="text-[10px] text-[#9CA3AF] mt-0.5">Under current monitoring</p>
+        </div>
 
-          {/* Card: Engagement Rate / Analysis Activity (Quixotic Center Top Card) */}
-          <div className="rounded-[20px] sm:rounded-[24px] border border-[#E5E7EB] bg-white p-4 sm:p-5 md:p-6 space-y-5 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE]">
+        <div className="rounded-xl bg-white border border-[#E5E7EB]/80 p-3.5 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Crop Vitality</p>
+            <div className="w-6 h-6 rounded-lg bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center">
+              <ShieldCheck className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <p className="text-xl sm:text-2xl font-bold text-[#2E7D32] mt-1">94.8%</p>
+          <p className="text-[10px] text-[#2E7D32] mt-0.5">Optimal health index</p>
+        </div>
+
+        <div className="rounded-xl bg-white border border-[#E5E7EB]/80 p-3.5 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Consultations</p>
+            <div className="w-6 h-6 rounded-lg bg-[#DBEAFE] text-[#2563EB] flex items-center justify-center">
+              <Users className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <p className="text-xl sm:text-2xl font-bold text-[#1F2937] mt-1">
+            {dashboardData?.activeConsultations ?? 0} Active
+          </p>
+          <p className="text-[10px] text-[#9CA3AF] mt-0.5">Agronomist sessions</p>
+        </div>
+      </div>
+
+      {/* ─── 3. BALANCED 2-COLUMN DASHBOARD GRID ──────────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+        {/* LEFT COLUMN: 7 cols */}
+        <div className="lg:col-span-7 space-y-4">
+          {/* Card: Primary Farm Hero */}
+          <div className="rounded-xl border border-[#E5E7EB] bg-white p-3.5 sm:p-4 shadow-2xs space-y-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-[#E8F5E9] flex items-center justify-center text-[#2E7D32] shrink-0">
-                  <Activity className="w-4 h-4" />
-                </div>
+              <div>
+                <p className="text-xs font-bold text-[#1F2937]">Primary Farm Overview</p>
+                <p className="text-[10px] text-[#9CA3AF]">Key plot &amp; harvest status</p>
+              </div>
+              <Link
+                href="/farmer/farms"
+                className="w-6 h-6 rounded-full border border-[#E5E7EB] flex items-center justify-center text-[#9CA3AF] hover:text-[#2E7D32] hover:border-[#C8E6C9] transition-colors"
+                title="View all farms"
+              >
+                <ArrowUpRight className="w-3 h-3" />
+              </Link>
+            </div>
+
+            {/* Emerald Gradient Card */}
+            <div className="bg-gradient-to-br from-[#2E7D32] to-[#1B5E20] rounded-xl p-4 text-white shadow-xs relative overflow-hidden space-y-2.5">
+              <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-bold text-[#1F2937]">Diagnostic Rate</p>
-                  <p className="text-[11px] text-[#9CA3AF]">Crop diagnoses this season</p>
+                  <span className="text-[9px] font-bold tracking-wider text-emerald-200 uppercase">
+                    Registered Plot
+                  </span>
+                  <p className="text-base sm:text-lg font-bold tracking-tight truncate max-w-[200px]">
+                    {dashboardData?.primaryFarm?.farmName || "Central Agricultural Plot"}
+                  </p>
+                </div>
+                <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center backdrop-blur-xs">
+                  <Sprout className="w-4 h-4 text-white" />
                 </div>
               </div>
 
-              <div className="flex items-center gap-1.5">
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                <div>
+                  <p className="text-[9px] font-semibold text-emerald-200">Parcel Area</p>
+                  <p className="text-base sm:text-lg font-bold">
+                    {dashboardData?.primaryFarm?.area
+                      ? `${dashboardData.primaryFarm.area} ${dashboardData.primaryFarm.areaUnit.toLowerCase()}`
+                      : "4.5 Ropani"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[9px] font-semibold text-emerald-200">Location</p>
+                  <p className="text-xs sm:text-sm font-semibold truncate">
+                    {dashboardData?.primaryFarm?.location?.name || "Kathmandu Valley"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-1.5 border-t border-white/20 text-[10px] text-emerald-200">
+                <span>Type: {dashboardData?.primaryFarm?.farmType || "Crop Farm"}</span>
+                <Link
+                  href="/farmer/farms"
+                  className="underline hover:text-white transition-colors"
+                >
+                  Manage Plot →
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Card: Diagnostic Rate & Activity */}
+          <div className="rounded-xl border border-[#E5E7EB] bg-white p-3.5 sm:p-4 shadow-2xs space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-lg bg-[#E8F5E9] flex items-center justify-center text-[#2E7D32]">
+                  <Activity className="w-3.5 h-3.5" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-[#1F2937]">Diagnostic Frequency</p>
+                  <p className="text-[10px] text-[#9CA3AF]">Scan activity over the season</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1">
                 {(["Monthly", "Annually"] as const).map((mode) => (
                   <button
                     key={mode}
                     onClick={() => setChartMode(mode)}
-                    className={`px-3 sm:px-3.5 py-1.5 rounded-full text-[11px] font-semibold transition-all cursor-pointer ${
+                    className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold transition-all cursor-pointer ${
                       chartMode === mode
-                        ? "bg-[#2E7D32] text-white shadow-xs"
+                        ? "bg-[#2E7D32] text-white"
                         : "text-[#6B7280] hover:bg-[#F1F5F2]"
                     }`}
                   >
                     {mode}
                   </button>
                 ))}
-                <button className="w-7 h-7 rounded-full border border-[#E5E7EB] flex items-center justify-center text-[#9CA3AF] hover:text-[#2E7D32] hover:border-[#C8E6C9] transition-colors ml-1 shrink-0">
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                </button>
               </div>
             </div>
 
             <MiniBarChart />
           </div>
 
-          {/* Card: Diagnostic History Table (Responsive Contained Table + Mobile Cards) */}
-          <div id="history" className="rounded-[20px] sm:rounded-[24px] border border-[#E5E7EB] bg-white p-4 sm:p-5 md:p-6 space-y-4 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE]">
+          {/* Card: Upcoming Crop Care Tasks */}
+          <div className="rounded-xl border border-[#E5E7EB] bg-white p-3.5 sm:p-4 shadow-2xs space-y-3">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-bold text-[#1F2937]">Diagnostic History</p>
-                <p className="text-[11px] text-[#9CA3AF]">Recent crop scan results</p>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-lg bg-[#E8F5E9] flex items-center justify-center text-[#2E7D32]">
+                  <ClipboardList className="w-3.5 h-3.5" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-[#1F2937]">Upcoming Crop Care &amp; Reminders</p>
+                  <p className="text-[10px] text-[#9CA3AF]">Smart activities scheduled across your plots</p>
+                </div>
               </div>
               <Link
-                href="/farmer/analysis"
-                className="w-7 h-7 rounded-full border border-[#E5E7EB] flex items-center justify-center text-[#9CA3AF] hover:text-[#2E7D32] hover:border-[#C8E6C9] transition-colors"
+                href="/farmer/crops"
+                className="text-[11px] font-bold text-[#2E7D32] hover:underline"
               >
-                <ArrowUpRight className="w-3.5 h-3.5" />
+                View Crops →
               </Link>
             </div>
 
-            {/* Mobile Cards View (sm:hidden) */}
-            <div className="sm:hidden space-y-2.5">
-              {[
-                { crop: "Tomato", icon: "🍅", date: "16 Jun 2025", time: "10:30 PM", status: "Successful", conf: "94.2%", color: "emerald" },
-                { crop: "Potato", icon: "🥔", date: "15 Jun 2025", time: "11:45 PM", status: "Successful", conf: "91.5%", color: "emerald" },
-                { crop: "Maize", icon: "🌽", date: "14 Jun 2025", time: "10:15 PM", status: "Review", conf: "82.4%", color: "amber" },
-                { crop: "Rice", icon: "🌾", date: "12 Jun 2025", time: "08:20 AM", status: "Successful", conf: "96.8%", color: "emerald" },
-              ].map((row) => (
-                <div key={row.crop} className="p-3 rounded-2xl bg-[#F8FAF8] border border-[#EEF0EE] flex items-center justify-between">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <CropAvatar name={row.crop} emoji={row.icon} size="sm" />
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold text-[#1F2937] truncate">{row.crop}</p>
-                      <p className="text-[10px] text-[#9CA3AF]">{row.date} · {row.time}</p>
+            {pendingTasks.length === 0 ? (
+              <div className="rounded-xl bg-[#F8FAF8] border border-dashed border-[#E5E7EB] p-3 text-center">
+                <CheckCircle2 className="w-6 h-6 text-[#2E7D32] mx-auto mb-1 opacity-80" />
+                <p className="text-xs font-bold text-[#374151]">All care tasks up to date</p>
+                <p className="text-[10px] text-[#9CA3AF] mt-0.5">
+                  Check your farm detail to generate fresh AI recommendations or schedule tasks.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {pendingTasks.slice(0, 3).map((task) => (
+                  <div
+                    key={task.id}
+                    className="flex items-center justify-between gap-2.5 p-2 rounded-xl border border-[#EEF0EE] hover:border-[#C8E6C9] bg-[#FAFCFA] transition-all"
+                  >
+                    <div className="flex items-start gap-2 min-w-0">
+                      <button
+                        type="button"
+                        onClick={() => handleCompleteTask(task.id)}
+                        className="mt-0.5 w-4 h-4 rounded-full border border-[#D1D5DB] hover:border-[#2E7D32] hover:bg-[#E8F5E9] flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                        title="Mark as completed"
+                      >
+                        <CheckCircle2 className="w-3 h-3 text-[#2E7D32] opacity-0 hover:opacity-100 transition-opacity" />
+                      </button>
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-[#1F2937] truncate">{task.title}</p>
+                        <div className="flex items-center gap-2 text-[10px] text-[#6B7280] mt-0.5">
+                          {task.cropName && (
+                            <span className="inline-flex items-center gap-0.5 font-medium text-[#2E7D32]">
+                              <span>{task.cropEmoji || "🌱"}</span>
+                              <span className="truncate max-w-[80px]">{task.cropName}</span>
+                            </span>
+                          )}
+                          {task.dueDate && (
+                            <span className="flex items-center gap-0.5 text-[#9CA3AF]">
+                              <Clock className="w-2.5 h-2.5" />
+                              <span>{task.dueDate}</span>
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-0.5 shrink-0">
-                    <span className="text-xs font-black text-[#1F2937]">{row.conf}</span>
-                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#4B5563]">
-                      <span className={`w-1.5 h-1.5 rounded-full ${row.color === "emerald" ? "bg-[#2E7D32]" : "bg-[#F59E0B]"}`} />
-                      {row.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
 
-            {/* Desktop / Tablet Table View (hidden sm:block) */}
-            <div className="hidden sm:block overflow-x-auto">
-              <table className="w-full text-left text-xs min-w-[420px]">
-                <thead>
-                  <tr className="border-b border-[#E5E7EB] text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF]">
-                    <th className="pb-3 font-semibold">Crop</th>
-                    <th className="pb-3 font-semibold">Date</th>
-                    <th className="pb-3 font-semibold">Time</th>
-                    <th className="pb-3 font-semibold">Status</th>
-                    <th className="pb-3 font-semibold text-right">Confidence</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#EEF0EE]">
-                  {[
-                    { crop: "Tomato", icon: "🍅", date: "16 Jun 2025", time: "10:30 PM", status: "Successful", conf: "94.2%", color: "emerald" },
-                    { crop: "Potato", icon: "🥔", date: "15 Jun 2025", time: "11:45 PM", status: "Successful", conf: "91.5%", color: "emerald" },
-                    { crop: "Maize", icon: "🌽", date: "14 Jun 2025", time: "10:15 PM", status: "Review", conf: "82.4%", color: "amber" },
-                    { crop: "Rice", icon: "🌾", date: "12 Jun 2025", time: "08:20 AM", status: "Successful", conf: "96.8%", color: "emerald" },
-                  ].map((row) => (
-                    <tr key={row.crop} className="hover:bg-[#F8FAF8]/70 transition-colors">
-                      <td className="py-3.5 font-bold text-[#1F2937] flex items-center gap-2.5">
-                        <CropAvatar name={row.crop} emoji={row.icon} size="xs" />
-                        <span>{row.crop}</span>
-                      </td>
-                      <td className="py-3.5 text-[#6B7280] text-[11px]">{row.date}</td>
-                      <td className="py-3.5 text-[#6B7280] text-[11px]">{row.time}</td>
-                      <td className="py-3.5">
-                        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#1F2937]">
-                          <span
-                            className={`w-2 h-2 rounded-full ${
-                              row.color === "emerald" ? "bg-[#2E7D32]" : "bg-[#F59E0B]"
-                            }`}
-                          />
-                          {row.status}
-                        </span>
-                      </td>
-                      <td className="py-3.5 text-right font-black text-[#1F2937]">{row.conf}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                    <Link
+                      href={`/farmer/farms/${task.farmId}?tab=tasks`}
+                      className="shrink-0 text-[10px] font-semibold text-[#2E7D32] bg-[#E8F5E9] hover:bg-[#C8E6C9] px-2 py-0.5 rounded-md transition-colors"
+                    >
+                      Open
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Card: Ask KrishiAI Interactive Input */}
-          <div className="rounded-[20px] sm:rounded-[24px] border border-[#E5E7EB] bg-white p-4 sm:p-5 md:p-6 space-y-3.5 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE]">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center shrink-0">
-                <Bot className="w-4 h-4" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-[#1F2937]">Ask KrishiAI Advisor</p>
-                <p className="text-[11px] text-[#9CA3AF]">Ask about crop diseases, fertilizers, or seasonal planning</p>
-              </div>
-            </div>
-
-            <form onSubmit={handleChatSubmit} className="relative">
-              <input
-                type="text"
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                placeholder="Ask KrishiAI about your crops..."
-                className="w-full py-3 pl-4 pr-12 rounded-full border border-[#E5E7EB] text-xs focus:ring-3 focus:ring-[#2E7D32]/15 focus:border-[#2E7D32] outline-none transition-all placeholder:text-[#9CA3AF]"
-              />
-              <button
-                type="submit"
-                aria-label="Send query"
-                className="w-8 h-8 rounded-full bg-[#2E7D32] hover:bg-[#256B2A] text-white flex items-center justify-center absolute right-1.5 top-1.5 transition-colors cursor-pointer shadow-xs"
+          {/* Card: Quick Operations */}
+          <div className="rounded-xl border border-[#E5E7EB] bg-white p-3.5 sm:p-4 shadow-2xs space-y-2.5">
+            <p className="text-xs font-bold text-[#1F2937]">Quick Operations</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <Link
+                href="/farmer/farms"
+                className="flex items-center gap-2.5 p-2.5 rounded-xl border border-[#E5E7EB] hover:border-[#2E7D32] hover:bg-[#F8FAF8] transition-all group"
               >
-                <Send className="w-3.5 h-3.5" />
-              </button>
-            </form>
+                <div className="w-8 h-8 rounded-lg bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center shrink-0">
+                  <Sprout className="w-4 h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold text-[#1F2937] truncate">Manage Crops &amp; Farms</p>
+                  <p className="text-[10px] text-[#9CA3AF] truncate">AI Care &amp; planting cycles</p>
+                </div>
+                <ArrowUpRight className="w-3.5 h-3.5 text-[#9CA3AF] group-hover:text-[#2E7D32] transition-colors" />
+              </Link>
+              <Link
+                href="/farmer/analysis"
+                className="flex items-center gap-2.5 p-2.5 rounded-xl border border-[#E5E7EB] hover:border-[#2E7D32] hover:bg-[#F8FAF8] transition-all group"
+              >
+                <div className="w-8 h-8 rounded-lg bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center shrink-0">
+                  <Scan className="w-4 h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold text-[#1F2937] truncate">Scan Crop Leaf</p>
+                  <p className="text-[10px] text-[#9CA3AF] truncate">AI disease diagnosis</p>
+                </div>
+                <ArrowUpRight className="w-3.5 h-3.5 text-[#9CA3AF] group-hover:text-[#2E7D32] transition-colors" />
+              </Link>
 
-            <div className="flex flex-wrap gap-2">
-              {[
-                "Why are my tomato leaves turning yellow?",
-                "How often should I water maize in dry season?",
-                "Organic solutions for potato blight",
-              ].map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setChatInput(p)}
-                  className="px-3 py-1 rounded-full bg-[#F1F5F2] hover:bg-[#E8F5E9] hover:text-[#2E7D32] text-[#4B5563] text-[10px] font-semibold transition-colors text-left cursor-pointer"
-                >
-                  {p}
-                </button>
-              ))}
+              <Link
+                href="/farmer/ai-advisor"
+                className="flex items-center gap-2.5 p-2.5 rounded-xl border border-[#E5E7EB] hover:border-[#2E7D32] hover:bg-[#F8FAF8] transition-all group"
+              >
+                <div className="w-8 h-8 rounded-lg bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center shrink-0">
+                  <Bot className="w-4 h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold text-[#1F2937] truncate">Ask AI Advisor</p>
+                  <p className="text-[10px] text-[#9CA3AF] truncate">Crop care &amp; fertilizers</p>
+                </div>
+                <ArrowUpRight className="w-3.5 h-3.5 text-[#9CA3AF] group-hover:text-[#2E7D32] transition-colors" />
+              </Link>
+
+              <Link
+                href="/farmer/experts"
+                className="flex items-center gap-2.5 p-2.5 rounded-xl border border-[#E5E7EB] hover:border-[#2E7D32] hover:bg-[#F8FAF8] transition-all group"
+              >
+                <div className="w-8 h-8 rounded-lg bg-[#DBEAFE] text-[#2563EB] flex items-center justify-center shrink-0">
+                  <Users className="w-4 h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold text-[#1F2937] truncate">Find Agronomists</p>
+                  <p className="text-[10px] text-[#9CA3AF] truncate">Consult verified experts</p>
+                </div>
+                <ArrowUpRight className="w-3.5 h-3.5 text-[#9CA3AF] group-hover:text-[#2563EB] transition-colors" />
+              </Link>
+
+              <Link
+                href="/farmer/weather"
+                className="flex items-center gap-2.5 p-2.5 rounded-xl border border-[#E5E7EB] hover:border-[#2E7D32] hover:bg-[#F8FAF8] transition-all group"
+              >
+                <div className="w-8 h-8 rounded-lg bg-[#FEF3C7] text-[#D97706] flex items-center justify-center shrink-0">
+                  <Calendar className="w-4 h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold text-[#1F2937] truncate">Weather Center</p>
+                  <p className="text-[10px] text-[#9CA3AF] truncate">Spraying feasibility</p>
+                </div>
+                <ArrowUpRight className="w-3.5 h-3.5 text-[#9CA3AF] group-hover:text-[#D97706] transition-colors" />
+              </Link>
             </div>
           </div>
         </div>
 
-        {/* ════════════════════════════════════════════════════════════════════
-            RIGHT COLUMN (Desktop: 3 cols, Laptop: full 12 cols with 2 sub-cols)
-            ════════════════════════════════════════════════════════════════════ */}
-        <div className="lg:col-span-12 xl:col-span-3 space-y-5 lg:grid lg:grid-cols-2 xl:block lg:gap-5 xl:space-y-5">
-
-          {/* Card: Farm Health Score (Quixotic Top Right Card) */}
-          <div className="rounded-[24px] border border-[#E5E7EB] bg-white p-5 space-y-3.5 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE]">
+        {/* RIGHT COLUMN: 5 cols */}
+        <div className="lg:col-span-5 space-y-4">
+          {/* Card: Farm Health Trend */}
+          <div className="rounded-xl border border-[#E5E7EB] bg-white p-3.5 sm:p-4 shadow-2xs space-y-2.5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-bold text-[#1F2937]">Farm Health Goal</p>
-                <p className="text-[11px] text-[#9CA3AF]">Total vitality score</p>
+                <p className="text-xs font-bold text-[#1F2937]">Health Trend</p>
+                <p className="text-[10px] text-[#9CA3AF]">Vitality curve past 30 days</p>
               </div>
-              <button className="w-7 h-7 rounded-full border border-[#E5E7EB] flex items-center justify-center text-[#9CA3AF] hover:text-[#2E7D32] hover:border-[#C8E6C9] transition-colors">
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            <div>
-              <p className="text-[10px] text-[#9CA3AF] font-semibold mb-0.5">Total Balance</p>
-              <p className="text-3xl font-black text-[#1F2937] tracking-tight">
-                87<span className="text-lg text-[#9CA3AF] font-semibold">/100</span>
-              </p>
+              <span className="px-2 py-0.5 rounded-full bg-[#E8F5E9] text-[#2E7D32] text-[10px] font-bold">
+                +4.2% stability
+              </span>
             </div>
 
             <Sparkline />
 
-            <div className="grid grid-cols-2 gap-2 pt-1">
+            <div className="flex items-center justify-between pt-1 text-xs">
+              <span className="text-[11px] text-[#6B7280]">Target Vitality: 95%</span>
               <Link
                 href="/farmer/analysis"
-                className="py-2.5 rounded-full bg-[#2E7D32] hover:bg-[#256B2A] text-white text-[11px] font-bold text-center transition-colors shadow-xs"
+                className="text-[11px] font-bold text-[#2E7D32] hover:underline"
               >
-                Analyze ↑
-              </Link>
-              <Link
-                href="/farmer/consultations"
-                className="py-2.5 rounded-full border border-[#E5E7EB] hover:bg-[#F8FAF8] text-[#4B5563] text-[11px] font-bold text-center transition-colors"
-              >
-                Consult ↓
+                View Diagnostics →
               </Link>
             </div>
           </div>
 
-          {/* Card: Attention Required */}
-          <div className="rounded-[24px] border border-[#E5E7EB] bg-white p-5 space-y-3 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE]">
+          {/* Card: Alerts & Action Required */}
+          <div className="rounded-xl border border-[#E5E7EB] bg-white p-3.5 sm:p-4 shadow-2xs space-y-2.5">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-bold text-[#1F2937]">Requires Action</p>
-                <p className="text-[11px] text-[#9CA3AF]">Potential crop risks</p>
-              </div>
-              <span className="px-2.5 py-0.5 rounded-full bg-[#FEF3C7] text-[#F59E0B] text-[10px] font-bold border border-[#FCD34D]">
-                +12.8%
-              </span>
+              <p className="text-xs font-bold text-[#1F2937]">Farm Advisories</p>
+              <span className="text-[10px] text-[#9CA3AF]">Real-time status</span>
             </div>
-            <p className="text-3xl font-black text-[#1F2937]">2 <span className="text-xs text-[#9CA3AF] font-semibold">crops</span></p>
 
-            <div className="space-y-2 pt-1">
-              {[
-                { crop: "Potato", issue: "Leaf blight suspected", farm: "Bhaktapur Farm" },
-                { crop: "Maize", issue: "High pest alert", farm: "Kavre Farm" },
-              ].map((item) => (
-                <div key={item.crop} className="flex items-start gap-2.5 p-2.5 rounded-xl bg-[#FEF3C7]/60 border border-[#FCD34D]">
-                  <AlertTriangle className="w-3.5 h-3.5 text-[#F59E0B]0 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-[11px] font-bold text-[#1F2937]">{item.crop} <span className="font-normal text-[#6B7280]">– {item.farm}</span></p>
-                    <p className="text-[10px] text-[#F59E0B]">{item.issue}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            {dashboardData?.notifications && dashboardData.notifications.filter((n) => !n.read).length > 0 ? (
+              <div className="space-y-1.5">
+                {dashboardData.notifications
+                  .filter((n) => !n.read)
+                  .slice(0, 2)
+                  .map((notif) => (
+                    <div
+                      key={notif.id}
+                      className="flex items-start gap-2 p-2 rounded-lg bg-[#FEF3C7]/60 border border-[#FCD34D] text-[11px] text-[#4B5563]"
+                    >
+                      <AlertTriangle className="w-3.5 h-3.5 text-[#F59E0B] shrink-0 mt-0.5" />
+                      <span>{notif.message}</span>
+                    </div>
+                  ))}
+              </div>
+            ) : (
+              <div className="rounded-lg bg-[#E8F5E9]/50 border border-[#C8E6C9] p-2.5 text-center">
+                <p className="text-xs font-bold text-[#2E7D32]">All Clear</p>
+                <p className="text-[10px] text-[#6B7280] mt-0.5">No urgent disease alerts on active plots.</p>
+              </div>
+            )}
           </div>
 
-          {/* Card: Weather Card */}
+          {/* Card: Microclimate Preview */}
           <WeatherWidget id="weather" />
 
-          {/* Card: Expert Consultations (Quixotic Avatar Stack Card) */}
-          <div className="rounded-[24px] border border-[#E5E7EB] bg-white p-5 space-y-3.5 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE]">
+          {/* Card: Diagnostic History Quick Link */}
+          <div className="rounded-xl border border-[#E5E7EB] bg-white p-3.5 sm:p-4 shadow-2xs space-y-2">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-bold text-[#1F2937]">Consultation Network</p>
-                <p className="text-[11px] text-[#9CA3AF]">Active certified experts</p>
+              <div className="flex items-center gap-1.5">
+                <History className="w-3.5 h-3.5 text-[#2E7D32]" />
+                <p className="text-xs font-bold text-[#1F2937]">Recent Scans</p>
               </div>
               <Link
-                href="/farmer/consultations"
-                className="w-7 h-7 rounded-full border border-[#E5E7EB] flex items-center justify-center text-[#9CA3AF] hover:text-[#2E7D32] hover:border-[#C8E6C9] transition-colors"
+                href="/farmer/history"
+                className="text-[11px] font-bold text-[#2E7D32] hover:underline"
               >
-                <ArrowUpRight className="w-3.5 h-3.5" />
+                Full History →
               </Link>
             </div>
-
-            {/* Quixotic-style Avatar Stack with +2 green badge */}
-            <div className="flex items-center gap-3">
-              <div className="flex -space-x-2.5">
-                {[
-                  { src: "/images/experts/expert-anil.jpg", name: "Dr. Anil Sharma" },
-                  { src: "/images/experts/expert-sita.jpg", name: "Dr. Sita Karki" },
-                  { src: "/images/experts/expert-dinesh.jpg", name: "Er. Dinesh Rai" },
-                ].map((expert, i) => (
-                  <div
-                    key={i}
-                    className="w-9 h-9 rounded-full border-2 border-white overflow-hidden bg-[#F1F5F2] relative shadow-2xs"
-                    title={expert.name}
-                  >
-                    <Image
-                      src={expert.src}
-                      alt={expert.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                ))}
-                <div className="w-9 h-9 rounded-full border-2 border-white bg-[#2E7D32] flex items-center justify-center text-[10px] font-black text-white shadow-2xs">
-                  +2
-                </div>
-              </div>
-              <p className="text-[11px] text-[#6B7280] font-medium">5 specialists ready</p>
-            </div>
-
-            <div className="space-y-2">
-              {[
-                { name: "Dr. Anil Sharma", role: "Agronomist", rating: "4.8", available: true },
-                { name: "Dr. Sita Karki", role: "Pathologist", rating: "4.7", available: true },
-              ].map((expert) => (
-                <div
-                  key={expert.name}
-                  className="flex items-center justify-between p-2.5 rounded-xl border border-[#E5E7EB] hover:border-[#C8E6C9] hover:bg-[#E8F5E9]/20 transition-all"
-                >
-                  <div>
-                    <p className="text-[11px] font-bold text-[#1F2937]">{expert.name}</p>
-                    <p className="text-[10px] text-[#9CA3AF]">{expert.role}</p>
-                  </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <div className="flex items-center gap-0.5 text-[10px] text-[#F59E0B]0 font-bold">
-                      <Star className="w-2.5 h-2.5 fill-current" />
-                      {expert.rating}
-                    </div>
-                    <div className={`flex items-center gap-1 text-[9px] font-semibold ${expert.available ? "text-[#2E7D32]" : "text-[#DC2626]"}`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${expert.available ? "bg-[#2E7D32]" : "bg-[#DC2626]"}`} />
-                      {expert.available ? "Available" : "Busy"}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <Link
-              href="/farmer/consultations"
-              className="block w-full py-2.5 rounded-full bg-[#2E7D32] hover:bg-[#256B2A] text-white text-[11px] font-bold text-center transition-colors shadow-xs"
-            >
-              Book a Consultation
-            </Link>
+            <p className="text-[11px] text-[#6B7280]">
+              Review past leaf diagnostics, severity grades, and treatment history.
+            </p>
           </div>
-
         </div>
       </div>
     </div>

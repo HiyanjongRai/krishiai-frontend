@@ -201,7 +201,7 @@ export default function ExpertConsultationsPage() {
         ) : (
           filtered.map((consultation) => {
             const statusBadge = getStatusBadge(consultation.status);
-            const farmerName = consultation.farmer.fullName;
+            const farmerName = consultation.farmer?.fullName || consultation.farmer?.displayName || "Farmer";
             const dateFormatted = new Date(consultation.createdAt).toLocaleDateString(
               undefined,
               {
@@ -259,7 +259,7 @@ export default function ExpertConsultationsPage() {
                         <span>{dateFormatted}</span>
                       </span>
                       <span className="font-mono text-[#9CA3AF]">
-                        #{consultation.id}
+                        {consultation.referenceNumber ?? `#${consultation.id}`}
                       </span>
                     </div>
                   </div>

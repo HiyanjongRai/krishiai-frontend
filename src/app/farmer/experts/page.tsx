@@ -19,11 +19,11 @@ import {
   Star,
 } from "lucide-react";
 import { UserAvatar } from "@/components/ui/avatar";
+import { CropAvatar } from "@/components/ui/crop-avatar";
 import { Modal } from "@/components/ui/modal";
 import { ConsultationRequestModal } from "@/components/messaging/ConsultationRequestModal";
 import { expertDirectoryService } from "@/services/expert";
 import { packageService } from "@/services/packageService";
-import { defaultVerifiedExperts } from "@/data/experts";
 import type { VerifiedExpert } from "@/types/expert-directory";
 import type { ConsultationPackage } from "@/types/payment";
 
@@ -65,17 +65,9 @@ export default function FarmerFindExpertsPage() {
       try {
         setLoading(true);
         const data = await expertDirectoryService.getExperts();
-        if (data && data.length > 0) {
-          const existingIds = new Set(data.map((d) => d.expertProfileId));
-          const supplementary = defaultVerifiedExperts.filter(
-            (d) => !existingIds.has(d.expertProfileId)
-          );
-          setExperts([...data, ...supplementary]);
-        } else {
-          setExperts(defaultVerifiedExperts);
-        }
+        setExperts(data ?? []);
       } catch {
-        setExperts(defaultVerifiedExperts);
+        setExperts([]);
       } finally {
         setLoading(false);
       }
@@ -220,8 +212,9 @@ export default function FarmerFindExpertsPage() {
               <p className="text-[10px] font-bold uppercase tracking-wider text-[#6B7280] mb-1.5">Crop Expertise</p>
               <div className="flex flex-wrap gap-1">
                 {exp.verifiedCrops.slice(0, 4).map((c, idx) => (
-                  <span key={idx} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-[#E8F5E9] text-[#1B5E20] text-[11px] font-semibold">
-                    {c.cropEmoji || "🌱"} {c.cropName}
+                  <span key={idx} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-[#E8F5E9] text-[#1B5E20] text-[11px] font-semibold">
+                    <CropAvatar name={c.cropName} imageUrl={c.cropImageUrl} emoji={c.cropEmoji} size="xs" />
+                    <span>{c.cropName}</span>
                   </span>
                 ))}
                 {exp.verifiedCrops.length > 4 && (
@@ -261,71 +254,156 @@ export default function FarmerFindExpertsPage() {
   }
 
   return (
-    <div className="w-full space-y-5 pb-12">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div className="w-full space-y-4 sm:space-y-5 pb-12">
+      {/* ─── 1. PAGE HEADER (Matches 'My Farm' Standard) ───────────────────────── */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-[#E5E7EB]">
         <div>
-          <h1 className="text-xl font-black text-[#1F2937] tracking-tight">Find Experts</h1>
-          <p className="text-xs text-[#6B7280] mt-0.5">Connect with verified agronomists, soil doctors, and crop specialists</p>
+          <div className="flex items-center gap-2">
+            <span className="p-1 rounded-lg bg-[#E8F5E9] text-[#2E7D32]">
+              <Award className="w-4 h-4" />
+            </span>
+            <h1 className="text-lg sm:text-xl font-bold text-[#1F2937] tracking-tight">
+              Find Agricultural Experts
+            </h1>
+          </div>
+          <p className="text-[11px] sm:text-xs text-[#6B7280] mt-0.5">
+            Connect directly with verified agronomists, soil doctors, and crop protection specialists.
+          </p>
         </div>
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#E8F5E9] border border-[#A5D6A7] text-[#2E7D32] text-xs font-bold">
-          <ShieldCheck className="w-3.5 h-3.5" /> Credential-Verified Specialists
+
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#E8F5E9] border border-[#C8E6C9] text-[#2E7D32] text-xs font-semibold shadow-2xs">
+          <ShieldCheck className="w-3.5 h-3.5" />
+          <span>Credential-Verified Specialists</span>
         </div>
       </div>
 
-      {/* Search */}
-      <div className="relative flex items-center bg-white rounded-2xl border border-[#D1D5DB] shadow-xs hover:border-[#2E7D32] focus-within:border-[#2E7D32] focus-within:ring-2 focus-within:ring-[#2E7D32]/20 transition-all p-1.5">
-        <Search className="w-4 h-4 text-[#9CA3AF] ml-3 shrink-0" />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search by name, crop (Tomato, Rice), expertise (Soil, Pest)..."
-          className="w-full px-3 py-2 text-sm bg-transparent text-[#1F2937] placeholder-[#9CA3AF] focus:outline-none"
-        />
-        {searchQuery && (
-          <button type="button" onClick={() => setSearchQuery("")} className="text-[11px] font-bold text-[#6B7280] hover:text-[#1F2937] px-2 py-1 mr-1 flex items-center gap-1 cursor-pointer">
-            <X className="w-3 h-3" /> Clear
-          </button>
-        )}
+      {/* ─── 2. METRIC CARDS ROW ──────────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="rounded-xl bg-white border border-[#E5E7EB]/80 p-3.5 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Available Experts</p>
+            <div className="w-6 h-6 rounded-lg bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center">
+              <Award className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <p className="text-xl sm:text-2xl font-bold text-[#1F2937] mt-1">{experts.length}</p>
+          <p className="text-[10px] text-[#9CA3AF] mt-0.5">Certified agronomists</p>
+        </div>
+
+        <div className="rounded-xl bg-white border border-[#E5E7EB]/80 p-3.5 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Crop Specialties</p>
+            <div className="w-6 h-6 rounded-lg bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center">
+              <Sprout className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <p className="text-xl sm:text-2xl font-bold text-[#1F2937] mt-1">15+ Crops</p>
+          <p className="text-[10px] text-[#9CA3AF] mt-0.5">Vegetables, fruits &amp; cereals</p>
+        </div>
+
+        <div className="rounded-xl bg-white border border-[#E5E7EB]/80 p-3.5 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Avg Experience</p>
+            <div className="w-6 h-6 rounded-lg bg-[#DBEAFE] text-[#2563EB] flex items-center justify-center">
+              <Clock className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <p className="text-xl sm:text-2xl font-bold text-[#1F2937] mt-1">6.5+ Yrs</p>
+          <p className="text-[10px] text-[#9CA3AF] mt-0.5">Field &amp; research experience</p>
+        </div>
+
+        <div className="rounded-xl bg-white border border-[#E5E7EB]/80 p-3.5 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Response Speed</p>
+            <div className="w-6 h-6 rounded-lg bg-[#FEF3C7] text-[#D97706] flex items-center justify-center">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <p className="text-xl sm:text-2xl font-bold text-[#1F2937] mt-1">&lt; 2 Hours</p>
+          <p className="text-[10px] text-[#9CA3AF] mt-0.5">Fast advisory turnaround</p>
+        </div>
       </div>
 
-      {/* Topic Chips */}
-      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-        {TOPIC_CHIPS.map((chip) => {
-          const isSelected = selectedTopic === chip.id;
-          return (
+      {/* ─── 3. FILTER AND SEARCH BAR (Matches 'My Farm') ──────────────────────── */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-[#E5E7EB]/80 shadow-2xs">
+        <div className="flex-1 min-w-[240px] relative">
+          <Search className="w-4 h-4 text-[#9CA3AF] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by specialist name, crop, or discipline..."
+            className="w-full text-xs sm:text-sm pl-9 pr-8 py-2 rounded-xl bg-[#F8FAF8] border border-[#E5E7EB] focus:bg-white focus:border-[#2E7D32] focus:outline-none transition-colors"
+          />
+          {searchQuery && (
             <button
-              key={chip.id}
               type="button"
-              onClick={() => setSelectedTopic(chip.id)}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap shadow-2xs ${
-                isSelected ? "bg-[#2E7D32] text-white shadow-xs" : "bg-white border border-[#E5E7EB] text-[#4B5563] hover:bg-[#F1F8F1] hover:text-[#2E7D32]"
-              }`}
+              onClick={() => setSearchQuery("")}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#1F2937] cursor-pointer"
             >
-              {chip.label}
+              <X className="w-3.5 h-3.5" />
             </button>
-          );
-        })}
+          )}
+        </div>
+
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+          <select
+            value={minExperience}
+            onChange={(e) => setMinExperience(Number(e.target.value))}
+            className="text-xs font-semibold px-3 py-2 rounded-xl bg-[#F8FAF8] border border-[#E5E7EB] text-[#4B5563] focus:outline-none focus:border-[#2E7D32] cursor-pointer"
+          >
+            {EXP_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+
+          <label className="flex items-center gap-1.5 text-xs text-[#4B5563] bg-[#F8FAF8] border border-[#E5E7EB] rounded-xl px-3 py-2 cursor-pointer whitespace-nowrap">
+            <input
+              type="checkbox"
+              checked={onlyVerifiedCrops}
+              onChange={(e) => setOnlyVerifiedCrops(e.target.checked)}
+              className="rounded border-[#D1D5DB] text-[#2E7D32] focus:ring-[#2E7D32]"
+            />
+            <span className="font-semibold text-xs">Verified Badges Only</span>
+          </label>
+
+          {hasActiveFilter && (
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="text-xs font-bold text-red-600 hover:text-red-700 underline cursor-pointer px-1 whitespace-nowrap"
+            >
+              Reset
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <div className="flex items-center gap-1.5 text-xs text-[#4B5563] bg-white border border-[#E5E7EB] rounded-xl px-3 py-2">
-          <Filter className="w-3.5 h-3.5 text-[#6B7280]" />
-          <Clock className="w-3.5 h-3.5 text-[#6B7280]" />
-          <select value={minExperience} onChange={(e) => setMinExperience(Number(e.target.value))} className="bg-transparent text-xs font-medium focus:outline-none cursor-pointer">
-            {EXP_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
+      {/* Topic Chips & Results Count */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+          {TOPIC_CHIPS.map((chip) => {
+            const isSelected = selectedTopic === chip.id;
+            return (
+              <button
+                key={chip.id}
+                type="button"
+                onClick={() => setSelectedTopic(chip.id)}
+                className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                  isSelected
+                    ? "bg-[#2E7D32] text-white shadow-2xs"
+                    : "bg-white border border-[#E5E7EB] text-[#4B5563] hover:bg-[#F8FAF8]"
+                }`}
+              >
+                {chip.label}
+              </button>
+            );
+          })}
         </div>
-        <label className="flex items-center gap-1.5 text-xs text-[#4B5563] bg-white border border-[#E5E7EB] rounded-xl px-3 py-2 cursor-pointer">
-          <input type="checkbox" checked={onlyVerifiedCrops} onChange={(e) => setOnlyVerifiedCrops(e.target.checked)} className="rounded border-[#D1D5DB] text-[#2E7D32] focus:ring-[#2E7D32]" />
-          <span className="font-medium">Verified Crop Badges Only</span>
-        </label>
-        {hasActiveFilter && (
-          <button type="button" onClick={resetFilters} className="text-xs font-bold text-red-600 hover:text-red-700 underline cursor-pointer">Reset All</button>
-        )}
-        <div className="ml-auto text-xs text-[#6B7280] font-medium">
+
+        <div className="text-xs text-[#6B7280] font-medium shrink-0">
           {loading ? (
             <span className="flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Loading...</span>
           ) : (
@@ -403,8 +481,8 @@ export default function FarmerFindExpertsPage() {
                 <div className="grid grid-cols-2 gap-2">
                   {detailExpert.verifiedCrops.map((c, i) => (
                     <div key={i} className="p-2.5 rounded-xl border border-[#C8E6C9] bg-[#F1F8F1] flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-base">{c.cropEmoji || "🌱"}</span>
+                      <div className="flex items-center gap-2">
+                        <CropAvatar name={c.cropName} imageUrl={c.cropImageUrl} emoji={c.cropEmoji} size="sm" />
                         <div>
                           <p className="font-bold text-[#1B5E20]">{c.cropName}</p>
                           <p className="text-[10px] text-[#4B5563]">{c.expertiseArea || c.categoryName || "Specialist"}</p>

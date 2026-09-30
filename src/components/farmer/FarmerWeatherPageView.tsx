@@ -205,259 +205,227 @@ export function FarmerWeatherPageView() {
   }`;
 
   return (
-    <div className="space-y-6">
-      {/* ─── Page Header ────────────────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-[#E5E7EB]/80">
+    <div className="space-y-4 sm:space-y-5">
+      {/* ─── 1. PAGE HEADER (Matches 'My Farm' Standard) ───────────────────────── */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-[#E5E7EB]">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-black uppercase tracking-[0.16em] text-[#2E7D32]">
-              Microclimate Intelligence
+            <span className="p-1 rounded-lg bg-[#E8F5E9] text-[#2E7D32]">
+              <CloudSun className="w-4 h-4" />
             </span>
-            <span className="px-2.5 py-0.5 rounded-full bg-[#E8F5E9] text-[#2E7D32] text-[10px] font-bold border border-[#C8E6C9] flex items-center gap-1.5">
+            <h1 className="text-lg sm:text-xl font-bold text-[#1F2937] tracking-tight">
+              Farm Weather &amp; Operations Center
+            </h1>
+            <span className="px-2 py-0.5 rounded-full bg-[#E8F5E9] text-[#2E7D32] text-[10px] font-bold border border-[#C8E6C9] flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D32] animate-pulse" />
-              Live Farm Radar
+              Live Radar
             </span>
           </div>
-          <h1 className="mt-1 text-2xl sm:text-3xl font-black tracking-tight text-[#1F2937]">
-            Farm Weather &amp; Operations Center
-          </h1>
-          <div className="flex flex-wrap items-center gap-2 mt-1.5 text-xs text-[#6B7280]">
-            <span className="font-bold text-[#1F2937] flex items-center gap-1">
+          <div className="flex flex-wrap items-center gap-1.5 mt-0.5 text-[11px] sm:text-xs text-[#6B7280]">
+            <span className="font-semibold text-[#1F2937] flex items-center gap-1">
               <MapPin className="w-3.5 h-3.5 text-[#2E7D32]" />
               {locationName}
             </span>
             <span>•</span>
-            <span className="font-medium text-[#4B5563]">
-              GPS: {coordinates.latitude.toFixed(2)}°N, {coordinates.longitude.toFixed(2)}°E
-            </span>
+            <span>GPS: {coordinates.latitude.toFixed(2)}°N, {coordinates.longitude.toFixed(2)}°E</span>
             <span>•</span>
-            <span className="text-[#6B7280]">Updated {data.lastUpdated}</span>
+            <span>Updated {data.lastUpdated}</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <button
             type="button"
             onClick={() => loadWeather(true)}
             disabled={refreshing}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-[#E5E7EB] hover:bg-[#F8FAF8] hover:border-[#C8E6C9] text-[#1F2937] text-xs font-bold rounded-full shadow-xs transition-all cursor-pointer disabled:opacity-60"
+            className="p-2 rounded-lg bg-white border border-[#E5E7EB] text-[#4B5563] hover:text-[#2E7D32] hover:border-[#C8E6C9] transition-colors shadow-2xs cursor-pointer disabled:opacity-60"
             title="Refresh local weather data"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-[#2E7D32]" : "text-[#6B7280]"}`} />
-            <span>{refreshing ? "Refreshing..." : "Refresh"}</span>
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-[#2E7D32]" : ""}`} />
           </button>
 
           <Link
             href="/farmer/ai-advisor?q=How does today's weather affect my crops and what tasks should I do?"
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#2E7D32] hover:bg-[#256B2A] text-white text-xs font-bold rounded-full shadow-xs transition-all active:scale-95 cursor-pointer"
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#2E7D32] hover:bg-[#256B2A] text-white text-xs font-bold rounded-lg shadow-xs transition-all active:scale-95 cursor-pointer whitespace-nowrap"
           >
-            <Bot className="w-4 h-4" />
+            <Bot className="w-3.5 h-3.5" />
             <span>Ask AI Agronomist</span>
           </Link>
         </div>
       </div>
 
-      {/* ─── "At A Glance" Plain-Language Weather Summary Card ──────────────── */}
-      <div className="rounded-[24px] border border-[#C8E6C9] bg-gradient-to-br from-[#F1F8F3] via-white to-[#E8F5E9] p-5 sm:p-6 shadow-[0_4px_24px_-2px_#E8F5E9] space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      {/* ─── 2. "AT A GLANCE" SUMMARY CARD (Compact & Clean) ──────────────────── */}
+      <div className="rounded-xl border border-[#C8E6C9] bg-gradient-to-br from-[#F1F8F3] via-white to-[#E8F5E9] p-3.5 sm:p-4 shadow-2xs space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-[#2E7D32] text-white flex items-center justify-center shrink-0">
-              <Sparkles className="w-4 h-4" />
+            <div className="w-7 h-7 rounded-lg bg-[#2E7D32] text-white flex items-center justify-center shrink-0">
+              <Sparkles className="w-3.5 h-3.5" />
             </div>
             <div>
-              <h2 className="text-sm sm:text-base font-black text-[#1F2937]">
-                Today&apos;s Farm Outlook in Plain Words
+              <h2 className="text-xs sm:text-sm font-bold text-[#1F2937]">
+                Today&apos;s Field Operations Summary
               </h2>
-              <p className="text-[11px] text-[#6B7280]">
-                Easy-to-understand guidance based on real-time microclimate conditions
+              <p className="text-[10px] text-[#6B7280]">
+                Guidance based on live satellite radar and microclimate conditions
               </p>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${tempComfort.badge}`}>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${tempComfort.badge}`}>
               {tempComfort.label}
             </span>
-            <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${rainStatus.badge}`}>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${rainStatus.badge}`}>
               {rainStatus.status}
             </span>
-            <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${windStatus.badge}`}>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${windStatus.badge}`}>
               {windStatus.status}
             </span>
           </div>
         </div>
 
         {/* Natural Language Narrative */}
-        <p className="text-xs sm:text-sm leading-relaxed text-[#374151] font-medium bg-white/80 backdrop-blur-xs p-3.5 rounded-2xl border border-[#E5E7EB]">
+        <p className="text-xs leading-relaxed text-[#374151] font-medium bg-white/90 p-2.5 sm:p-3 rounded-xl border border-[#E5E7EB]">
           {plainSummary}
         </p>
 
         {/* Quick Go / No-Go Farm Decision Badges */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {/* Spraying Badge */}
-          <div className={`p-3 rounded-xl border flex items-center gap-2.5 ${
+          <div className={`p-2.5 rounded-xl border flex items-center gap-2 ${
             canSpray ? "bg-[#E8F5E9] border-[#A5D6A7] text-[#1B5E20]" : "bg-[#FEF2F2] border-[#FCA5A5] text-[#991B1B]"
           }`}>
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
               canSpray ? "bg-[#2E7D32] text-white" : "bg-[#DC2626] text-white"
             }`}>
-              {canSpray ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : <X className="w-3.5 h-3.5 stroke-[3]" />}
+              {canSpray ? <Check className="w-3 h-3 stroke-[3]" /> : <X className="w-3 h-3 stroke-[3]" />}
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] font-bold uppercase tracking-wider opacity-75">Foliar Spraying</p>
-              <p className="text-xs font-black truncate">{canSpray ? "Safe to Spray" : "Delay Spray"}</p>
+              <p className="text-[9px] font-bold uppercase tracking-wider opacity-75">Foliar Spray</p>
+              <p className="text-xs font-bold truncate">{canSpray ? "Safe to Spray" : "Delay Spray"}</p>
             </div>
           </div>
 
           {/* Irrigation Badge */}
-          <div className={`p-3 rounded-xl border flex items-center gap-2.5 ${
+          <div className={`p-2.5 rounded-xl border flex items-center gap-2 ${
             needIrrigation ? "bg-[#E8F5E9] border-[#A5D6A7] text-[#1B5E20]" : "bg-[#FEF3C7] border-[#FCD34D] text-[#92400E]"
           }`}>
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
               needIrrigation ? "bg-[#2E7D32] text-white" : "bg-[#D97706] text-white"
             }`}>
-              <Droplets className="w-3.5 h-3.5" />
+              <Droplets className="w-3 h-3" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] font-bold uppercase tracking-wider opacity-75">Irrigation</p>
-              <p className="text-xs font-black truncate">{needIrrigation ? "Water as Usual" : "Hold Water"}</p>
+              <p className="text-[9px] font-bold uppercase tracking-wider opacity-75">Irrigation</p>
+              <p className="text-xs font-bold truncate">{needIrrigation ? "Water Plot" : "Hold Water"}</p>
             </div>
           </div>
 
           {/* Harvesting / Sun Drying Badge */}
-          <div className={`p-3 rounded-xl border flex items-center gap-2.5 ${
+          <div className={`p-2.5 rounded-xl border flex items-center gap-2 ${
             canDryCrops ? "bg-[#E8F5E9] border-[#A5D6A7] text-[#1B5E20]" : "bg-[#FEF3C7] border-[#FCD34D] text-[#92400E]"
           }`}>
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
               canDryCrops ? "bg-[#2E7D32] text-white" : "bg-[#D97706] text-white"
             }`}>
-              <Sun className="w-3.5 h-3.5" />
+              <Sun className="w-3 h-3" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] font-bold uppercase tracking-wider opacity-75">Sun Drying</p>
-              <p className="text-xs font-black truncate">{canDryCrops ? "Good Drying" : "Cover Produce"}</p>
+              <p className="text-[9px] font-bold uppercase tracking-wider opacity-75">Sun Drying</p>
+              <p className="text-xs font-bold truncate">{canDryCrops ? "Good Drying" : "Cover Produce"}</p>
             </div>
           </div>
 
           {/* Fungal & Blight Risk Badge */}
-          <div className={`p-3 rounded-xl border flex items-center gap-2.5 ${
+          <div className={`p-2.5 rounded-xl border flex items-center gap-2 ${
             !isBlightRisk ? "bg-[#E8F5E9] border-[#A5D6A7] text-[#1B5E20]" : "bg-[#FEF2F2] border-[#FCA5A5] text-[#991B1B]"
           }`}>
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
               !isBlightRisk ? "bg-[#2E7D32] text-white" : "bg-[#DC2626] text-white"
             }`}>
-              <ShieldCheck className="w-3.5 h-3.5" />
+              <ShieldCheck className="w-3 h-3" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] font-bold uppercase tracking-wider opacity-75">Crop Disease Risk</p>
-              <p className="text-xs font-black truncate">{!isBlightRisk ? "Low Disease Risk" : "Elevated Blight"}</p>
+              <p className="text-[9px] font-bold uppercase tracking-wider opacity-75">Blight Risk</p>
+              <p className="text-xs font-bold truncate">{!isBlightRisk ? "Low Risk" : "Elevated Risk"}</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ─── 4 Core Weather Parameter Cards with Easy Translations ───────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* ─── 3. 4 CORE WEATHER PARAMETER CARDS (Matches 'My Farm') ────────────── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {/* Card 1: Temperature & Comfort */}
-        <div className="rounded-[22px] border border-[#E5E7EB] bg-white p-4 sm:p-5 shadow-xs flex flex-col justify-between">
+        <div className="rounded-xl border border-[#E5E7EB]/80 bg-white p-3.5 shadow-2xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-[#6B7280]">Temperature &amp; Comfort</span>
-              <div className="w-7 h-7 rounded-lg bg-[#FEF3C7] text-[#D97706] flex items-center justify-center">
-                <Thermometer className="w-4 h-4" />
+              <span className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Temperature</span>
+              <div className="w-6 h-6 rounded-lg bg-[#FEF3C7] text-[#D97706] flex items-center justify-center">
+                <Thermometer className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="flex items-baseline gap-2 mt-2">
-              <p className="text-3xl font-black text-[#1F2937]">{current.temperature}°C</p>
-              <span className="text-xs font-bold text-[#6B7280]">
-                Feels {current.apparentTemperature}°C
-              </span>
-            </div>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-xs font-bold text-[#1F2937]">{current.condition}</span>
-              <span className="text-[#9CA3AF]">•</span>
-              <span className="text-xs text-[#DC2626] font-bold">H: {todayForecast?.maxTemp ?? "--"}°</span>
-              <span className="text-xs text-[#2563EB] font-bold">L: {todayForecast?.minTemp ?? "--"}°</span>
-            </div>
+            <p className="text-xl sm:text-2xl font-bold text-[#1F2937] mt-1">{current.temperature}°C</p>
+            <p className="text-[10px] text-[#6B7280] mt-0.5">Feels like {current.apparentTemperature}°C</p>
           </div>
-          <p className="text-[11px] text-[#6B7280] mt-3 pt-2.5 border-t border-[#F3F4F6] leading-snug">
-            {tempComfort.advice}
+          <p className="text-[10px] text-[#6B7280] mt-2 pt-1.5 border-t border-[#F3F4F6] truncate">
+            {tempComfort.label} • H: {todayForecast?.maxTemp ?? "--"}° L: {todayForecast?.minTemp ?? "--"}°
           </p>
         </div>
 
         {/* Card 2: Rain Risk & Moisture */}
-        <div className="rounded-[22px] border border-[#E5E7EB] bg-white p-4 sm:p-5 shadow-xs flex flex-col justify-between">
+        <div className="rounded-xl border border-[#E5E7EB]/80 bg-white p-3.5 shadow-2xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-[#6B7280]">Rain Chance &amp; Moisture</span>
-              <div className="w-7 h-7 rounded-lg bg-[#DBEAFE] text-[#2563EB] flex items-center justify-center">
-                <Umbrella className="w-4 h-4" />
+              <span className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Rain Chance</span>
+              <div className="w-6 h-6 rounded-lg bg-[#DBEAFE] text-[#2563EB] flex items-center justify-center">
+                <Umbrella className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="flex items-baseline gap-2 mt-2">
-              <p className="text-3xl font-black text-[#1F2937]">{rainProb}%</p>
-              <span className="text-xs font-bold text-[#6B7280]">
-                {rainSum > 0 ? `${rainSum} mm volume` : "0.0 mm (No rain)"}
-              </span>
-            </div>
-            <p className="text-xs font-bold text-[#2563EB] mt-1">{rainStatus.status}</p>
+            <p className="text-xl sm:text-2xl font-bold text-[#1F2937] mt-1">{rainProb}%</p>
+            <p className="text-[10px] text-[#2563EB] font-semibold mt-0.5">{rainStatus.status}</p>
           </div>
-          <p className="text-[11px] text-[#6B7280] mt-3 pt-2.5 border-t border-[#F3F4F6] leading-snug">
-            {rainStatus.text}
+          <p className="text-[10px] text-[#6B7280] mt-2 pt-1.5 border-t border-[#F3F4F6] truncate">
+            {rainSum > 0 ? `${rainSum} mm expected` : "Negligible rain"}
           </p>
         </div>
 
         {/* Card 3: Wind & Spray Hazard */}
-        <div className="rounded-[22px] border border-[#E5E7EB] bg-white p-4 sm:p-5 shadow-xs flex flex-col justify-between">
+        <div className="rounded-xl border border-[#E5E7EB]/80 bg-white p-3.5 shadow-2xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-[#6B7280]">Wind &amp; Spray Safety</span>
-              <div className="w-7 h-7 rounded-lg bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center">
-                <Wind className="w-4 h-4" />
+              <span className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Wind Speed</span>
+              <div className="w-6 h-6 rounded-lg bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center">
+                <Wind className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="flex items-baseline gap-2 mt-2">
-              <p className="text-3xl font-black text-[#1F2937]">{current.windSpeed} km/h</p>
-              <span className="text-xs font-bold text-[#2E7D32]">
-                Gusts {current.windGusts} km/h
-              </span>
-            </div>
-            <p className="text-xs font-semibold text-[#4B5563] mt-1">
-              Heading {getWindDirectionCardinal(current.windDirection)}
-            </p>
+            <p className="text-xl sm:text-2xl font-bold text-[#1F2937] mt-1">{current.windSpeed} km/h</p>
+            <p className="text-[10px] text-[#2E7D32] font-semibold mt-0.5">{windStatus.status}</p>
           </div>
-          <p className="text-[11px] text-[#6B7280] mt-3 pt-2.5 border-t border-[#F3F4F6] leading-snug">
-            {windStatus.text}
+          <p className="text-[10px] text-[#6B7280] mt-2 pt-1.5 border-t border-[#F3F4F6] truncate">
+            Gusts {current.windGusts} km/h • {getWindDirectionCardinal(current.windDirection).split(" ")[0]}
           </p>
         </div>
 
         {/* Card 4: Air Humidity & Plant Health */}
-        <div className="rounded-[22px] border border-[#E5E7EB] bg-white p-4 sm:p-5 shadow-xs flex flex-col justify-between">
+        <div className="rounded-xl border border-[#E5E7EB]/80 bg-white p-3.5 shadow-2xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-[#6B7280]">Air Humidity &amp; Mold</span>
-              <div className="w-7 h-7 rounded-lg bg-[#E0F2FE] text-[#0284C7] flex items-center justify-center">
-                <Droplets className="w-4 h-4" />
+              <span className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Humidity</span>
+              <div className="w-6 h-6 rounded-lg bg-[#E0F2FE] text-[#0284C7] flex items-center justify-center">
+                <Droplets className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="flex items-baseline gap-2 mt-2">
-              <p className="text-3xl font-black text-[#1F2937]">{current.relativeHumidity}%</p>
-              <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${humidityStatus.badge}`}>
-                {humidityStatus.status}
-              </span>
-            </div>
-            <p className="text-xs font-semibold text-[#4B5563] mt-1">
-              Cloud cover: {current.cloudCover}%
-            </p>
+            <p className="text-xl sm:text-2xl font-bold text-[#1F2937] mt-1">{current.relativeHumidity}%</p>
+            <p className="text-[10px] text-[#0284C7] font-semibold mt-0.5">{humidityStatus.status}</p>
           </div>
-          <p className="text-[11px] text-[#6B7280] mt-3 pt-2.5 border-t border-[#F3F4F6] leading-snug">
-            {humidityStatus.text}
+          <p className="text-[10px] text-[#6B7280] mt-2 pt-1.5 border-t border-[#F3F4F6] truncate">
+            Cloud cover: {current.cloudCover}%
           </p>
         </div>
       </div>
 
-      {/* ─── Main Content Tabs Section ───────────────────────────────────────── */}
-      <div className="rounded-[24px] border border-[#E5E7EB] bg-white p-5 sm:p-6 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] space-y-5">
+      {/* ─── 4. MAIN CONTENT TABS SECTION (Compact & Clean) ──────────────────── */}
+      <div className="rounded-xl border border-[#E5E7EB] bg-white p-4 shadow-2xs space-y-4">
         {/* Navigation Tabs */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EEF0EE] pb-3">
           <div>

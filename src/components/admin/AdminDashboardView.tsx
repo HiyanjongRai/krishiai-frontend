@@ -76,71 +76,35 @@ function getHealthIcon(service: string) {
 
 // ─── Quixotic-Style Bar Chart Component ───────────────────────────────────────
 function MiniBarChart() {
-  const months = [
-    { label: "APR", value: 38, active: false },
-    { label: "MAY", value: 58, active: false },
-    { label: "JUN", value: 52, active: false },
-    { label: "JUL", value: 92, active: true, badge: "+17.8%" },
-    { label: "AUG", value: 74, active: false },
-    { label: "SEP", value: 68, active: false },
-  ];
-  const max = 92;
-
+  // Placeholder visual until real time-series diagnostic data is available from the API
+  const placeholderBars = ["APR", "MAY", "JUN", "JUL", "AUG", "SEP"];
   return (
     <div className="flex items-end gap-2.5 h-32 w-full pt-2">
-      {months.map((m) => {
-        const heightPct = (m.value / max) * 100;
-        return (
-          <div key={m.label} className="flex flex-col items-center gap-1.5 flex-1">
-            {m.badge ? (
-              <span className="text-[10px] font-bold text-white bg-[#2E7D32] px-2 py-0.5 rounded-full whitespace-nowrap shadow-xs">
-                {m.badge}
-              </span>
-            ) : (
-              <div className="h-4" />
-            )}
-            <div
-              className={`w-full rounded-full transition-all duration-300 ${
-                m.active
-                  ? "bg-[#2E7D32] shadow-sm ring-4 ring-[#2E7D32]/15"
-                  : "bg-[#E8F5E9] hover:bg-[#C8E6C9]"
-              }`}
-              style={{ height: `${heightPct}%` }}
-            />
-            <span className="text-[10px] font-semibold text-[#9CA3AF] mt-1">{m.label}</span>
-          </div>
-        );
-      })}
+      {placeholderBars.map((label) => (
+        <div key={label} className="flex flex-col items-center gap-1.5 flex-1">
+          <div className="h-4" />
+          <div className="w-full rounded-full bg-[#E8F5E9] animate-pulse" style={{ height: "30%" }} />
+          <span className="text-[10px] font-semibold text-[#9CA3AF] mt-1">{label}</span>
+        </div>
+      ))}
     </div>
   );
 }
 
 // ─── Smooth Area Sparkline SVG ────────────────────────────────────────────────
 function Sparkline() {
-  const points = [20, 42, 36, 68, 55, 78, 72, 94, 88, 98];
+  // Flat sparkline shown until real platform health history is available
   const w = 220;
   const h = 55;
-  const xs = points.map((_, i) => (i / (points.length - 1)) * w);
-  const ys = points.map((v) => h - (v / 100) * h);
-
-  // Smooth bezier curve
-  let d = `M ${xs[0]} ${ys[0]}`;
-  for (let i = 1; i < points.length; i++) {
-    const prevX = xs[i - 1];
-    const prevY = ys[i - 1];
-    const currX = xs[i];
-    const currY = ys[i];
-    const cx1 = prevX + (currX - prevX) / 2;
-    const cx2 = cx1;
-    d += ` C ${cx1} ${prevY}, ${cx2} ${currY}, ${currX} ${currY}`;
-  }
-  const filled = `${d} L ${w},${h} L 0,${h} Z`;
+  const midY = h * 0.6;
+  const d = `M 0 ${midY} L ${w} ${midY}`;
+  const filled = `M 0 ${midY} L ${w} ${midY} L ${w} ${h} L 0 ${h} Z`;
 
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-12 overflow-visible" preserveAspectRatio="none">
       <defs>
         <linearGradient id="adminSparkGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#2E7D32" stopOpacity="0.25" />
+          <stop offset="0%" stopColor="#2E7D32" stopOpacity="0.15" />
           <stop offset="100%" stopColor="#2E7D32" stopOpacity="0.0" />
         </linearGradient>
       </defs>
@@ -242,12 +206,7 @@ export function AdminDashboardView() {
   const systemHealthList =
     stats.systemHealth && stats.systemHealth.length > 0
       ? stats.systemHealth
-      : [
-          { service: "Security & Auth RBAC", status: "Operational", operational: true, latency: "24ms" },
-          { service: "PostgreSQL Database", status: "Operational", operational: true, latency: "14ms" },
-          { service: "AI Disease Inference", status: "Operational", operational: true, latency: "140ms" },
-          { service: "API Gateway & CDN", status: "Operational", operational: true, latency: "18ms" },
-        ];
+      : [];
 
   const today = new Date();
   const dateStr = today.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
@@ -307,7 +266,7 @@ export function AdminDashboardView() {
           </div>
           <div className="flex items-center justify-between pt-1 border-t border-[#EEF0EE]">
             <span className="px-2 py-0.5 rounded-full bg-[#E8F5E9] text-[#2E7D32] text-[10px] font-bold border border-[#C8E6C9]">
-              +{stats.newFarmersThisMonth || 14} this month
+              +{stats.newFarmersThisMonth || 0} this month
             </span>
             <Link
               href="/admin/users"
@@ -403,7 +362,7 @@ export function AdminDashboardView() {
           </div>
           <div className="flex items-center justify-between pt-1 border-t border-[#EEF0EE]">
             <span className="px-2 py-0.5 rounded-full bg-[#EEF2FF] text-[#4F46E5] text-[10px] font-bold border border-[#C7D2FE]">
-              +18.4% Throughput
+              AI Diagnostics
             </span>
             <Link
               href="/admin/crops"
@@ -473,7 +432,7 @@ export function AdminDashboardView() {
                 <p className="text-xl font-black text-[#1F2937]">{stats.activeFarmers} Active</p>
               </div>
               <span className="px-2.5 py-1 rounded-full bg-[#E8F5E9] text-[#2E7D32] text-[10px] font-bold border border-[#C8E6C9]">
-                +15.2% active
+                {stats.activeFarmers} active
               </span>
             </div>
           </div>
@@ -600,16 +559,16 @@ export function AdminDashboardView() {
 
             <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#EEF0EE] text-center">
               <div>
-                <p className="text-[10px] font-semibold text-[#9CA3AF]">Monthly Volume</p>
+                <p className="text-[10px] font-semibold text-[#9CA3AF]">Total Analyses</p>
                 <p className="text-xs sm:text-sm font-black text-[#1F2937]">{stats.cropAnalyses.toLocaleString()}</p>
               </div>
               <div>
-                <p className="text-[10px] font-semibold text-[#9CA3AF]">Accuracy Rate</p>
-                <p className="text-xs sm:text-sm font-black text-[#2E7D32]">98.6%</p>
+                <p className="text-[10px] font-semibold text-[#9CA3AF]">Verified Experts</p>
+                <p className="text-xs sm:text-sm font-black text-[#2E7D32]">{stats.verifiedExperts}</p>
               </div>
               <div>
-                <p className="text-[10px] font-semibold text-[#9CA3AF]">Avg Latency</p>
-                <p className="text-xs sm:text-sm font-black text-[#1F2937]">1.2s</p>
+                <p className="text-[10px] font-semibold text-[#9CA3AF]">Active Farmers</p>
+                <p className="text-xs sm:text-sm font-black text-[#1F2937]">{stats.activeFarmers.toLocaleString()}</p>
               </div>
             </div>
           </div>
@@ -835,7 +794,11 @@ export function AdminDashboardView() {
             <div>
               <p className="text-[10px] text-[#9CA3AF] font-semibold mb-0.5">Uptime &amp; Vitality</p>
               <p className="text-3xl font-black text-[#1F2937] tracking-tight">
-                99.8<span className="text-lg text-[#9CA3AF] font-semibold">%</span>
+                {stats.allSystemsOperational ? (
+                  <><span>OK</span><span className="text-lg text-[#9CA3AF] font-semibold ml-1">All Systems</span></>
+                ) : (
+                  <><span className="text-[#F59E0B]">Degraded</span><span className="text-lg text-[#9CA3AF] font-semibold ml-1">Check Logs</span></>
+                )}
               </p>
             </div>
 
@@ -931,7 +894,7 @@ export function AdminDashboardView() {
             </div>
 
             <div className="space-y-2 pt-1">
-              {systemHealthList.map((svc) => {
+              {systemHealthList.length > 0 ? systemHealthList.map((svc) => {
                 const Icon = getHealthIcon(svc.service);
                 return (
                   <div
@@ -958,7 +921,11 @@ export function AdminDashboardView() {
                     </div>
                   </div>
                 );
-              })}
+              }) : (
+                <div className="p-3 rounded-xl bg-[#F8FAF8] border border-[#EEF0EE] text-center">
+                  <p className="text-[11px] text-[#9CA3AF] font-medium">No telemetry data available</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

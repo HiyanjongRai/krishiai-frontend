@@ -96,8 +96,9 @@ async function apiFetch<T>(
   isRetry = false
 ): Promise<T> {
   const token = tokenStore.get();
+  const isFormData = typeof FormData !== "undefined" && options.body instanceof FormData;
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
     ...(options.headers as Record<string, string>),
   };
 
@@ -229,4 +230,10 @@ export const api = {
 
   delete: <T>(path: string) =>
     apiFetch<T>(path, { method: "DELETE" }),
+
+  upload: <T>(path: string, formData: FormData) =>
+    apiFetch<T>(path, {
+      method: "POST",
+      body: formData,
+    }),
 };

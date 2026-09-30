@@ -18,7 +18,7 @@ export default function FarmerLayout({
           <Navbar />
 
           {/* Main Container: Slim Floating Sidebar + Content */}
-          <div className="w-full max-w-[1720px] mx-auto px-3 sm:px-5 lg:px-6 xl:px-8 py-4 sm:py-5 pb-24 lg:pb-8">
+          <div className="w-full max-w-[1440px] mx-auto px-3 sm:px-5 lg:px-6 py-4 sm:py-5 pb-24 lg:pb-8">
             <div className="flex gap-4 sm:gap-5 items-start">
               {/* Slim Icon Rail Sidebar */}
               <FarmerSidebar />

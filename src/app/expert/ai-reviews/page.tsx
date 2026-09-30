@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import {
@@ -31,55 +31,6 @@ interface DiagnosticReview {
   expertComment?: string;
 }
 
-const MOCK_REVIEWS: DiagnosticReview[] = [
-  {
-    id: "1",
-    farmerName: "Ram Bahadur Thapa",
-    cropName: "Tomato",
-    cropEmoji: "🍅",
-    aiDiagnosis: "Early Blight (Alternaria solani)",
-    aiConfidence: 87,
-    farmerNote: "Leaves started yellowing and showing brown spots 3 days ago after heavy rain.",
-    submittedAt: "2026-09-12T08:30:00Z",
-    status: "PENDING",
-  },
-  {
-    id: "2",
-    farmerName: "Sita Devi Sharma",
-    cropName: "Potato",
-    cropEmoji: "🥔",
-    aiDiagnosis: "Late Blight (Phytophthora infestans)",
-    aiConfidence: 72,
-    farmerNote: "Dark spots on leaves, plant seems to be wilting from the base.",
-    submittedAt: "2026-09-11T14:00:00Z",
-    status: "AGREED",
-    expertComment: "Confirmed. Apply copper-based fungicide immediately and ensure good drainage.",
-  },
-  {
-    id: "3",
-    farmerName: "Hari Prasad Koirala",
-    cropName: "Rice",
-    cropEmoji: "🌾",
-    aiDiagnosis: "Bacterial Leaf Blight",
-    aiConfidence: 55,
-    farmerNote: "Water-soaked streaks along leaf edges turning yellow.",
-    submittedAt: "2026-09-10T09:15:00Z",
-    status: "DISAGREED",
-    expertComment: "This appears to be Sheath Blight, not Bacterial Leaf Blight. Recommend validamycin treatment.",
-  },
-  {
-    id: "4",
-    farmerName: "Gita Kumari Poudel",
-    cropName: "Maize",
-    cropEmoji: "🌽",
-    aiDiagnosis: "Fall Armyworm infestation",
-    aiConfidence: 91,
-    farmerNote: "Holes in leaves, frass visible in whorls of young plants.",
-    submittedAt: "2026-09-09T16:45:00Z",
-    status: "ESCALATED",
-  },
-];
-
 const statusConfig: Record<ReviewStatus, { label: string; color: string; bgColor: string; borderColor: string; icon: React.ReactNode }> = {
   PENDING: { label: "Awaiting Review", color: "text-[#F59E0B]", bgColor: "bg-[#FEF3C7]", borderColor: "border-[#FCD34D]", icon: <Clock className="w-3.5 h-3.5" /> },
   AGREED: { label: "AI Confirmed", color: "text-[#2E7D32]", bgColor: "bg-[#E8F5E9]", borderColor: "border-[#A5D6A7]", icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
@@ -88,13 +39,13 @@ const statusConfig: Record<ReviewStatus, { label: string; color: string; bgColor
 };
 
 export default function ExpertAIReviewsPage() {
-  const [reviews, setReviews] = useState<DiagnosticReview[]>(MOCK_REVIEWS);
+  // TODO: Replace with real API call when /v1/expert/ai-reviews endpoint is available
+  const [reviews, setReviews] = useState<DiagnosticReview[]>([]);
   const [filterStatus, setFilterStatus] = useState<ReviewStatus | "ALL">("ALL");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [commentDraft, setCommentDraft] = useState<Record<string, string>>({});
 
   const filtered = filterStatus === "ALL" ? reviews : reviews.filter((r) => r.status === filterStatus);
-
   const pendingCount = reviews.filter((r) => r.status === "PENDING").length;
 
   const handleAction = (id: string, action: "AGREED" | "DISAGREED" | "ESCALATED") => {
@@ -175,6 +126,7 @@ export default function ExpertAIReviewsPage() {
           <div className="text-center py-10 rounded-xl border border-dashed border-[#E5E7EB] bg-white">
             <Brain className="w-10 h-10 text-[#9CA3AF] mx-auto mb-3" />
             <p className="text-sm font-semibold text-[#4B5563]">No reviews in this category</p>
+            <p className="text-xs text-[#9CA3AF] mt-1">AI diagnostic review submissions will appear here.</p>
           </div>
         ) : (
           filtered.map((review) => {
@@ -239,7 +191,6 @@ export default function ExpertAIReviewsPage() {
                 {/* Expanded Panel */}
                 {isExpanded && (
                   <div className="border-t border-[#EEF0EE] bg-[#F8FAF8] p-4 sm:p-5 space-y-4">
-                    {/* Farmer Note */}
                     <div>
                       <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#6B7280] mb-1.5">Farmer&apos;s Observation</h4>
                       <p className="text-xs sm:text-sm text-[#4B5563] bg-white border border-[#E5E7EB] rounded-lg p-3 leading-relaxed">
@@ -247,7 +198,6 @@ export default function ExpertAIReviewsPage() {
                       </p>
                     </div>
 
-                    {/* Expert Comment */}
                     {review.status === "PENDING" ? (
                       <div>
                         <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#6B7280] mb-1.5">Your Expert Comment (optional)</h4>
@@ -269,7 +219,6 @@ export default function ExpertAIReviewsPage() {
                       </div>
                     ) : null}
 
-                    {/* Action Buttons */}
                     {review.status === "PENDING" && (
                       <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-1">
                         <button

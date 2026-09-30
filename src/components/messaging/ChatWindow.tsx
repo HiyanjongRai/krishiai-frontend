@@ -14,6 +14,7 @@ import { MessageBubble } from './MessageBubble';
 import { TypingIndicator } from './TypingIndicator';
 import { ImageUploadButton } from './ImageUploadButton';
 import { ConsultationStatusBanner } from './ConsultationStatusBanner';
+import { ConsultationDossierCard } from './ConsultationDossierCard';
 import { useConversation } from '@/hooks/useConversation';
 import { useConsultation } from '@/hooks/useConsultation';
 import { useAuth } from '@/providers/auth-provider';
@@ -245,7 +246,7 @@ export function ChatWindow({
           <div className="relative">
             <UserAvatar
               src={otherParticipant?.profileImageUrl}
-              name={otherParticipant?.fullName ?? title}
+              name={otherParticipant?.fullName || otherParticipant?.displayName || title || "User"}
               size="md"
               className="ring-2 ring-[#E8F5E9]"
             />
@@ -262,7 +263,7 @@ export function ChatWindow({
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <h2 className="text-sm sm:text-base font-bold text-[#1F2937] truncate">
-                {otherParticipant?.fullName ?? title ?? 'Consultation Chat'}
+                {otherParticipant?.fullName || otherParticipant?.displayName || title || 'Consultation Chat'}
               </h2>
               {otherParticipant?.role === 'ROLE_EXPERT' && (
                 <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-[#E8F5E9] text-[#2E7D32] text-[10px] font-bold border border-[#A5D6A7]">
@@ -297,6 +298,17 @@ export function ChatWindow({
           actionLoading={consultationActionLoading}
         />
       )}
+
+      {/* ─── AI Diagnostic Dossier Banner (if report/description present) ──── */}
+      {consultation?.description && (
+        <ConsultationDossierCard
+          subject={consultation.subject}
+          cropName={consultation.cropName}
+          description={consultation.description}
+          farmerName={consultation.farmer?.fullName || 'Farmer'}
+        />
+      )}
+
 
       {/* ─── Message List Container ────────────────────────────────────────── */}
       <div

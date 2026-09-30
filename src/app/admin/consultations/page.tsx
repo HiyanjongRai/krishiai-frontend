@@ -27,13 +27,11 @@ export default function AdminConsultationsPage() {
     setTimeout(() => setIsRefreshing(false), 600);
   };
 
-  const consultations = [
-    { id: "CNS-1048", farmer: "Ram Bahadur Thapa", expert: "Dr. Anish Sharma", domain: "Paddy Blight", type: "VIDEO", status: "LIVE", duration: "12m 45s", rating: "Pending", date: "Just now" },
-    { id: "CNS-1047", farmer: "Sita Kumari Rai", expert: "Prof. Gita Karki", domain: "Tomato Wilt", type: "AUDIO", status: "COMPLETED", duration: "18m 10s", rating: "5.0 ★", date: "24 min ago" },
-    { id: "CNS-1046", farmer: "Dhaniram Chaudhary", expert: "Bikash Adhikari", domain: "Maize Borer", type: "CHAT", status: "COMPLETED", duration: "09m 30s", rating: "4.8 ★", date: "1 hour ago" },
-    { id: "CNS-1045", farmer: "Hari Prasad Poudel", expert: "Dr. Anish Sharma", domain: "Potato Rot", type: "VIDEO", status: "FLAGGED", duration: "25m 00s", rating: "3.2 ★", date: "3 hours ago" },
-    { id: "CNS-1044", farmer: "Maya Devi Gurung", expert: "Sunita Shrestha", domain: "Citrus Canker", type: "AUDIO", status: "COMPLETED", duration: "14m 20s", rating: "5.0 ★", date: "Yesterday" },
-  ];
+  // TODO: Replace with real API call when /v1/admin/consultations endpoint is available
+  const consultations: {
+    id: string; farmer: string; expert: string; domain: string;
+    type: string; status: string; duration: string; rating: string; date: string;
+  }[] = [];
 
   const filtered = consultations.filter((c) => {
     const matchesTab = activeTab === "ALL" || c.status === activeTab;
@@ -77,10 +75,8 @@ export default function AdminConsultationsPage() {
               <MessagesSquare className="h-4 w-4" />
             </span>
           </div>
-          <p className="mt-3 text-3xl font-black text-[#1F2937] tracking-tight">1,480</p>
-          <p className="mt-1 text-xs text-[#2E7D32] font-medium flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D32]" /> All channels recorded
-          </p>
+          <p className="mt-3 text-3xl font-black text-[#9CA3AF] tracking-tight">&mdash;</p>
+          <p className="mt-1 text-xs text-[#9CA3AF] font-medium">Data loading from backend</p>
         </div>
 
         <div className="rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:-translate-y-0.5">
@@ -90,10 +86,8 @@ export default function AdminConsultationsPage() {
               <Headphones className="h-4 w-4" />
             </span>
           </div>
-          <p className="mt-3 text-3xl font-black text-[#1F2937] tracking-tight">18</p>
-          <p className="mt-1 text-xs text-[#2563EB] font-medium flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB] animate-pulse" /> Active audio/video calls
-          </p>
+          <p className="mt-3 text-3xl font-black text-[#9CA3AF] tracking-tight">&mdash;</p>
+          <p className="mt-1 text-xs text-[#9CA3AF] font-medium">Active audio/video calls</p>
         </div>
 
         <div className="rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:-translate-y-0.5">
@@ -103,10 +97,8 @@ export default function AdminConsultationsPage() {
               <Clock3 className="h-4 w-4" />
             </span>
           </div>
-          <p className="mt-3 text-3xl font-black text-[#1F2937] tracking-tight">14.2 m</p>
-          <p className="mt-1 text-xs text-[#6B7280] font-medium flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" /> First expert reply in 4m
-          </p>
+          <p className="mt-3 text-3xl font-black text-[#9CA3AF] tracking-tight">&mdash;</p>
+          <p className="mt-1 text-xs text-[#9CA3AF] font-medium">First expert reply time</p>
         </div>
 
         <div className="rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_4px_20px_-2px_#EEF0EE,0_2px_6px_-1px_#EEF0EE] transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:-translate-y-0.5">
@@ -116,10 +108,8 @@ export default function AdminConsultationsPage() {
               <Star className="h-4 w-4" />
             </span>
           </div>
-          <p className="mt-3 text-3xl font-black text-[#1F2937] tracking-tight">4.9 / 5.0</p>
-          <p className="mt-1 text-xs text-[#2E7D32] font-medium flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D32]" /> 98% positive reviews
-          </p>
+          <p className="mt-3 text-3xl font-black text-[#9CA3AF] tracking-tight">&mdash;</p>
+          <p className="mt-1 text-xs text-[#9CA3AF] font-medium">Average rating score</p>
         </div>
       </div>
 
@@ -171,6 +161,13 @@ export default function AdminConsultationsPage() {
         </div>
 
         <div className="overflow-x-auto">
+          {filtered.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <MessagesSquare className="w-10 h-10 text-[#9CA3AF] mb-3" />
+              <p className="text-sm font-semibold text-[#4B5563]">No consultation sessions found</p>
+              <p className="text-xs text-[#9CA3AF] mt-1">Consultation data will appear here once the monitoring endpoint is connected.</p>
+            </div>
+          ) : (
           <table className="w-full text-left text-xs text-[#4B5563]">
             <thead className="border-b border-[#E5E7EB] bg-[#F8FAF8] text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF]">
               <tr>
@@ -227,6 +224,7 @@ export default function AdminConsultationsPage() {
               ))}
             </tbody>
           </table>
+          )}
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { api, tokenStore, ApiError } from "@/lib/api";
-import { loginUser, registerUser } from "@/lib/auth";
+import { loginUser, registerExpertUser } from "@/lib/auth";
 import { uploadProfileImage } from "@/services/media/mediaService";
 import type { ExpertApplication } from "@/types/expert-application";
 
@@ -47,12 +47,11 @@ export async function submitFullExpertApplication(application: ExpertApplication
     const trimmedFullName = (application.account.fullName || "").trim();
 
     try {
-      await registerUser({
+      await registerExpertUser({
         email: application.account.email,
         password: application.account.password,
         fullName: trimmedFullName || "Expert User",
         phone: application.account.phone.replace(/[\s-]/g, ""),
-        role: "ROLE_EXPERT",
       });
     } catch (err: unknown) {
       if (!(err instanceof ApiError) || err.status !== 409) throw err;

@@ -68,7 +68,7 @@ export interface RegisterRequest {
   password: string;
   fullName: string;
   phone?: string;
-  role: UserRole;
+  role?: UserRole;
 }
 
 // Mirrors Java class: com.krishiai.common.response.ApiResponse<T>

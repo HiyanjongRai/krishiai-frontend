@@ -75,7 +75,7 @@ export default function ExpertConsultationDetailPage() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-base sm:text-lg font-bold text-[#1F2937]">
-                {consultation.subject || `Inquiry #${consultation.id}`}
+                {consultation.subject || `Inquiry ${consultation.referenceNumber ?? `#${consultation.id}`}`}
               </h1>
               <span
                 className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
@@ -92,7 +92,7 @@ export default function ExpertConsultationDetailPage() {
               </span>
             </div>
             <p className="text-xs text-[#6B7280]">
-              Farmer: {consultation.farmer.fullName}
+              Farmer: {consultation.farmer.fullName} · <span className="font-mono">{consultation.referenceNumber ?? `#${consultation.id}`}</span>
             </p>
           </div>
         </div>

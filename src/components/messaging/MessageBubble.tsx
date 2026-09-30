@@ -97,7 +97,7 @@ export function MessageBubble({
         {!isCurrentUser && (
           <UserAvatar
             src={message.sender.profileImageUrl}
-            name={message.sender.fullName}
+            name={message.sender.fullName || message.sender.displayName || 'User'}
             size="sm"
             className="mb-0.5 ring-2 ring-white shadow-xs"
           />
@@ -113,7 +113,7 @@ export function MessageBubble({
           {!isCurrentUser && showSenderName && (
             <div className="flex items-center gap-1.5 ml-1 mb-1 text-xs">
               <span className="font-semibold text-[#1F2937]">
-                {message.sender.fullName}
+                {message.sender.fullName || message.sender.displayName || 'User'}
               </span>
               {message.sender.role === 'ROLE_EXPERT' && (
                 <span className="px-1.5 py-0.5 rounded-sm bg-[#E8F5E9] text-[#2E7D32] text-[10px] font-bold border border-[#A5D6A7]">
